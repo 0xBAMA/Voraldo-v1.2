@@ -147,12 +147,10 @@ void engine::create_window()
 
     cout << "creating window...";
 
-    // window = SDL_CreateWindow( "OpenGL Window", 50, 50, total_screen_width-100, total_screen_height-100, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS );
-    window = SDL_CreateWindow( "OpenGL Window", 0, 0, total_screen_width, total_screen_height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE );
+    window = SDL_CreateWindow( "Voraldo v1.2", 0, 0, total_screen_width, total_screen_height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS );
     SDL_ShowWindow(window);
 
     cout << "done." << endl;
-
 
     cout << "setting up OpenGL context...";
     // OpenGL 4.3 + GLSL version 430
@@ -169,11 +167,11 @@ void engine::create_window()
 
     if(gl3wInit() != 0)
     {
-        fprintf(stderr, "Failed to initialize OpenGL loader!\n");
+        fprintf(stderr, "\n\nFailed to initialize OpenGL loader!\n\n");
     }
         
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_LINE_SMOOTH);
 
     glPointSize(3.0);
     glEnable(GL_BLEND);
@@ -187,29 +185,23 @@ void engine::create_window()
     // enable docking
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-
-    // adds a font, as default
+    // adds a font, as default - otherwise it uses the default ImGUI font
     // io.Fonts->AddFontFromFileTTF("resources/fonts/star_trek/titles/Jefferies.ttf", 15);
-    // io.Fonts->AddFontFromFileTTF("resources/fonts/star_trek/titles/TNG_Title.ttf", 16);
-
-
-    ImGui::StyleColorsDark();
 
     // Setup Platform/Renderer bindings
     ImGui_ImplSDL2_InitForOpenGL(window, GLcontext);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    clear_color = ImVec4(75.0f/255.0f, 75.0f/255.0f, 75.0f/255.0f, 0.5f); // initial value for clear color
-
-    // really excited by the fact imgui has an hsv picker to set this
-    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+    // set OpenGL clear color
+    GPU_Data.clear_color = glm::vec4(10.0f/255.0f, 10.0f/255.0f, 10.0f/255.0f, 1.0f); // initial value for clear color
+    glClearColor(GPU_Data.clear_color.x, GPU_Data.clear_color.y, GPU_Data.clear_color.z, GPU_Data.clear_color.w);
     glClear( GL_COLOR_BUFFER_BIT );
     SDL_GL_SwapWindow( window );
 
     cout << "done." << endl;
 
-    // #define FPS_HISTORY_SIZE 95
-    // fps_history.resize(FPS_HISTORY_SIZE);   //initialize the array of fps values
+    #define FPS_HISTORY_SIZE 95
+    fps_history.resize(FPS_HISTORY_SIZE);   //initialize the array of fps values
 
     ImVec4* colors = ImGui::GetStyle().Colors;
 
@@ -268,6 +260,37 @@ void engine::create_window()
     style.WindowRounding = 3;
 }
 
+
+void engine::gl_setup()
+{
+    // some info on your current platform
+    const GLubyte *renderer = glGetString( GL_RENDERER ); // get renderer string
+    const GLubyte *version = glGetString( GL_VERSION );  // version as a string
+    printf( "Renderer: %s\n", renderer );
+    printf( "OpenGL version supported %s\n\n\n", version );
+
+    GPU_Data.screen_width = total_screen_width;
+    GPU_Data.screen_height = total_screen_height;
+
+    GPU_Data.init(); // wrapper for all the GPU-side setup
+
+    SDL_ShowWindow(window); // setup completed, show the window and start rendering  
+}
+
+
+static void HelpMarker(const char* desc)
+{
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
+
 void engine::quit_conf(bool *open)
 {
     if(*open)
@@ -300,241 +323,6 @@ void engine::quit_conf(bool *open)
     }
 }
 
-
-void engine::gl_setup()
-{
-    // some info on your current platform
-    const GLubyte *renderer = glGetString( GL_RENDERER ); // get renderer string
-    const GLubyte *version = glGetString( GL_VERSION );  // version as a string
-    printf( "Renderer: %s\n", renderer );
-    printf( "OpenGL version supported %s\n\n\n", version );
-
-
-
-    // THIS ALL MOVES TO GPU_DATA CLASS
-    // create the shader for the triangles to cover the screen
-    display_shader = Shader("resources/engine_code/shaders/blit.vs.glsl", "resources/engine_code/shaders/blit.fs.glsl").Program;
-    
-    std::vector<glm::vec3> points;
-    points.clear();
-    
-    // based on this, one triangle is significantly faster than two https://michaldrobot.com/2014/04/01/gcn-execution-patterns-in-full-screen-passes/
-    points.push_back(glm::vec3(-1,-1,0.5)); // A
-    points.push_back(glm::vec3( 3,-1,0.5)); // B
-    points.push_back(glm::vec3(-1, 3,0.5)); // C
-
-    // vao, vbo
-    cout << "  setting up vao, vbo for display geometry...........";
-    glGenVertexArrays( 1, &display_vao );
-    glBindVertexArray( display_vao );
-
-    glGenBuffers( 1, &display_vbo );
-    glBindBuffer( GL_ARRAY_BUFFER, display_vbo );
-    cout << "done." << endl;
-
-    // buffer the data
-    cout << "  buffering vertex data..............................";
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * points.size(), NULL, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * points.size(), &points[0]);
-    cout << "done." << endl;
-
-    // set up attributes
-    cout << "  setting up attributes in display shader............";
-    GLuint points_attrib = glGetAttribLocation(display_shader, "vPosition");
-    glEnableVertexAttribArray(points_attrib);
-    glVertexAttribPointer(points_attrib, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*) (static_cast<const char*>(0) + (0)));
-    cout << "done." << endl;
-
-    // replace this with real image data
-    std::vector<unsigned char> image_data;
-    // image_data.resize(WIDTH*HEIGHT*4);
-    image_data.resize(total_screen_width*total_screen_height*SSFACTOR*SSFACTOR*4);
-
-    // fill with random values
-    std::default_random_engine gen;
-    std::uniform_int_distribution<unsigned char> dist(150,255);
-    std::uniform_int_distribution<unsigned char> dist2(12,45);
-    PerlinNoise p;
-
-    for(auto it = image_data.begin(); it != image_data.end(); it++)
-    {
-        int index = (it-image_data.begin());
-        float noise = std::clamp(std::abs(p.noise((index/(WIDTH))*0.003, (index%(4*WIDTH))*0.003, 0.0)-0.3 +
-                                          p.noise((index/(WIDTH))*0.006, (index%(4*WIDTH))*0.006, 0.2)-0.25 +
-                                          p.noise((index/(WIDTH))*0.012, (index%(4*WIDTH))*0.012, 0.25)-0.15)/1.618, 0., 1.);
-
-        unsigned char rxor = (unsigned char)((index/(WIDTH))%256) ^ (unsigned char)((index%(4*WIDTH))%256);
-
-        switch((index)%4)
-        {
-            case 3:
-                *it = 255; // alpha channels
-                break;
-
-            case 2:
-                *it = (index%(WIDTH*3) < WIDTH) ? 36 - dist2(gen) : 0;
-                break;
-
-            case 1:
-                *it = noise > 0.35 ? noise*0.2*(rxor) : noise*dist(gen);
-                break;
-
-            case 0:
-                *it = noise < 0.54 ? noise*0.75*(rxor) : noise*dist(gen);
-                break;
-
-            default:
-                break;
-        }
-
-        // *it = ((index) % 4 == 3) ? 255 : noise < 0.56 ? noise * 0.75 * (3-(index%4)) * rxor : noise*dist(gen); // alpha channels get 255, other colors get random
-    }
-
-    // create the image textures
-    glGenTextures(1, &display_texture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_RECTANGLE, display_texture);
-
-    // texture parameters
-    glTexParameterf(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    // buffer the image data to the GPU
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_RECTANGLE, display_texture);
-    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA8UI, WIDTH, HEIGHT, 0, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE, &image_data[0]);
-    glBindImageTexture(0, display_texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA8UI);
-
-    // compute shaders, etc...
-
-}
-
-
-static void HelpMarker(const char* desc)
-{
-    ImGui::TextDisabled("(?)");
-    if (ImGui::IsItemHovered())
-    {
-        ImGui::BeginTooltip();
-        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextUnformatted(desc);
-        ImGui::PopTextWrapPos();
-        ImGui::EndTooltip();
-    }
-}
-
-// Demonstrate using DockSpace() to create an explicit docking node within an existing window.
-// Note that you dock windows into each others _without_ a dockspace, by just clicking on
-// a window title bar and moving it (+ hold SHIFT if io.ConfigDockingWithShift is set).
-// DockSpace() and DockSpaceOverViewport() are only useful to construct a central docking
-// location for your application.
-void ShowExampleAppDockSpace(bool* p_open)
-{
-    // In 99% case you should be able to just call DockSpaceOverViewport() and ignore all the code below!
-    // In this specific demo, we are not using DockSpaceOverViewport() because:
-    // - we allow the host window to be floating/moveable instead of filling the viewport (when opt_fullscreen == false)
-    // - we allow the host window to have padding (when opt_padding == true)
-    // - we have a local menu bar in the host window (vs. you could use BeginMainMenuBar() + DockSpaceOverViewport() in your code!)
-    // TL;DR; this demo is more complicated than what you would normally use.
-    // If we removed all the options we are showcasing, this demo would become:
-    //     void ShowExampleAppDockSpace()
-    //     {
-    //         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-    //     }
-
-    static bool opt_fullscreen = true;
-    static bool opt_padding = false;
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None ^ ImGuiDockNodeFlags_PassthruCentralNode;
-    dockspace_flags |= ImGuiDockNodeFlags_AutoHideTabBar;
-
-    // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-    // because it would be confusing to have two docking targets within each others.
-    // ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-    if (opt_fullscreen)
-    {
-        ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->GetWorkPos());
-        ImGui::SetNextWindowSize(viewport->GetWorkSize());
-        ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    }
-    else
-    {
-        dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
-    }
-
-    // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-    // and handle the pass-thru hole, so we ask Begin() to not render a background.
-    if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-        window_flags |= ImGuiWindowFlags_NoBackground;
-
-    // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-    // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-    // all active windows docked into it will lose their parent and become undocked.
-    // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-    // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-    if (!opt_padding)
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("DockSpace Demo", p_open, window_flags);
-    if (!opt_padding)
-        ImGui::PopStyleVar();
-
-    if (opt_fullscreen)
-        ImGui::PopStyleVar(2);
-
-    // DockSpace
-    ImGuiIO& io = ImGui::GetIO();
-    if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-    {
-        ImGuiID dockspace_id = ImGui::GetID("DockSpace");
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-    }
-
-    if (ImGui::BeginMenuBar())
-    {
-        if (ImGui::BeginMenu("Options"))
-        {
-            // Disabling fullscreen would allow the window to be moved to the front of other windows,
-            // which we can't undo at the moment without finer window depth/z control.
-            ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen);
-            ImGui::MenuItem("Padding", NULL, &opt_padding);
-            ImGui::Separator();
-
-            if (ImGui::MenuItem("Flag: NoSplit",                "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0))                 { dockspace_flags ^= ImGuiDockNodeFlags_NoSplit; }
-            if (ImGui::MenuItem("Flag: NoResize",               "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0))                { dockspace_flags ^= ImGuiDockNodeFlags_NoResize; }
-            if (ImGui::MenuItem("Flag: NoDockingInCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode) != 0))  { dockspace_flags ^= ImGuiDockNodeFlags_NoDockingInCentralNode; }
-            if (ImGui::MenuItem("Flag: AutoHideTabBar",         "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0))          { dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar; }
-            if (ImGui::MenuItem("Flag: PassthruCentralNode",    "", (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) != 0, opt_fullscreen)) { dockspace_flags ^= ImGuiDockNodeFlags_PassthruCentralNode; }
-            ImGui::Separator();
-
-            if (ImGui::MenuItem("Close", NULL, false, p_open != NULL))
-                *p_open = false;
-            ImGui::EndMenu();
-        }
-        HelpMarker(
-            "When docking is enabled, you can ALWAYS dock MOST window into another! Try it now!" "\n\n"
-            " > if io.ConfigDockingWithShift==false (default):" "\n"
-            "   drag windows from title bar to dock" "\n"
-            " > if io.ConfigDockingWithShift==true:" "\n"
-            "   drag windows from anywhere and hold Shift to dock" "\n\n"
-            "This demo app has nothing to do with it!" "\n\n"
-            "This demo app only demonstrate the use of ImGui::DockSpace() which allows you to manually create a docking node _within_ another window. This is useful so you can decorate your main application window (e.g. with a menu bar)." "\n\n"
-            "ImGui::DockSpace() comes with one hard constraint: it needs to be submitted _before_ any window which may be docked into it. Therefore, if you use a dock spot as the central point of your application, you'll probably want it to be part of the very first window you are submitting to imgui every frame." "\n\n"
-            "(NB: because of this constraint, the implicit \"Debug\" window can not be docked into an explicit DockSpace() node, because that window is submitted as part of the NewFrame() call. An easy workaround is that you can create your own implicit \"Debug##2\" window after calling DockSpace() and leave it in the window stack for anyone to use.)"
-        );
-
-        ImGui::EndMenuBar();
-    }
-
-    ImGui::End();
-}
-
 void engine::show_voraldo_menu(bool *show)
 {
     ImGui::Begin("Voraldo Menu", show, ImGuiWindowFlags_NoDecoration);
@@ -562,6 +350,11 @@ void engine::show_voraldo_menu(bool *show)
 
         if(ImGui::BeginTabItem(" Settings "))
         {
+            static ImVec4 clear_color(GPU_Data.clear_color.x, GPU_Data.clear_color.y, GPU_Data.clear_color.z, GPU_Data.clear_color.w);
+
+            ImGui::ColorEdit3("OpenGL Clear Color", (float*)&clear_color); // Edit 3 floats representing a color
+            GPU_Data.clear_color = glm::vec4(clear_color.x, clear_color.y, clear_color.z, 1.0); 
+            
             ImGui::EndTabItem();
         }
         
@@ -573,50 +366,32 @@ void engine::show_voraldo_menu(bool *show)
 
 void engine::draw_everything()
 {
-    ImGuiIO& io = ImGui::GetIO(); (void)io; // void cast prevents unused variable warning
-    //get the screen dimensions and pass in as uniforms
-
-
-    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);   // from hsv picker
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);                     // clear the background
-
-    // draw the stuff on the GPU
-    //  this will be moving to the gpu_data class in gpu_data.cc
+    //maintaining history of fps values
+    //push back - put in the new value
+    fps_history.push_back(ImGui::GetIO().Framerate);
+    //pop front - take out the oldest value
+    fps_history.pop_front();
     
-    // texture display
-    glUseProgram(display_shader);
-    glBindVertexArray( display_vao );
-    glBindBuffer( GL_ARRAY_BUFFER, display_vbo );
-
-    // draw the screen-covering triangle
-    glDrawArrays( GL_TRIANGLES, 0, 3 );
-
-
+    // draw the stuff on the GPU
+    GPU_Data.display();
+    
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(window);
     ImGui::NewFrame();
 
-
-    // this has to be the first ImGUI window showed
-    static bool show_dockspace = true;
-    if (show_dockspace) ShowExampleAppDockSpace(&show_dockspace);
-
-
-    // show quit confirm window
-    quit_conf(&quitconfirm);
-
+    // this has to be the first ImGUI window drawn - control window docks to it
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
     
     // show the demo window
     static bool show_demo_window = true;
     if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
-
     // do the voraldo menu
-    static bool show_voraldo_window = true;
     if (show_voraldo_window) show_voraldo_menu(&show_voraldo_window);
-
                                                
+    // show quit confirm window if the user hit escape last frame, and again every frame till they choose to exit
+    quit_conf(&quitconfirm);
 
     ImGui::Render();
 

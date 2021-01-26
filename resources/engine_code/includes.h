@@ -41,7 +41,6 @@ using std::endl;
 //not sure as to the utility of this
 #define GLX_GLEXT_PROTOTYPES
 
-
 //GUI library (dear ImGUI)
 #include "../ocornut_imgui/imgui.h"
 #include "../ocornut_imgui/imgui_impl_sdl.h"
@@ -74,6 +73,8 @@ using std::endl;
 #include "../nlohmann_JSON/json.hpp"
 using json = nlohmann::json;
 
+// contains the OpenGL wrapper class
+#include "gpu_data.h"
 
 #define SSFACTOR 2.8
 #define WIDTH  640
