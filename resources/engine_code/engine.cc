@@ -4,11 +4,10 @@
 
 engine::engine()
 {
-    init();             // set up SDL2, OpenGL, dearImGUI
-    gl_debug_enable(); // debug callback for error reporting
-
-    while(!pquit) // main loop
-        draw_everything();
+    init();              // set up SDL2, OpenGL, dearImGUI
+    gl_debug_enable();  // debug callback for error reporting
+    while(!pquit)      // main loop
+        main_loop();
 }
 
 engine::~engine()

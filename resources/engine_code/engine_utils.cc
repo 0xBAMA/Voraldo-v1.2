@@ -5,8 +5,10 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 // #define TINYOBJLOADER_USE_DOUBLE
 #include "../TinyOBJLoader/tiny_obj_loader.h"
+
 // tinyobj callbacks
 //  user_data is passed in as void, then cast as 'engine' class to push vertices, normals, texcoords, index, material info
+//   the vectors for the data are made public so that everything is accessible
 void vertex_cb(void *user_data, float x, float y, float z, float w)
 {
     engine *t = reinterpret_cast<engine *>(user_data);
@@ -191,9 +193,8 @@ void engine::gl_setup()
     GPU_Data.screen_width = total_screen_width;
     GPU_Data.screen_height = total_screen_height;
 
-    GPU_Data.init(); // wrapper for all the GPU-side setup
 
-    SDL_ShowWindow(window); // setup completed, show the window and start rendering  
+    // setup completed, show the window and start rendering  
 }
 
 void engine::imgui_setup()
@@ -224,7 +225,6 @@ void engine::imgui_setup()
     fps_history.resize(FPS_HISTORY_SIZE);   //initialize the array of fps values
 
     ImVec4* colors = ImGui::GetStyle().Colors;
-
     colors[ImGuiCol_Text]                   = ImVec4(0.67f, 0.50f, 0.16f, 1.00f);
     colors[ImGuiCol_TextDisabled]           = ImVec4(0.33f, 0.27f, 0.16f, 1.00f);
     colors[ImGuiCol_WindowBg]               = ImVec4(0.10f, 0.05f, 0.00f, 1.00f);
@@ -293,37 +293,6 @@ static void HelpMarker(const char* desc)
     }
 }
 
-void engine::quit_conf(bool *open)
-{
-    if(*open)
-    {
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration;
-
-        // create centered window
-        ImGui::SetNextWindowPos(ImVec2(total_screen_width/2 - 120, total_screen_height/2 - 25));
-        ImGui::SetNextWindowSize(ImVec2(240, 55));
-        ImGui::Begin("quit", open, flags);
-
-        ImGui::Text("Are you sure you want to quit?");
-
-        ImGui::Text("  ");
-        ImGui::SameLine();
-
-        // button to cancel -> set this window's bool to false
-        if(ImGui::Button(" Cancel "))
-            *open = false;
-
-        ImGui::SameLine();
-        ImGui::Text("      ");
-        ImGui::SameLine();
-
-        // button to quit -> set pquit to true
-        if(ImGui::Button(" Quit "))
-            pquit = true;
-
-        ImGui::End();
-    }
-}
 
 void engine::show_voraldo_menu(bool *show)
 {
@@ -486,17 +455,40 @@ void engine::show_voraldo_menu(bool *show)
     }
 }
 
-void engine::draw_everything()
+void engine::quit_conf(bool *open)
 {
-    //maintaining history of fps values
-    //push back - put in the new value
-    fps_history.push_back(ImGui::GetIO().Framerate);
-    //pop front - take out the oldest value
-    fps_history.pop_front();
-    
-    // draw the stuff on the GPU
-    GPU_Data.display();
-    
+    if(*open)
+    {
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration;
+
+        // create centered window
+        ImGui::SetNextWindowPos(ImVec2(total_screen_width/2 - 120, total_screen_height/2 - 25));
+        ImGui::SetNextWindowSize(ImVec2(240, 55));
+        ImGui::Begin("quit", open, flags);
+
+        ImGui::Text("Are you sure you want to quit?");
+
+        ImGui::Text("  ");
+        ImGui::SameLine();
+
+        // button to cancel -> set this window's bool to false
+        if(ImGui::Button(" Cancel "))
+            *open = false;
+
+        ImGui::SameLine();
+        ImGui::Text("      ");
+        ImGui::SameLine();
+
+        // button to quit -> set pquit to true
+        if(ImGui::Button(" Quit "))
+            pquit = true;
+
+        ImGui::End();
+    }
+}
+
+void engine::draw_windows()
+{
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(window);
@@ -508,22 +500,22 @@ void engine::draw_everything()
     
     // show the demo window
     static bool show_demo_window = true;
-    if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+    if (show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
 
     // do the voraldo menu
-    if (show_voraldo_window) show_voraldo_menu(&show_voraldo_window);
+    if (show_voraldo_window)
+        show_voraldo_menu(&show_voraldo_window);
                                                
     // show quit confirm window if the user hit escape last frame, and again every frame till they choose to exit
     quit_conf(&quitconfirm);
 
     ImGui::Render();
-
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());   // put imgui data into the framebuffer
+}
 
-    SDL_GL_SwapWindow(window);  // swap the double buffers
-
-    // handle events
-
+void engine::handle_events()
+{
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
@@ -537,9 +529,16 @@ void engine::draw_everything()
 
         if ((event.type == SDL_KEYUP  && event.key.keysym.sym == SDLK_ESCAPE) || (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_X1)) //x1 is browser back on the mouse
             quitconfirm = !quitconfirm;
-    }
+    } 
 }
 
+void engine::update_fps_history()
+{
+    //push back - put in the new value
+    fps_history.push_back(ImGui::GetIO().Framerate);
+    //pop front - take out the oldest value
+    fps_history.pop_front(); 
+}
 
 void engine::quit()
 {
