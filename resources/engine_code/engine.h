@@ -21,8 +21,19 @@ class engine
 
 		GLContainer GPU_Data;
 		
-		void create_window();
+		void init()
+		{
+			SDL2_setup();
+			gl_setup();
+			imgui_setup();
+		}
+		
+		// init helper functions
+		void SDL2_setup();
 		void gl_setup();
+		void imgui_setup();
+
+		// called from main loop
 		void draw_everything();
 
 		// shows general control window

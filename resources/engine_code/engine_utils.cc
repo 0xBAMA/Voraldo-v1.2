@@ -114,10 +114,10 @@ void engine::load_OBJ(std::string filename)
 }
 
 
-
-
-void engine::create_window()
+void engine::SDL2_setup()
 {
+    cout << "creating window.............";
+
     if(SDL_Init( SDL_INIT_EVERYTHING ) != 0)
     {
         printf("Error: %s\n", SDL_GetError());
@@ -145,16 +145,13 @@ void engine::create_window()
     total_screen_width = dm.w;
     total_screen_height = dm.h;
 
-    cout << "creating window...";
-
     window = SDL_CreateWindow( "Voraldo v1.2", 0, 0, total_screen_width, total_screen_height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS );
     SDL_ShowWindow(window);
 
-    cout << "done." << endl;
+    cout << "...done." << endl;
 
     cout << "setting up OpenGL context...";
     // OpenGL 4.3 + GLSL version 430
-    const char* glsl_version = "#version 430";
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 4 );
@@ -165,11 +162,19 @@ void engine::create_window()
     SDL_GL_SetSwapInterval(1); // Enable vsync
     // SDL_GL_SetSwapInterval(0); // explicitly disable vsync
 
+    cout << "...done." << endl << endl;
+
+}
+
+void engine::gl_setup()
+{
     if(gl3wInit() != 0)
     {
         fprintf(stderr, "\n\nFailed to initialize OpenGL loader!\n\n");
+        abort(); // nothing's going to work
     }
-        
+
+    // we're now good to start using functions with the gl- prefix
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LINE_SMOOTH);
 
@@ -177,6 +182,22 @@ void engine::create_window()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // some info on your current platform
+    const GLubyte *renderer = glGetString( GL_RENDERER ); // get renderer string
+    const GLubyte *version = glGetString( GL_VERSION );  // version as a string
+    printf( "Renderer: %s\n", renderer );
+    printf( "OpenGL version supported %s\n\n", version );
+
+    GPU_Data.screen_width = total_screen_width;
+    GPU_Data.screen_height = total_screen_height;
+
+    GPU_Data.init(); // wrapper for all the GPU-side setup
+
+    SDL_ShowWindow(window); // setup completed, show the window and start rendering  
+}
+
+void engine::imgui_setup()
+{
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -189,6 +210,7 @@ void engine::create_window()
     // io.Fonts->AddFontFromFileTTF("resources/fonts/star_trek/titles/Jefferies.ttf", 15);
 
     // Setup Platform/Renderer bindings
+    const char* glsl_version = "#version 430";
     ImGui_ImplSDL2_InitForOpenGL(window, GLcontext);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
@@ -197,8 +219,6 @@ void engine::create_window()
     glClearColor(GPU_Data.clear_color.x, GPU_Data.clear_color.y, GPU_Data.clear_color.z, GPU_Data.clear_color.w);
     glClear( GL_COLOR_BUFFER_BIT );
     SDL_GL_SwapWindow( window );
-
-    cout << "done." << endl;
 
     #define FPS_HISTORY_SIZE 95
     fps_history.resize(FPS_HISTORY_SIZE);   //initialize the array of fps values
@@ -232,9 +252,9 @@ void engine::create_window()
     colors[ImGuiCol_Header]                 = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
     colors[ImGuiCol_HeaderHovered]          = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
     colors[ImGuiCol_HeaderActive]           = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
-    colors[ImGuiCol_Separator]              = ImVec4(0.28f, 0.18f, 0.06f, 1.00f);
-    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
-    colors[ImGuiCol_SeparatorActive]        = ImVec4(0.42f, 0.18f, 0.06f, 1.00f);
+    colors[ImGuiCol_Separator]              = ImVec4(0.28f, 0.18f, 0.06f, 0.17f);
+    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.33f, 0.15f, 0.02f, 0.17f);
+    colors[ImGuiCol_SeparatorActive]        = ImVec4(0.42f, 0.18f, 0.06f, 0.17f);
     colors[ImGuiCol_ResizeGrip]             = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
     colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
     colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
@@ -259,24 +279,6 @@ void engine::create_window()
     style.FrameRounding = 2;
     style.WindowRounding = 3;
 }
-
-
-void engine::gl_setup()
-{
-    // some info on your current platform
-    const GLubyte *renderer = glGetString( GL_RENDERER ); // get renderer string
-    const GLubyte *version = glGetString( GL_VERSION );  // version as a string
-    printf( "Renderer: %s\n", renderer );
-    printf( "OpenGL version supported %s\n\n\n", version );
-
-    GPU_Data.screen_width = total_screen_width;
-    GPU_Data.screen_height = total_screen_height;
-
-    GPU_Data.init(); // wrapper for all the GPU-side setup
-
-    SDL_ShowWindow(window); // setup completed, show the window and start rendering  
-}
-
 
 static void HelpMarker(const char* desc)
 {
@@ -335,33 +337,153 @@ void engine::show_voraldo_menu(bool *show)
     {
         if(ImGui::BeginTabItem(" Shapes "))
         {
-           ImGui::EndTabItem(); 
+            ImGui::BeginTabBar("shapes", tab_bar_flags);
+            if(ImGui::BeginTabItem(" AABB "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Cuboid "))
+            {
+                ImGui::EndTabItem();
+            } 
+            if(ImGui::BeginTabItem(" Cylinder "))
+            {
+                ImGui::EndTabItem();
+            } 
+            if(ImGui::BeginTabItem(" Ellipsoid "))
+            {
+                ImGui::EndTabItem();
+            } 
+            if(ImGui::BeginTabItem(" Grid "))
+            {
+                ImGui::EndTabItem();
+            } 
+            if(ImGui::BeginTabItem(" Heightmap "))
+            {
+                ImGui::EndTabItem();
+            } 
+            if(ImGui::BeginTabItem(" Icosahedron "))
+            {
+                ImGui::EndTabItem();
+            } 
+            if(ImGui::BeginTabItem(" Noise "))
+            {
+                ImGui::EndTabItem();
+            } 
+            if(ImGui::BeginTabItem(" Sphere "))
+            {
+                ImGui::EndTabItem();
+            } 
+            if(ImGui::BeginTabItem(" Tube "))
+            {
+                ImGui::EndTabItem();
+            } 
+            if(ImGui::BeginTabItem(" Triangle "))
+            {
+                ImGui::EndTabItem();
+            } 
+            if(ImGui::BeginTabItem(" VAT "))
+            {
+                ImGui::EndTabItem();
+            } 
+            ImGui::EndTabBar();
+            ImGui::EndTabItem(); 
         }
 
         if(ImGui::BeginTabItem(" Utilities "))
         {
+            ImGui::BeginTabBar("utils", tab_bar_flags);
+            if(ImGui::BeginTabItem(" Clear "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Masking "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Box Blur "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Gaussian Blur "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Limiter "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Shift "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Copy/Paste "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Load/Save "))
+            {
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
             ImGui::EndTabItem();
         }
-
         if(ImGui::BeginTabItem(" Lighting "))
         {
+            ImGui::BeginTabBar("lighting", tab_bar_flags);
+            if(ImGui::BeginTabItem(" Clear "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Point "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Cone "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Directional "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Fake GI "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Ambient Occlusion "))
+            {
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem(" Mash "))
+            {
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
             ImGui::EndTabItem();
         }
-
-        if(ImGui::BeginTabItem(" Settings "))
+        if(ImGui::BeginTabItem(" Settings ")) // just going to have everything on one page here, no real point breaking it out into tabs
         {
             static ImVec4 clear_color(GPU_Data.clear_color.x, GPU_Data.clear_color.y, GPU_Data.clear_color.z, GPU_Data.clear_color.w);
 
-            ImGui::ColorEdit3("OpenGL Clear Color", (float*)&clear_color); // Edit 3 floats representing a color
+            ImGui::Text("");
+
+            ImGui::Separator();
+
+            ImGui::Text("");
+            ImGui::ColorEdit3("BG Color", (float*)&clear_color); // Edit 3 floats representing a color
+
             GPU_Data.clear_color = glm::vec4(clear_color.x, clear_color.y, clear_color.z, 1.0); 
-            
+            ImGui::SameLine();
+            HelpMarker("OpenGL Clear Color");
+            ImGui::Text("");
+            ImGui::Separator();
             ImGui::EndTabItem();
         }
         
         ImGui::EndTabBar();
+        ImGui::End(); 
     }
-
-    ImGui::End(); 
 }
 
 void engine::draw_everything()
@@ -381,7 +503,8 @@ void engine::draw_everything()
     ImGui::NewFrame();
 
     // this has to be the first ImGUI window drawn - control window docks to it
-    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar; 
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
     
     // show the demo window
     static bool show_demo_window = true;
