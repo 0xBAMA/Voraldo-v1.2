@@ -18,8 +18,8 @@ private:
 	ImVec4 clear_color;
 
 
-    GLuint display_texture;
-    GLuint display_shader;
+	GLuint display_texture;
+	GLuint display_shader;
 	GLuint display_vao;
 	GLuint display_vbo;
 
@@ -33,13 +33,13 @@ private:
 
 	void quit();
 	void quit_conf(bool *open);
+	void show_voraldo_menu(bool *open);
 		
 	bool quitconfirm = false;
 	bool pquit = false;
 
 public:
-//placeholder
-// OBJ data (per mesh)	
+// OBJ data (per mesh) - used in OBJ loading
 	// this may vary in length
 	std::vector<glm::vec4> vertices;
 	std::vector<glm::vec3> normals;

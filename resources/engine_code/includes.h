@@ -47,11 +47,7 @@ using std::endl;
 #include "../ocornut_imgui/imgui_impl_sdl.h"
 #include "../ocornut_imgui/imgui_impl_opengl3.h"
 
-
-// Initialize glew loader with glewInit()
-// #include <GL/glew.h>
-
-// now handled differently with imgui
+// GLEW replacment
 #include "../ocornut_imgui/gl3w.h"
 
 //SDL includes - windowing, gl context, system info
@@ -59,32 +55,27 @@ using std::endl;
 //allows you to run OpenGL inside of SDL2
 #include <SDL2/SDL_opengl.h>
 
-
 //png loading library - very powerful
 #include "../lodev_lodePNG/lodepng.h"
-
 
 //shader compilation wrapper - may need to be extended
 #include "shader.h"
 
-
 //up to 3d perlin noise generation
 #include "../perlin/perlin.h"
-
 
 //diamond square heightmap generation
 #include "../mafford_diamond_square/diamond_square.h"
 
-
 //Brent Werness' Voxel Automata Terrain
 #include "../VAT/VAT.h"
-
 
 // Niels Lohmann - JSON for Modern C++
 #include "../nlohmann_JSON/json.hpp"
 using json = nlohmann::json;
 
 
+#define SSFACTOR 2.8
 #define WIDTH  640
 #define HEIGHT 480
 

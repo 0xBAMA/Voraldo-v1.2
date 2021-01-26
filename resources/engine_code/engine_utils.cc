@@ -167,14 +167,11 @@ void engine::create_window()
     SDL_GL_SetSwapInterval(1); // Enable vsync
     // SDL_GL_SetSwapInterval(0); // explicitly disable vsync
 
-/*    if (glewInit() != GLEW_OK)
+    if(gl3wInit() != 0)
     {
         fprintf(stderr, "Failed to initialize OpenGL loader!\n");
-    }*/
-
-    if(gl3wInit() != 0)
-    	fprintf(stderr, "Failed to initialize OpenGL loader!\n");
-
+    }
+        
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_LINE_SMOOTH);
 
@@ -192,8 +189,8 @@ void engine::create_window()
 
 
     // adds a font, as default
-    io.Fonts->AddFontFromFileTTF("resources/fonts/star_trek/titles/Jefferies.ttf", 15);
-    io.Fonts->AddFontFromFileTTF("resources/fonts/star_trek/titles/TNG_Title.ttf", 16);
+    // io.Fonts->AddFontFromFileTTF("resources/fonts/star_trek/titles/Jefferies.ttf", 15);
+    // io.Fonts->AddFontFromFileTTF("resources/fonts/star_trek/titles/TNG_Title.ttf", 16);
 
 
     ImGui::StyleColorsDark();
@@ -211,56 +208,64 @@ void engine::create_window()
 
     cout << "done." << endl;
 
+    // #define FPS_HISTORY_SIZE 95
+    // fps_history.resize(FPS_HISTORY_SIZE);   //initialize the array of fps values
+
     ImVec4* colors = ImGui::GetStyle().Colors;
 
-    colors[ImGuiCol_Text]                   = ImVec4(0.64f, 0.37f, 0.37f, 1.00f);
-    colors[ImGuiCol_TextDisabled]           = ImVec4(0.49f, 0.26f, 0.26f, 1.00f);
-    colors[ImGuiCol_WindowBg]               = ImVec4(0.17f, 0.00f, 0.00f, 0.98f);
-    colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_PopupBg]                = ImVec4(0.18f, 0.00f, 0.00f, 0.94f);
-    colors[ImGuiCol_Border]                 = ImVec4(0.35f, 0.00f, 0.03f, 0.50f);
-    colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_FrameBg]                = ImVec4(0.14f, 0.04f, 0.00f, 1.00f);
-    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.14f, 0.04f, 0.00f, 1.00f);
-    colors[ImGuiCol_FrameBgActive]          = ImVec4(0.14f, 0.04f, 0.00f, 1.00f);
-    colors[ImGuiCol_TitleBg]                = ImVec4(0.14f, 0.04f, 0.00f, 1.00f);
-    colors[ImGuiCol_TitleBgActive]          = ImVec4(0.14f, 0.04f, 0.00f, 1.00f);
-    colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
-    colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-    colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
-    colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
-    colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-    colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
-    colors[ImGuiCol_CheckMark]              = ImVec4(0.87f, 0.23f, 0.09f, 1.00f);
-    colors[ImGuiCol_SliderGrab]             = ImVec4(0.87f, 0.23f, 0.09f, 1.00f);
-    colors[ImGuiCol_SliderGrabActive]       = ImVec4(1.00f, 0.33f, 0.00f, 1.00f);
-    colors[ImGuiCol_Button]                 = ImVec4(0.81f, 0.38f, 0.09f, 0.08f);
-    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.87f, 0.23f, 0.09f, 1.00f);
-    colors[ImGuiCol_ButtonActive]           = ImVec4(1.00f, 0.33f, 0.00f, 1.00f);
-    colors[ImGuiCol_Header]                 = ImVec4(0.81f, 0.38f, 0.09f, 0.08f);
-    colors[ImGuiCol_HeaderHovered]          = ImVec4(0.87f, 0.23f, 0.09f, 1.00f);
-    colors[ImGuiCol_HeaderActive]           = ImVec4(1.00f, 0.33f, 0.00f, 1.00f);
-    colors[ImGuiCol_Separator]              = ImVec4(0.81f, 0.38f, 0.09f, 0.08f);
-    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.87f, 0.23f, 0.09f, 1.00f);
-    colors[ImGuiCol_SeparatorActive]        = ImVec4(1.00f, 0.33f, 0.00f, 1.00f);
-    colors[ImGuiCol_ResizeGrip]             = ImVec4(0.81f, 0.38f, 0.09f, 0.08f);
-    colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.87f, 0.23f, 0.09f, 1.00f);
-    colors[ImGuiCol_ResizeGripActive]       = ImVec4(1.00f, 0.33f, 0.00f, 1.00f);
-    colors[ImGuiCol_Tab]                    = ImVec4(0.81f, 0.38f, 0.09f, 0.08f);
-    colors[ImGuiCol_TabHovered]             = ImVec4(0.87f, 0.23f, 0.09f, 1.00f);
-    colors[ImGuiCol_TabActive]              = ImVec4(1.00f, 0.33f, 0.00f, 1.00f);
-    colors[ImGuiCol_TabUnfocused]           = ImVec4(0.81f, 0.38f, 0.09f, 0.08f);
-    colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.81f, 0.38f, 0.09f, 0.08f);
+    colors[ImGuiCol_Text]                   = ImVec4(0.67f, 0.50f, 0.16f, 1.00f);
+    colors[ImGuiCol_TextDisabled]           = ImVec4(0.33f, 0.27f, 0.16f, 1.00f);
+    colors[ImGuiCol_WindowBg]               = ImVec4(0.10f, 0.05f, 0.00f, 1.00f);
+    colors[ImGuiCol_ChildBg]                = ImVec4(0.23f, 0.17f, 0.02f, 0.05f);
+    colors[ImGuiCol_PopupBg]                = ImVec4(0.12f, 0.07f, 0.01f, 0.94f);
+    colors[ImGuiCol_Border]                 = ImVec4(0.25f, 0.18f, 0.09f, 0.33f);
+    colors[ImGuiCol_BorderShadow]           = ImVec4(0.33f, 0.15f, 0.02f, 0.17f);
+    colors[ImGuiCol_FrameBg]                = ImVec4(0.33f, 0.15f, 0.02f, 0.17f);
+    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.19f, 0.09f, 0.02f, 0.17f);
+    colors[ImGuiCol_FrameBgActive]          = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
+    colors[ImGuiCol_TitleBg]                = ImVec4(0.25f, 0.12f, 0.01f, 1.00f);
+    colors[ImGuiCol_TitleBgActive]          = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
+    colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.25f, 0.12f, 0.01f, 1.00f);
+    colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.07f, 0.02f, 1.00f);
+    colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.13f, 0.10f, 0.08f, 0.53f);
+    colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
+    colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
+    colors[ImGuiCol_CheckMark]              = ImVec4(0.69f, 0.45f, 0.11f, 1.00f);
+    colors[ImGuiCol_SliderGrab]             = ImVec4(0.28f, 0.18f, 0.06f, 1.00f);
+    colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.36f, 0.22f, 0.06f, 1.00f);
+    colors[ImGuiCol_Button]                 = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
+    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
+    colors[ImGuiCol_ButtonActive]           = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
+    colors[ImGuiCol_Header]                 = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
+    colors[ImGuiCol_HeaderHovered]          = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
+    colors[ImGuiCol_HeaderActive]           = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
+    colors[ImGuiCol_Separator]              = ImVec4(0.28f, 0.18f, 0.06f, 1.00f);
+    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
+    colors[ImGuiCol_SeparatorActive]        = ImVec4(0.42f, 0.18f, 0.06f, 1.00f);
+    colors[ImGuiCol_ResizeGrip]             = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
+    colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
+    colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
+    colors[ImGuiCol_Tab]                    = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
+    colors[ImGuiCol_TabHovered]             = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
+    colors[ImGuiCol_TabActive]              = ImVec4(0.34f, 0.14f, 0.01f, 1.00f);
+    colors[ImGuiCol_TabUnfocused]           = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
+    colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.42f, 0.18f, 0.06f, 1.00f);
     colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
     colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
     colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
     colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-    colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.81f, 0.38f, 0.09f, 0.08f);
-    colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-    colors[ImGuiCol_NavHighlight]           = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+    colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.06f, 0.03f, 0.01f, 0.78f);
+    colors[ImGuiCol_DragDropTarget]         = ImVec4(0.64f, 0.42f, 0.09f, 0.90f);
+    colors[ImGuiCol_NavHighlight]           = ImVec4(0.64f, 0.42f, 0.09f, 0.90f);
     colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
     colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
     colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    style.FrameRounding = 2;
+    style.WindowRounding = 3;
 }
 
 void engine::quit_conf(bool *open)
@@ -271,7 +276,7 @@ void engine::quit_conf(bool *open)
 
         // create centered window
         ImGui::SetNextWindowPos(ImVec2(total_screen_width/2 - 120, total_screen_height/2 - 25));
-        ImGui::SetNextWindowSize(ImVec2(300, 55));
+        ImGui::SetNextWindowSize(ImVec2(240, 55));
         ImGui::Begin("quit", open, flags);
 
         ImGui::Text("Are you sure you want to quit?");
@@ -306,10 +311,10 @@ void engine::gl_setup()
 
 
 
+    // THIS ALL MOVES TO GPU_DATA CLASS
     // create the shader for the triangles to cover the screen
     display_shader = Shader("resources/engine_code/shaders/blit.vs.glsl", "resources/engine_code/shaders/blit.fs.glsl").Program;
-
-
+    
     std::vector<glm::vec3> points;
     points.clear();
     
@@ -342,7 +347,8 @@ void engine::gl_setup()
 
     // replace this with real image data
     std::vector<unsigned char> image_data;
-    image_data.resize(WIDTH*HEIGHT*4);
+    // image_data.resize(WIDTH*HEIGHT*4);
+    image_data.resize(total_screen_width*total_screen_height*SSFACTOR*SSFACTOR*4);
 
     // fill with random values
     std::default_random_engine gen;
@@ -441,10 +447,12 @@ void ShowExampleAppDockSpace(bool* p_open)
     static bool opt_fullscreen = true;
     static bool opt_padding = false;
     static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None ^ ImGuiDockNodeFlags_PassthruCentralNode;
+    dockspace_flags |= ImGuiDockNodeFlags_AutoHideTabBar;
 
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each others.
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    // ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
     if (opt_fullscreen)
     {
         ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -527,6 +535,42 @@ void ShowExampleAppDockSpace(bool* p_open)
     ImGui::End();
 }
 
+void engine::show_voraldo_menu(bool *show)
+{
+    ImGui::Begin("Voraldo Menu", show, ImGuiWindowFlags_NoDecoration);
+
+    // window contents
+    // ImGui::Text("This is some text");
+    ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None | ImGuiTabBarFlags_FittingPolicyScroll;
+    
+    if(ImGui::BeginTabBar("top_level", tab_bar_flags))
+    {
+        if(ImGui::BeginTabItem(" Shapes "))
+        {
+           ImGui::EndTabItem(); 
+        }
+
+        if(ImGui::BeginTabItem(" Utilities "))
+        {
+            ImGui::EndTabItem();
+        }
+
+        if(ImGui::BeginTabItem(" Lighting "))
+        {
+            ImGui::EndTabItem();
+        }
+
+        if(ImGui::BeginTabItem(" Settings "))
+        {
+            ImGui::EndTabItem();
+        }
+        
+        ImGui::EndTabBar();
+    }
+
+    ImGui::End(); 
+}
+
 void engine::draw_everything()
 {
     ImGuiIO& io = ImGui::GetIO(); (void)io; // void cast prevents unused variable warning
@@ -537,13 +581,16 @@ void engine::draw_everything()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);                     // clear the background
 
     // draw the stuff on the GPU
-
+    //  this will be moving to the gpu_data class in gpu_data.cc
+    
     // texture display
     glUseProgram(display_shader);
     glBindVertexArray( display_vao );
     glBindBuffer( GL_ARRAY_BUFFER, display_vbo );
 
+    // draw the screen-covering triangle
     glDrawArrays( GL_TRIANGLES, 0, 3 );
+
 
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -551,33 +598,25 @@ void engine::draw_everything()
     ImGui::NewFrame();
 
 
-
-
+    // this has to be the first ImGUI window showed
     static bool show_dockspace = true;
     if (show_dockspace) ShowExampleAppDockSpace(&show_dockspace);
+
 
     // show quit confirm window
     quit_conf(&quitconfirm);
 
+    
     // show the demo window
     static bool show_demo_window = true;
     if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
-    // do my own windows
-    ImGui::SetNextWindowSize(ImVec2(256,385));
-    ImGui::Begin("Controls0", NULL, 0);
-    ImGui::Text("This is some text");
-    ImGui::End();
 
-    ImGui::SetNextWindowSize(ImVec2(256,385));
-    ImGui::Begin("Controls1", NULL, 0);
-    ImGui::Text("This is some text");
-    ImGui::End();
+    // do the voraldo menu
+    static bool show_voraldo_window = true;
+    if (show_voraldo_window) show_voraldo_menu(&show_voraldo_window);
 
-    ImGui::SetNextWindowSize(ImVec2(256,385));
-    ImGui::Begin("Controls2", NULL, 0);
-    ImGui::Text("This is some text");
-    ImGui::End();
+                                               
 
     ImGui::Render();
 
