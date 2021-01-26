@@ -203,7 +203,7 @@ void engine::imgui_setup()
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io; // void cast prevents unused variable warning
 
-    // enable docking
+    // enable docking - disables floating windows
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     // adds a font, as default - otherwise it uses the default ImGUI font
