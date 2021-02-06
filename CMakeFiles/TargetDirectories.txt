@@ -1,5 +1,0 @@
-/home/jb/Documents/Voraldo-v1.2/CMakeFiles/rebuild_cache.dir
-/home/jb/Documents/Voraldo-v1.2/CMakeFiles/edit_cache.dir
-/home/jb/Documents/Voraldo-v1.2/CMakeFiles/exe.dir
-/home/jb/Documents/Voraldo-v1.2/CMakeFiles/BigInt.dir
-/home/jb/Documents/Voraldo-v1.2/CMakeFiles/imgui.dir
