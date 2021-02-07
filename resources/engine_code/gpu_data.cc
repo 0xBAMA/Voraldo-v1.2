@@ -31,8 +31,8 @@ void GLContainer::display_block() {
   // pixel scaling
   // glUniform1f(glGetUniformLocation(display_shader, "ssfactor"), SSFACTOR);
 
-  // two triangles, 6 verticies
-  glDrawArrays(GL_TRIANGLES, 0, 6);
+  // one triangle, 3 verticies
+  glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void GLContainer::display_orientation_widget() {

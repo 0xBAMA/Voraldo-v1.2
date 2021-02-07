@@ -28,7 +28,7 @@ public:
 
   // screen dimensions
   unsigned int screen_width, screen_height;
-  float theta, phi;
+  float theta = -0.7, phi = -0.5;
   glm::vec3 orientation_widget_offset;
 
 private:

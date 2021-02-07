@@ -187,8 +187,7 @@ void engine::gl_setup() {
   GPU_Data.screen_width = total_screen_width;
   GPU_Data.screen_height = total_screen_height;
 
-  GPU_Data.orientation_widget_offset = glm::vec3(0.9, -0.74, 0.0);
-
+  GPU_Data.orientation_widget_offset = glm::vec3(0.94, -0.92, 0.0);
   // setup completed, show the window and start rendering
 }
 
@@ -430,6 +429,63 @@ void engine::show_voraldo_menu(bool *show) {
   }
 }
 
+// small overlay to show the FPS counter, FPS graph
+void engine::fps_overlay(bool *p_open) {
+  if (*p_open) {
+    const float DISTANCE = 2.0f;
+    static int corner = 3;
+    ImGuiIO &io = ImGui::GetIO();
+    if (corner != -1) {
+      ImVec2 window_pos =
+          ImVec2((corner & 1) ? io.DisplaySize.x - DISTANCE - 75 : DISTANCE,
+                 (corner & 2) ? io.DisplaySize.y - DISTANCE : DISTANCE);
+      ImVec2 window_pos_pivot =
+          ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+      ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+    }
+    ImGui::SetNextWindowBgAlpha(0.03f); // Transparent background
+    if (ImGui::Begin("Example: Simple overlay", p_open,
+                     (corner != -1 ? ImGuiWindowFlags_NoMove : 0) |
+                         ImGuiWindowFlags_NoDecoration |
+                         ImGuiWindowFlags_AlwaysAutoResize |
+                         ImGuiWindowFlags_NoSavedSettings |
+                         ImGuiWindowFlags_NoFocusOnAppearing |
+                         ImGuiWindowFlags_NoNav)) {
+      // fps graph
+      static float values[FPS_HISTORY_SIZE] = {};
+      float average = 0;
+
+      for (int n = 0; n < FPS_HISTORY_SIZE; n++) {
+        values[n] = fps_history[n];
+        average += fps_history[n];
+      }
+
+      average /= FPS_HISTORY_SIZE;
+      char overlay[32];
+      sprintf(overlay, "avg %.2f fps (%.2f ms)", average, 1000.0f / average);
+      ImGui::PlotLines("", values, IM_ARRAYSIZE(values), 0, overlay, 0.0f,
+                       100.0f, ImVec2(240, 60));
+
+      if (ImGui::BeginPopupContextWindow()) {
+        if (ImGui::MenuItem("Custom", NULL, corner == -1))
+          corner = -1;
+        if (ImGui::MenuItem("Top-left", NULL, corner == 0))
+          corner = 0;
+        if (ImGui::MenuItem("Top-right", NULL, corner == 1))
+          corner = 1;
+        if (ImGui::MenuItem("Bottom-left", NULL, corner == 2))
+          corner = 2;
+        if (ImGui::MenuItem("Bottom-right", NULL, corner == 3))
+          corner = 3;
+        if (p_open && ImGui::MenuItem("Close"))
+          *p_open = false;
+        ImGui::EndPopup();
+      }
+    }
+    ImGui::End();
+  }
+}
+
 void engine::quit_conf(bool *open) {
   if (*open) {
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration;
@@ -481,6 +537,9 @@ void engine::draw_windows() {
   // do the voraldo menu
   if (show_voraldo_window)
     show_voraldo_menu(&show_voraldo_window);
+
+  if (show_fps_overlay)
+    fps_overlay(&show_fps_overlay);
 
   // show quit confirm window if the user hit escape last frame, and again every
   // frame till they choose to exit
