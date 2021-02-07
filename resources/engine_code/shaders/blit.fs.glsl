@@ -8,7 +8,8 @@ void main()
 {
 	vec2 lv_pos = v_pos/2.0f + vec2(0.5);
 
-	uvec4 s = imageLoad(current, ivec2(lv_pos.x*imageSize(current).x, lv_pos.y*imageSize(current).y));
+	// uvec4 s = imageLoad(current, ivec2(lv_pos.x*imageSize(current).x, lv_pos.y*imageSize(current).y));
+	// fragment_output = vec4(float(s.r)/256.0,float(s.g)/256.0,float(s.b)/256.0,float(s.a)/256.0);
 
-	fragment_output = vec4(float(s.r)/256.0,float(s.g)/256.0,float(s.b)/256.0,float(s.a)/256.0);
+	fragment_output = vec4(v_pos, 0., 1.);
 }
