@@ -38,6 +38,21 @@ class GLContainer
         void display_block();
         void display_orientation_widget();
 
+       // OpenGL Data
+        // blitting via fullscreen geometry
+        GLuint display_vao, display_vbo,
+            display_shader_program =
+                Shader("resources/engine_code/shaders/blit.vs.glsl",
+                        "resources/engine_code/shaders/blit.fs.glsl")
+                    .Program;
+
+          // orientation widget with phong shading
+          GLuint owidget_vao, owidget_vbo,
+              owidget_shader_program =
+                  Shader("resources/engine_code/shaders/widget.vs.glsl",
+                         "resources/engine_code/shaders/widget.fs.glsl")
+                      .Program;
+
 };
 
 #endif
