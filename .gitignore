@@ -3,3 +3,9 @@ exe
 frames/*
 build/*
 
+CMakeCache.txt
+CMakeFiles/*
+cmake_install.cmake
+libBigInt.a
+libimgui.a
+
