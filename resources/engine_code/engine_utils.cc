@@ -113,6 +113,49 @@ void engine::load_OBJ(std::string filename) {
   cout << "texcoord index length: " << texcoord_indices.size() << endl;
 }
 
+// used in load/save operation to check extension
+bool hasEnding(std::string fullString, std::string ending) {
+  if (fullString.length() >= ending.length()) {
+    return (0 == fullString.compare(fullString.length() - ending.length(),
+                                    ending.length(), ending));
+  } else {
+    return false;
+  }
+}
+
+bool hasPNG(std::string filename) {
+  return hasEnding(filename, std::string(".png"));
+}
+
+// got this from
+// http://www.martinbroadhurst.com/list-the-files-in-a-directory-in-c.html the
+// intention is to read all the files in the current directory and put them in
+// the array
+
+// #define LISTBOX_SIZE 256
+// std::vector<std::string> directory_strings;
+
+// struct path_leaf_string {
+//   std::string operator()(const std::filesystem::directory_entry &entry) const
+//   {
+//     return entry.path().string();
+//   }
+// };
+
+// void update_listbox_items() {
+//   directory_strings.clear();
+
+//   std::filesystem::path p("saves");
+//   std::filesystem::directory_iterator start(p);
+//   std::filesystem::directory_iterator end;
+
+//   std::transform(start, end, std::back_inserter(directory_strings),
+//                  path_leaf_string());
+
+//   // sort these alphabetically
+//   std::sort(directory_strings.begin(), directory_strings.end());
+// }
+
 void engine::SDL2_setup() {
   cout << "creating window.............";
 
@@ -219,7 +262,7 @@ void engine::imgui_setup() {
   glClear(GL_COLOR_BUFFER_BIT);
   SDL_GL_SwapWindow(window);
 
-#define FPS_HISTORY_SIZE 400
+#define FPS_HISTORY_SIZE 300
   fps_history.resize(FPS_HISTORY_SIZE); // initialize the array of fps values
 
   ImVec4 *colors = ImGui::GetStyle().Colors;
@@ -497,7 +540,7 @@ void engine::quit_conf(bool *open) {
     // create centered window
     ImGui::SetNextWindowPos(
         ImVec2(total_screen_width / 2 - 120, total_screen_height / 2 - 25));
-    ImGui::SetNextWindowSize(ImVec2(240, 55));
+    ImGui::SetNextWindowSize(ImVec2(215, 40));
     ImGui::Begin("quit", open, flags);
 
     ImGui::Text("Are you sure you want to quit?");
@@ -510,7 +553,7 @@ void engine::quit_conf(bool *open) {
       *open = false;
 
     ImGui::SameLine();
-    ImGui::Text("      ");
+    ImGui::Text("    ");
     ImGui::SameLine();
 
     // button to quit -> set pquit to true
