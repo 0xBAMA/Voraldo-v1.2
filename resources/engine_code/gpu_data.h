@@ -46,13 +46,12 @@ private:
   void display_block();
   void display_orientation_widget();
 
-  // // OpenGL Data
+  // OpenGL Data
   // blitting via fullscreen geometry
   GLuint display_vao, display_vbo, display_shader_program;
 
   // orientation widget with phong shading
   GLuint owidget_vao, owidget_vbo, owidget_shader_program;
-  //                .Program;
 };
 
 #endif

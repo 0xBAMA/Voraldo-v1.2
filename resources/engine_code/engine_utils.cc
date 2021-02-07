@@ -187,7 +187,7 @@ void engine::gl_setup() {
   GPU_Data.screen_width = total_screen_width;
   GPU_Data.screen_height = total_screen_height;
 
-  GPU_Data.orientation_widget_offset = glm::vec3(0.94, -0.92, 0.0);
+  GPU_Data.orientation_widget_offset = glm::vec3(0.94, -0.905, 0.0);
   // setup completed, show the window and start rendering
 }
 
@@ -219,7 +219,7 @@ void engine::imgui_setup() {
   glClear(GL_COLOR_BUFFER_BIT);
   SDL_GL_SwapWindow(window);
 
-#define FPS_HISTORY_SIZE 95
+#define FPS_HISTORY_SIZE 400
   fps_history.resize(FPS_HISTORY_SIZE); // initialize the array of fps values
 
   ImVec4 *colors = ImGui::GetStyle().Colors;
@@ -275,6 +275,10 @@ void engine::imgui_setup() {
   ImGuiStyle &style = ImGui::GetStyle();
 
   style.FrameRounding = 2;
+  style.WindowPadding.x = 2;
+  style.WindowPadding.y = 2;
+  style.FramePadding.x = 6;
+  style.IndentSpacing = 8;
   style.WindowRounding = 3;
   style.ScrollbarSize = 10;
 }
@@ -432,13 +436,13 @@ void engine::show_voraldo_menu(bool *show) {
 // small overlay to show the FPS counter, FPS graph
 void engine::fps_overlay(bool *p_open) {
   if (*p_open) {
-    const float DISTANCE = 2.0f;
+    const float DISTANCE = 0.2f;
     static int corner = 3;
     ImGuiIO &io = ImGui::GetIO();
     if (corner != -1) {
       ImVec2 window_pos =
-          ImVec2((corner & 1) ? io.DisplaySize.x - DISTANCE - 75 : DISTANCE,
-                 (corner & 2) ? io.DisplaySize.y - DISTANCE : DISTANCE);
+          ImVec2((corner & 1) ? io.DisplaySize.x - DISTANCE - 80 : DISTANCE,
+                 (corner & 2) ? io.DisplaySize.y - DISTANCE - 10 : DISTANCE);
       ImVec2 window_pos_pivot =
           ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
       ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
@@ -464,7 +468,7 @@ void engine::fps_overlay(bool *p_open) {
       char overlay[32];
       sprintf(overlay, "avg %.2f fps (%.2f ms)", average, 1000.0f / average);
       ImGui::PlotLines("", values, IM_ARRAYSIZE(values), 0, overlay, 0.0f,
-                       100.0f, ImVec2(240, 60));
+                       140.0f, ImVec2(200, 45));
 
       if (ImGui::BeginPopupContextWindow()) {
         if (ImGui::MenuItem("Custom", NULL, corner == -1))
@@ -523,6 +527,10 @@ void engine::draw_windows() {
   ImGui_ImplSDL2_NewFrame(window);
   ImGui::NewFrame();
 
+  // graph of fps history
+  if (show_fps_overlay)
+    fps_overlay(&show_fps_overlay);
+
   // this has to be the first ImGUI window drawn - control window docks to it
   static ImGuiDockNodeFlags dockspace_flags =
       ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode |
@@ -537,9 +545,6 @@ void engine::draw_windows() {
   // do the voraldo menu
   if (show_voraldo_window)
     show_voraldo_menu(&show_voraldo_window);
-
-  if (show_fps_overlay)
-    fps_overlay(&show_fps_overlay);
 
   // show quit confirm window if the user hit escape last frame, and again every
   // frame till they choose to exit
