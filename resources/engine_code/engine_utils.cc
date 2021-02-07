@@ -132,29 +132,28 @@ bool hasPNG(std::string filename) {
 // intention is to read all the files in the current directory and put them in
 // the array
 
-// #define LISTBOX_SIZE 256
-// std::vector<std::string> directory_strings;
+#define LISTBOX_SIZE 256
+std::vector<std::string> directory_strings;
 
-// struct path_leaf_string {
-//   std::string operator()(const std::filesystem::directory_entry &entry) const
-//   {
-//     return entry.path().string();
-//   }
-// };
+struct path_leaf_string {
+  std::string operator()(const std::filesystem::directory_entry &entry) const {
+    return entry.path().string();
+  }
+};
 
-// void update_listbox_items() {
-//   directory_strings.clear();
+void update_listbox_items() {
+  directory_strings.clear();
 
-//   std::filesystem::path p("saves");
-//   std::filesystem::directory_iterator start(p);
-//   std::filesystem::directory_iterator end;
+  std::filesystem::path p("saves");
+  std::filesystem::directory_iterator start(p);
+  std::filesystem::directory_iterator end;
 
-//   std::transform(start, end, std::back_inserter(directory_strings),
-//                  path_leaf_string());
+  std::transform(start, end, std::back_inserter(directory_strings),
+                 path_leaf_string());
 
-//   // sort these alphabetically
-//   std::sort(directory_strings.begin(), directory_strings.end());
-// }
+  // sort these alphabetically
+  std::sort(directory_strings.begin(), directory_strings.end());
+}
 
 void engine::SDL2_setup() {
   cout << "creating window.............";
