@@ -187,6 +187,8 @@ void engine::gl_setup() {
   GPU_Data.screen_width = total_screen_width;
   GPU_Data.screen_height = total_screen_height;
 
+  GPU_Data.orientation_widget_offset = glm::vec3(0.9, -0.74, 0.0);
+
   // setup completed, show the window and start rendering
 }
 
