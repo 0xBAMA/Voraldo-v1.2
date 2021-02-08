@@ -78,29 +78,26 @@ void GLContainer::buffer_geometry() {
   points.push_back(glm::vec3(-1, 3, 0.5));  // C
 
   // vao, vbo
-  cout << "  setting up vao, vbo for display geometry...........";
+  cout << "display geometry init................................";
   glGenVertexArrays(1, &display_vao);
   glBindVertexArray(display_vao);
 
   glGenBuffers(1, &display_vbo);
   glBindBuffer(GL_ARRAY_BUFFER, display_vbo);
-  cout << "done." << endl;
 
   // buffer the data
-  cout << "  buffering vertex data..............................";
   glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * points.size(), NULL,
                GL_DYNAMIC_DRAW);
   glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * points.size(),
                   &points[0]);
-  cout << "done." << endl;
 
   // set up attributes
-  cout << "  setting up attributes in display shader............";
   GLuint points_attrib =
       glGetAttribLocation(display_shader_program, "vPosition");
   glEnableVertexAttribArray(points_attrib);
   glVertexAttribPointer(points_attrib, 3, GL_FLOAT, GL_FALSE, 0,
                         (GLvoid *)(static_cast<const char *>(0) + (0)));
+
   cout << "done." << endl;
 
   points.clear();
@@ -123,6 +120,8 @@ void GLContainer::buffer_geometry() {
   //   | /     | /
   //   |/      |/
   //   b-------d
+
+  cout << "orientation widget geometry init.....................";
 
 #define POS 0.125f
 #define NEG -0.125f
@@ -291,6 +290,7 @@ void GLContainer::buffer_geometry() {
   glVertexAttribPointer(colors_attribute, 3, GL_FLOAT, GL_FALSE, 0,
                         (GLvoid *)(static_cast<const char *>(0) +
                                    (num_bytes_points + num_bytes_normals)));
+  cout << "done." << endl;
 }
 
 void GLContainer::cube_geometry(glm::vec3 a, glm::vec3 b, glm::vec3 c,
