@@ -775,6 +775,8 @@ void engine::show_voraldo_menu(bool *show) {
         // WrappedText("Larger numbers are smaller lobes. Click generate to send
         // your new scalings to the GPU to draw with.", windowsize.x);
         ImGui::Text(" ");
+        ImGui::Text("WIP FastNoise2 integration");
+        ImGui::Text(" ");
         ImGui::SliderFloat("  xscale", &perlin_scale_x, 0.01f, 0.5f, "%.3f");
         ImGui::SliderFloat("  yscale", &perlin_scale_y, 0.01f, 0.5f, "%.3f");
         ImGui::SliderFloat("  zscale", &perlin_scale_z, 0.01f, 0.5f, "%.3f");
@@ -963,14 +965,55 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" User ")) {
-        static char text[1 << 16] = "bool is_inside()\n"
-                                    "{\n"
-                                    "   // your SDF definition goes here\n"
-                                    "}\n";
+
+        // probably want to split this up, two tabs, documentation and editor
+        // documentation provides the very basic description and usage of the
+        // SDF functions and operators represented here:
+        //  (rough list, need to review contents in more detail)
+
+        // SDFS
+        // https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+        // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+        // https://iquilezles.org/www/articles/ellipsoids/ellipsoids.htm
+        // https://iquilezles.org/www/articles/interiordistance/interiordistance.htm
+
+        // OPERATORS
+        // https://twitter.com/gaziya5/status/1354945792851668999
+        // https://iquilezles.org/www/articles/smin/smin.htm
+        // https://iquilezles.org/www/articles/menger/menger.htm
+
+        // OTHER FUNCTIONS
+        // https://iquilezles.org/www/articles/functions/functions.htm - HOT
+
+        // this c style string holds the contents of the program -
+        //   need to extend Cshader class to take string instead of file input
+        static char text[1 << 16] =
+            "// a struct definition exists like this:\n"
+            "//   struct irec{\n"
+            "//    bool is_inside = false;\n"
+            "//    vec4 color = vec4(0);\n"
+            "//    int mask_amount = 0;\n"
+            "//   };\n"
+            "// \n"
+            "// Fill it out and it will be applied with the\n"
+            "// selected mask blending mode.\n\n"
+            "irec check(){\n"
+            "   irec temp;\n\n"
+            "   // your SDF definition goes here\n\n"
+            "   return temp;\n"
+            "}\n";
+
+        // should make the return type a struct which contains bool is_inside,
+        // plus color and mask amount
+
         ImGui::InputTextMultiline(
             "source", text, IM_ARRAYSIZE(text),
-            ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 32),
+            // ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 32),
+            ImVec2(-FLT_MIN, total_screen_height - 200),
             ImGuiInputTextFlags_AllowTabInput);
+
+        // button to compile and run
+        // compilation result - report result + timing
 
         ImGui::EndTabItem();
       }
