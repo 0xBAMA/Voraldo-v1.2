@@ -325,6 +325,13 @@ void engine::imgui_setup() {
   style.ScrollbarSize = 10;
 }
 
+void WrappedText(const char *string) {
+  // ImGui::PushTextWrapPos(ImGui::GetFontSize() * wrap);
+  ImGui::PushTextWrapPos(ImGui::GetWindowSize().x);
+  ImGui::TextUnformatted(string);
+  ImGui::PopTextWrapPos();
+}
+
 static void HelpMarker(const char *desc) {
   ImGui::TextDisabled("(?)");
   if (ImGui::IsItemHovered()) {
@@ -344,12 +351,15 @@ void engine::show_voraldo_menu(bool *show) {
 
   // window contents
   // ImGui::Text("This is some text");
-  ImGuiTabBarFlags tab_bar_flags =
-      ImGuiTabBarFlags_None | ImGuiTabBarFlags_FittingPolicyScroll;
+  ImGuiTabBarFlags tab_bar_flags_wdropdown =
+      ImGuiTabBarFlags_TabListPopupButton |
+      ImGuiTabBarFlags_FittingPolicyScroll;
+  ImGuiTabBarFlags tab_bar_flags_wodropdown =
+      ImGuiTabBarFlags_FittingPolicyScroll;
 
-  if (ImGui::BeginTabBar("top_level", tab_bar_flags)) {
+  if (ImGui::BeginTabBar("top_level", tab_bar_flags_wodropdown)) {
     if (ImGui::BeginTabItem(" Shapes ")) {
-      ImGui::BeginTabBar("shapes", tab_bar_flags);
+      ImGui::BeginTabBar("shapes", tab_bar_flags_wdropdown);
       if (ImGui::BeginTabItem(" AABB ")) {
         static glm::vec3 max, min;
         static ImVec4 aabb_draw_color;
@@ -869,9 +879,10 @@ void engine::show_voraldo_menu(bool *show) {
         static ImVec4 tube_draw_color;
         static float tube_inner_radius, tube_outer_radius;
 
-        // WrappedText("Tube is a cylinder with a cylinder cut out from the
-        // center. Outer is the outer radius, and inner is the radius of the
-        // cutout.", windowsize.x);
+        WrappedText(
+            "Tube is a cylinder with a cylinder cut out from the "
+            "center. Outer is the outer radius, and inner is the radius of the "
+            "cutout.");
         ImGui::Text(" ");
 
         ImGui::Text("Radii");
@@ -918,9 +929,9 @@ void engine::show_voraldo_menu(bool *show) {
         static bool triangle_draw = true;
         static bool triangle_mask = false;
 
-        // WrappedText("Triangles consist of three points, use the sliders below
-        // to set each x, y and z value. Thickness will set the thickness of the
-        // triangle.", windowsize.x);
+        WrappedText("Triangles consist of three points, use the sliders below "
+                    "to set each x, y and z value. Thickness will set the "
+                    "thickness of the triangle.");
         ImGui::Text(" ");
 
         ImGui::SliderFloat(" thickness", &thickness, 0.0f, 300.0f, "%.3f");
@@ -964,57 +975,58 @@ void engine::show_voraldo_menu(bool *show) {
         }
         ImGui::EndTabItem();
       }
-      if (ImGui::BeginTabItem(" User ")) {
+      if (ImGui::BeginTabItem(" UserScript ")) {
 
-        // probably want to split this up, two tabs, documentation and editor
-        // documentation provides the very basic description and usage of the
-        // SDF functions and operators represented here:
-        //  (rough list, need to review contents in more detail)
+        ImGui::BeginTabBar("userscript", tab_bar_flags_wodropdown);
+        if (ImGui::BeginTabItem(" Editor ")) {
+          draw_userscript_editor_tab_contents();
+          ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem(" Documentation ")) {
+          // documentation provides the very basic description and
+          // usage of the SDF functions and operators represented here:
 
-        // SDFS
-        // https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-        // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
-        // https://iquilezles.org/www/articles/ellipsoids/ellipsoids.htm
-        // https://iquilezles.org/www/articles/interiordistance/interiordistance.htm
+          // SDFS
+          // https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+          // https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+          // https://iquilezles.org/www/articles/ellipsoids/ellipsoids.htm
+          // https://iquilezles.org/www/articles/interiordistance/interiordistance.htm
 
-        // OPERATORS
-        // https://twitter.com/gaziya5/status/1354945792851668999
-        // https://iquilezles.org/www/articles/smin/smin.htm
-        // https://iquilezles.org/www/articles/menger/menger.htm
+          // OPERATORS
+          // https://twitter.com/gaziya5/status/1354945792851668999
+          // https://iquilezles.org/www/articles/smin/smin.htm
+          // https://iquilezles.org/www/articles/menger/menger.htm
 
-        // OTHER FUNCTIONS
-        // https://iquilezles.org/www/articles/functions/functions.htm - HOT
+          // OTHER FUNCTIONS
+          // https://iquilezles.org/www/articles/functions/functions.htm - HOT
+          WrappedText("You bring an is_inside() function, we'll make a shader "
+                      "for you.");
+          WrappedText(
+              "A header is provided with some basic SDF primitives and "
+              "operators, as well as some interesting easing functions. "
+              "Individual descriptions can also be found in the man entries "
+              "for each.");
 
-        // this c style string holds the contents of the program -
-        //   need to extend Cshader class to take string instead of file input
-        static char text[1 << 16] =
-            "// a struct definition exists like this:\n"
-            "//   struct irec{\n"
-            "//    bool is_inside = false;\n"
-            "//    vec4 color = vec4(0);\n"
-            "//    int mask_amount = 0;\n"
-            "//   };\n"
-            "// \n"
-            "// Fill it out and it will be applied with the\n"
-            "// selected mask blending mode.\n\n"
-            "irec check(){\n"
-            "   irec temp;\n\n"
-            "   // your SDF definition goes here\n\n"
-            "   return temp;\n"
-            "}\n";
+          // this goes in the documentation tab
+          ImGui::Text("");
+          WrappedText("Abstractions are provided as follows:");
+          WrappedText(
+              "- myloc is a vec3 with the centerpoint's location in the "
+              "unit cube (-1, 1)."); // easier than using glGlobalInvocationID
+          WrappedText("- A struct definition exists like this:\n"
+                      "  struct irec{\n"
+                      "    bool inside = false;\n"
+                      "    vec4 color = vec4(0);\n"
+                      "    int mask_amount = 0;\n"
+                      "  };\n"
+                      "\n");
 
-        // should make the return type a struct which contains bool is_inside,
-        // plus color and mask amount
+          WrappedText("\n\nFill out an irec it will be applied with the"
+                      " selected mask blending mode.");
+          ImGui::EndTabItem();
+        }
 
-        ImGui::InputTextMultiline(
-            "source", text, IM_ARRAYSIZE(text),
-            // ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 32),
-            ImVec2(-FLT_MIN, total_screen_height - 200),
-            ImGuiInputTextFlags_AllowTabInput);
-
-        // button to compile and run
-        // compilation result - report result + timing
-
+        ImGui::EndTabBar();
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" VAT ")) {
@@ -1173,7 +1185,7 @@ void engine::show_voraldo_menu(bool *show) {
     }
 
     if (ImGui::BeginTabItem(" Utilities ")) {
-      ImGui::BeginTabBar("utils", tab_bar_flags);
+      ImGui::BeginTabBar("utils", tab_bar_flags_wdropdown);
       if (ImGui::BeginTabItem(" Clear ")) {
         static bool respect_mask = false;
 
@@ -1472,7 +1484,7 @@ void engine::show_voraldo_menu(bool *show) {
       ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem(" Lighting ")) {
-      ImGui::BeginTabBar("l", tab_bar_flags);
+      ImGui::BeginTabBar("l", tab_bar_flags_wdropdown);
 
       static float clear_level;
       static bool use_cache;
@@ -1679,6 +1691,429 @@ void engine::show_voraldo_menu(bool *show) {
     ImGui::EndTabBar();
     ImGui::End();
   }
+}
+
+void engine::draw_userscript_editor_tab_contents() {
+  // assumes an already open window
+  // locally declared class, static instance held to keep the info
+
+  struct consoleclass {
+    char InputBuf[256];
+    ImVector<char *> Items;
+    ImVector<const char *> Commands;
+    ImVector<char *> History;
+    int HistoryPos; // -1: new line, 0..History.Size-1 browsing history.
+    ImGuiTextFilter Filter;
+    bool AutoScroll;
+    bool ScrollToBottom;
+
+    consoleclass() {
+      ClearLog();
+      memset(InputBuf, 0, sizeof(InputBuf));
+      HistoryPos = -1;
+
+      Commands.push_back("help"); // dump command list
+      Commands.push_back("man");  // list all function names
+      Commands.push_back("compile");
+      Commands.push_back("load");
+      Commands.push_back("save");
+      Commands.push_back("history");
+
+      AutoScroll = true;
+      ScrollToBottom = true;
+    }
+    ~consoleclass() {
+      ClearLog();
+      for (int i = 0; i < History.Size; i++)
+        free(History[i]);
+    }
+
+    // Portable helpers
+    static int Stricmp(const char *s1, const char *s2) {
+      int d;
+      while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1) {
+        s1++;
+        s2++;
+      }
+      return d;
+    }
+    static int Strnicmp(const char *s1, const char *s2, int n) {
+      int d = 0;
+      while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1) {
+        s1++;
+        s2++;
+        n--;
+      }
+      return d;
+    }
+    static char *Strdup(const char *s) {
+      size_t len = strlen(s) + 1;
+      void *buf = malloc(len);
+      IM_ASSERT(buf);
+      return (char *)memcpy(buf, (const void *)s, len);
+    }
+    static void Strtrim(char *s) {
+      char *str_end = s + strlen(s);
+      while (str_end > s && str_end[-1] == ' ')
+        str_end--;
+      *str_end = 0;
+    }
+
+    std::string return_current_time_and_date() {
+      auto now = std::chrono::system_clock::now();
+      auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+      std::stringstream ss;
+      ss << std::put_time(std::localtime(&in_time_t), "[%X]");
+      return ss.str();
+    }
+
+    void ClearLog() {
+      for (int i = 0; i < Items.Size; i++)
+        free(Items[i]);
+      Items.clear();
+      AddLog(std::string(return_current_time_and_date() +
+                         std::string(" Voraldo v1.2 UserScript Console. "
+                                     "\n'help' for command list."))
+                 .c_str());
+    }
+
+    void AddLog(const char *fmt, ...) IM_FMTARGS(2) {
+      // FIXME-OPT
+      char buf[1024];
+      va_list args;
+      va_start(args, fmt);
+      vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
+      buf[IM_ARRAYSIZE(buf) - 1] = 0;
+      va_end(args);
+      Items.push_back(Strdup(buf));
+    }
+
+    void Draw(const char *title, bool *p_open) {
+
+      // if (ImGui::SmallButton("Add Debug Error")) {
+      //   AddLog("[error] something went wrong");
+      // }
+
+      ImGui::SameLine();
+      if (ImGui::SmallButton(" Clear Console ")) {
+        ClearLog();
+      }
+
+      // ImGui::SameLine();
+      // bool copy_to_clipboard = ImGui::SmallButton("Copy");
+      bool copy_to_clipboard = false;
+      // static float t = 0.0f; if (ImGui::GetTime() - t > 0.02f) { t =
+      // ImGui::GetTime(); AddLog("Spam %f", t); }
+
+      // if (!Stricmp(std::string("nut").c_str(), std::string("nut").c_str())) {
+      //   cout << "evaluated true" << endl;
+      // }
+      ImGui::Separator();
+
+      // Options menu
+      // if (ImGui::BeginPopup("Options")) {
+      // ImGui::Checkbox("Auto-scroll", &AutoScroll);
+      // ImGui::EndPopup();
+      // }
+
+      // Options, Filter
+      // if (ImGui::Button("Options"))
+      //   ImGui::OpenPopup("Options");
+      // ImGui::SameLine();
+      // Filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
+      // ImGui::Separator();
+
+      // Reserve enough left-over height for 1 separator + 1 input text
+      const float footer_height_to_reserve =
+          ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing() +
+          12;
+      ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve),
+                        false, ImGuiWindowFlags_HorizontalScrollbar);
+
+      // Display every line as a separate entry so we can change their color or
+      // add custom widgets. If you only want raw text you can use
+      // ImGui::TextUnformatted(log.begin(), log.end()); NB- if you have
+      // thousands of entries this approach may be too inefficient and may
+      // require user-side clipping to only process visible items. The clipper
+      // will automatically measure the height of your first item and then
+      // "seek" to display only items in the visible area.
+      // To use the clipper we can replace your standard loop:
+      //      for (int i = 0; i < Items.Size; i++)
+      //   With:
+      //      ImGuiListClipper clipper;
+      //      clipper.Begin(Items.Size);
+      //      while (clipper.Step())
+      //         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+      // - That your items are evenly spaced (same height)
+      // - That you have cheap random access to your elements (you can access
+      // them given their index,
+      //   without processing all the ones before)
+      // You cannot this code as-is if a filter is active because it breaks the
+      // 'cheap random-access' property. We would need random-access on the
+      // post-filtered list. A typical application wanting coarse clipping and
+      // filtering may want to pre-compute an array of indices or offsets of
+      // items that passed the filtering test, recomputing this array when user
+      // changes the filter, and appending newly elements as they are inserted.
+      // This is left as a task to the user until we can manage to improve this
+      // example code! If your items are of variable height:
+      // - Split them into same height items would be simpler and facilitate
+      // random-seeking into your list.
+      // - Consider using manual call to IsRectVisible() and skipping extraneous
+      // decoration from your items.
+      ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,
+                          ImVec2(4, 1)); // Tighten spacing
+      if (copy_to_clipboard)
+        ImGui::LogToClipboard();
+      for (int i = 0; i < Items.Size; i++) {
+        const char *item = Items[i];
+        if (!Filter.PassFilter(item))
+          continue;
+
+        // Normally you would store more information in your item than just a
+        // string. (e.g. make Items[] an array of structure, store color/type
+        // etc.)
+        ImVec4 color;
+        bool has_color = false;
+        if (strstr(item, "[error]")) {
+          color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f);
+          has_color = true;
+        } else if (strncmp(item, "> ", 2) == 0) {
+          color = ImVec4(1.0f, 0.618f, 0.218f, 1.0f);
+          has_color = true;
+        }
+        if (has_color)
+          ImGui::PushStyleColor(ImGuiCol_Text, color);
+        ImGui::TextUnformatted(item);
+        if (has_color)
+          ImGui::PopStyleColor();
+      }
+      if (copy_to_clipboard)
+        ImGui::LogFinish();
+
+      if (ScrollToBottom ||
+          (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
+        ImGui::SetScrollHereY(1.0f);
+      ScrollToBottom = false;
+
+      ImGui::PopStyleVar();
+      ImGui::EndChild();
+      ImGui::Separator();
+
+      // Command-line
+      bool reclaim_focus = false;
+      ImGuiInputTextFlags input_text_flags =
+          ImGuiInputTextFlags_EnterReturnsTrue |
+          ImGuiInputTextFlags_CallbackCompletion |
+          ImGuiInputTextFlags_CallbackHistory;
+      if (ImGui::InputText(" ", InputBuf, IM_ARRAYSIZE(InputBuf),
+                           input_text_flags, &TextEditCallbackStub,
+                           (void *)this)) {
+        char *s = InputBuf;
+        Strtrim(s);
+        if (s[0])
+          ExecCommand(s);
+        strcpy(s, "");
+        reclaim_focus = true;
+      }
+
+      // Auto-focus on window apparition
+      ImGui::SetItemDefaultFocus();
+      if (reclaim_focus)
+        ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
+
+      // ImGui::End();
+    }
+
+    void ExecCommand(const char *command_line) {
+      AddLog("> %s\n", command_line);
+
+      // Insert into history. First find match and delete it so it can be pushed
+      // to the back. This isn't trying to be smart or optimal.
+      HistoryPos = -1;
+      for (int i = History.Size - 1; i >= 0; i--)
+        if (Stricmp(History[i], command_line) == 0) {
+          free(History[i]);
+          History.erase(History.begin() + i);
+          break;
+        }
+      History.push_back(Strdup(command_line));
+
+      // Process command
+      if (Stricmp(command_line, "clear") == 0) {
+        ClearLog();
+      } else if (Stricmp(command_line, "help") == 0) {
+        AddLog("Commands:");
+        for (int i = 0; i < Commands.Size; i++)
+          AddLog("- %s", Commands[i]);
+      } else if (Stricmp(command_line, "history") == 0) {
+        int first = History.Size - 10;
+        for (int i = first > 0 ? first : 0; i < History.Size; i++)
+          AddLog("%3d: %s\n", i, History[i]);
+      } else if (Strnicmp(command_line, "man", 3) == 0) {
+        // AddLog("started with man\n");
+        if (Stricmp(command_line, "man") == 0) { // if it is only 'man'
+          AddLog("Use this command to access the manual entry for other "
+                 "commands.\n'man list' for the list. \n");
+        } else if (Strnicmp(command_line, "man ", 4) ==
+                   0) { // properly formatted command
+          // handle individual manual entries
+          // easiest to use a std::map<std::string, std::string>
+        }
+      } else if (Strnicmp(command_line, "load ", 5) == 0) {
+        // try to load the string that follows 'load '
+      } else if (Strnicmp(command_line, "save ", 5) == 0) {
+        // try to save the string to file
+        // scripts/whatever.user.cs.glsl
+      } else if (Stricmp(command_line, "compile") == 0) {
+        // compile what's in the box
+      } else {
+        AddLog("Unknown command: '%s'\n", command_line);
+      }
+
+      // On command input, we scroll to bottom even if AutoScroll==false
+      ScrollToBottom = true;
+    }
+
+    // In C++11 you'd be better off using lambdas for this sort of forwarding
+    // callbacks
+    static int TextEditCallbackStub(ImGuiInputTextCallbackData *data) {
+      consoleclass *console = (consoleclass *)data->UserData;
+      return console->TextEditCallback(data);
+    }
+
+    int TextEditCallback(ImGuiInputTextCallbackData *data) {
+      // AddLog("cursor: %d, selection: %d-%d", data->CursorPos,
+      // data->SelectionStart, data->SelectionEnd);
+      switch (data->EventFlag) {
+      case ImGuiInputTextFlags_CallbackCompletion: {
+        // Example of TEXT COMPLETION
+
+        // Locate beginning of current word
+        const char *word_end = data->Buf + data->CursorPos;
+        const char *word_start = word_end;
+        while (word_start > data->Buf) {
+          const char c = word_start[-1];
+          if (c == ' ' || c == '\t' || c == ',' || c == ';')
+            break;
+          word_start--;
+        }
+
+        // Build a list of candidates
+        ImVector<const char *> candidates;
+        for (int i = 0; i < Commands.Size; i++)
+          if (Strnicmp(Commands[i], word_start, (int)(word_end - word_start)) ==
+              0)
+            candidates.push_back(Commands[i]);
+
+        if (candidates.Size == 0) {
+          // No match
+          AddLog("No match for \"%.*s\"!\n", (int)(word_end - word_start),
+                 word_start);
+        } else if (candidates.Size == 1) {
+          // Single match. Delete the beginning of the word and replace it
+          // entirely so we've got nice casing.
+          data->DeleteChars((int)(word_start - data->Buf),
+                            (int)(word_end - word_start));
+          data->InsertChars(data->CursorPos, candidates[0]);
+          data->InsertChars(data->CursorPos, " ");
+        } else {
+          // Multiple matches. Complete as much as we can..
+          // So inputing "C"+Tab will complete to "CL" then display "CLEAR" and
+          // "CLASSIFY" as matches.
+          int match_len = (int)(word_end - word_start);
+          for (;;) {
+            int c = 0;
+            bool all_candidates_matches = true;
+            for (int i = 0; i < candidates.Size && all_candidates_matches; i++)
+              if (i == 0)
+                c = toupper(candidates[i][match_len]);
+              else if (c == 0 || c != toupper(candidates[i][match_len]))
+                all_candidates_matches = false;
+            if (!all_candidates_matches)
+              break;
+            match_len++;
+          }
+
+          if (match_len > 0) {
+            data->DeleteChars((int)(word_start - data->Buf),
+                              (int)(word_end - word_start));
+            data->InsertChars(data->CursorPos, candidates[0],
+                              candidates[0] + match_len);
+          }
+
+          // List matches
+          AddLog("Possible matches:\n");
+          for (int i = 0; i < candidates.Size; i++)
+            AddLog("- %s\n", candidates[i]);
+        }
+
+        break;
+      }
+      case ImGuiInputTextFlags_CallbackHistory: {
+        // Example of HISTORY
+        const int prev_history_pos = HistoryPos;
+        if (data->EventKey == ImGuiKey_UpArrow) {
+          if (HistoryPos == -1)
+            HistoryPos = History.Size - 1;
+          else if (HistoryPos > 0)
+            HistoryPos--;
+        } else if (data->EventKey == ImGuiKey_DownArrow) {
+          if (HistoryPos != -1)
+            if (++HistoryPos >= History.Size)
+              HistoryPos = -1;
+        }
+
+        // A better implementation would preserve the data on the current input
+        // line along with cursor position.
+        if (prev_history_pos != HistoryPos) {
+          const char *history_str =
+              (HistoryPos >= 0) ? History[HistoryPos] : "";
+          data->DeleteChars(0, data->BufTextLen);
+          data->InsertChars(0, history_str);
+        }
+      }
+      }
+      return 0;
+    }
+  };
+
+  static bool draw = true;
+  static consoleclass console;
+
+  // the first part, the editor -
+  // this c style string holds the contents of the program -
+  //   need to extend Cshader class to take string instead of file
+  //   input
+  char origtext[] =
+      "irec is_inside(){  // check Documentation tab for details \n\n"
+      "   irec temp;\n\n"
+      "   // your SDF definition goes here\n\n"
+      "   return temp;\n\n"
+      "}";
+
+  static char text[1 << 13] =
+      "irec is_inside(){  // check Documentation tab for details \n\n"
+      "   irec temp;\n\n"
+      "   // your SDF definition goes here\n\n"
+      "   return temp;\n\n"
+      "}";
+
+  ImGui::InputTextMultiline("source", text, IM_ARRAYSIZE(text),
+                            ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 36),
+                            ImGuiInputTextFlags_AllowTabInput);
+  if (ImGui::SmallButton(" Compile ")) {
+    // do some compilation
+  }
+  ImGui::SameLine();
+  if (ImGui::SmallButton(" Clear Editor ")) {
+    strcpy(text, origtext);
+  }
+
+  // the second part, the console
+  // compilation result in the console - report result + timing
+
+  console.Draw("ex", &draw);
 }
 
 // small overlay to show the FPS counter, FPS graph
