@@ -292,7 +292,7 @@ void engine::imgui_setup() {
   colors[ImGuiCol_Header] = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
   colors[ImGuiCol_HeaderHovered] = ImVec4(0.33f, 0.15f, 0.02f, 1.00f);
   colors[ImGuiCol_HeaderActive] = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
-  colors[ImGuiCol_Separator] = ImVec4(0.28f, 0.18f, 0.06f, 0.17f);
+  colors[ImGuiCol_Separator] = ImVec4(0.28f, 0.18f, 0.06f, 0.37f);
   colors[ImGuiCol_SeparatorHovered] = ImVec4(0.33f, 0.15f, 0.02f, 0.17f);
   colors[ImGuiCol_SeparatorActive] = ImVec4(0.42f, 0.18f, 0.06f, 0.17f);
   colors[ImGuiCol_ResizeGrip] = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
@@ -393,7 +393,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // draw the sphere with the selected values
           // GPU_Data.draw_aabb(min, max,
           //                    glm::vec4(aabb_draw_color.x, aabb_draw_color.y,
@@ -488,7 +488,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // GPU_Data.draw_cuboid(a, b, c, d, e, f, g, h,
           //   glm::vec4(cuboid_draw_color.x, cuboid_draw_color.y,
           //   cuboid_draw_color.z, cuboid_draw_color.w), cuboid_draw,
@@ -543,7 +543,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // GPU_Data.draw_cylinder(cylinder_bvec, cylinder_tvec,
           // cylinder_radius, glm::vec4(cylinder_draw_color.x,
           // cylinder_draw_color.y, cylinder_draw_color.z,
@@ -591,7 +591,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // GPU_Data.draw_ellipsoid(center, radius, rotation,
           // glm::vec4(ellipsoid_draw_color.x, ellipsoid_draw_color.y,
           // ellipsoid_draw_color.z, ellipsoid_draw_color.w), ellipsoid_draw,
@@ -637,7 +637,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
 
         ImGui::SetCursorPosX(16);
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // GPU_Data.draw_grid(glm::ivec3(xspacing, yspacing, zspacing),
           // glm::ivec3(xwid, ywid, zwid), glm::ivec3(xoff, yoff, zoff),
           // glm::vec4(grid_draw_color.x, grid_draw_color.y, grid_draw_color.z,
@@ -666,19 +666,19 @@ void engine::show_voraldo_menu(bool *show) {
                      ,
                      ImVec2(240, 256));
 
-        if (ImGui::Button("perlin")) {
+        if (ImGui::SmallButton(" Perlin ")) {
           // GPU_Data.generate_heightmap_perlin();
         }
 
         ImGui::SameLine();
 
-        if (ImGui::Button("diamond-square")) {
+        if (ImGui::SmallButton(" Diamond-Square ")) {
           // GPU_Data.generate_heightmap_diamond_square();
         }
 
         ImGui::SameLine();
 
-        if (ImGui::Button("XOR")) {
+        if (ImGui::SmallButton(" XOR ")) {
           // GPU_Data.generate_heightmap_XOR();
         }
 
@@ -698,7 +698,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // draw the heightmap with the selected values
           // GPU_Data.draw_heightmap(heightmap_vertical_scale, true,
           // glm::vec4(heightmap_draw_color.x, heightmap_draw_color.y,
@@ -761,7 +761,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // GPU_Data.draw_regular_icosahedron(rotations.x, rotations.y,
           // rotations.z, scale, center_point, glm::vec4(vertex_color.x,
           // vertex_color.y, vertex_color.z, vertex_color.w), vertex_radius,
@@ -792,7 +792,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("  zscale", &perlin_scale_z, 0.01f, 0.5f, "%.3f");
         ImGui::Text(" ");
 
-        if (ImGui::Button("generate")) {
+        if (ImGui::SmallButton("generate")) {
           // GPU_Data.generate_perlin_noise(perlin_scale_x, perlin_scale_y,
           // perlin_scale_z);
         }
@@ -823,7 +823,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
 
         ImGui::SetCursorPosX(16);
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // GPU_Data.draw_perlin_noise(perlin_threshold_lo,
           // perlin_threshold_hi, perlin_smooth, glm::vec4(perlin_draw_color.x,
           // perlin_draw_color.y, perlin_draw_color.z, perlin_draw_color.w),
@@ -865,7 +865,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // GPU_Data.draw_sphere(sphere_location, sphere_radius,
           // glm::vec4(sphere_draw_color.x, sphere_draw_color.y,
           // sphere_draw_color.z, sphere_draw_color.w), sphere_draw,
@@ -915,7 +915,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // GPU_Data.draw_tube(tube_bvec, tube_tvec, tube_inner_radius,
           // tube_outer_radius, glm::vec4(tube_draw_color.x, tube_draw_color.y,
           // tube_draw_color.z, tube_draw_color.w), tube_draw, tube_mask);
@@ -967,7 +967,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Draw", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Draw")) {
           // GPU_Data.draw_triangle(point1, point2, point3, thickness,
           // glm::vec4(triangle_draw_color.x, triangle_draw_color.y,
           // triangle_draw_color.z, triangle_draw_color.w), triangle_draw,
@@ -999,30 +999,35 @@ void engine::show_voraldo_menu(bool *show) {
 
           // OTHER FUNCTIONS
           // https://iquilezles.org/www/articles/functions/functions.htm - HOT
-          WrappedText("You bring an is_inside() function, we'll make a shader "
-                      "for you.");
+          WrappedText("You bring an is_inside() function, and a shader will be "
+                      "created. It is then invoked per-voxel with the same "
+                      "logic as the rest of the drawing functions.");
           WrappedText(
               "A header is provided with some basic SDF primitives and "
               "operators, as well as some interesting easing functions. "
-              "Individual descriptions can also be found in the man entries "
-              "for each.");
+              "Individual descriptions can also be found in the console, "
+              "contained in the manual entries.");
+          ImGui::Separator();
+          WrappedText("Fill out an irec it will be applied with the"
+                      " selected mask blending mode.");
 
           // this goes in the documentation tab
           ImGui::Text("");
           WrappedText("Abstractions are provided as follows:");
+          ImGui::Separator();
           WrappedText(
               "- myloc is a vec3 with the centerpoint's location in the "
-              "unit cube (-1, 1)."); // easier than using glGlobalInvocationID
-          WrappedText("- A struct definition exists like this:\n"
+              "unit cube (-1, 1). This is to simplify the use of "
+              "glGlobalInvocationID.xyz, which is still available if you "
+              "prefer working with integers over this 'normalized' mapping.\n");
+
+          WrappedText("- An output struct definition exists like this:\n"
                       "  struct irec{\n"
                       "    bool inside = false;\n"
                       "    vec4 color = vec4(0);\n"
                       "    int mask_amount = 0;\n"
-                      "  };\n"
-                      "\n");
+                      "  };\n");
 
-          WrappedText("\n\nFill out an irec it will be applied with the"
-                      " selected mask blending mode.");
           ImGui::EndTabItem();
         }
 
@@ -1033,15 +1038,22 @@ void engine::show_voraldo_menu(bool *show) {
         // https://softologyblog.wordpress.com/2017/05/27/voxel-automata-terrain/
         // https://bitbucket.org/BWerness/voxel-automata-terrain/src/master/
 
+        // static ImVec4 color0 =
+        //     ImVec4(165.0 / 255.0, 118.0 / 255.0, 64.0 / 255.0,
+        //            10.0 / 255.0); // neutral volume color
+        // static ImVec4 color1 =
+        //     ImVec4(210.0 / 255.0, 180.0 / 255.0, 140.0 / 255.0,
+        //            105.0 / 255.0); // Wikipedia Tan
+        // static ImVec4 color2 =
+        //     ImVec4(143.0 / 255.0, 151.0 / 255.0, 121.0 / 255.0,
+        //            95.0 / 255.0); // Wikipedia Artichoke Green
+
         static ImVec4 color0 =
-            ImVec4(165.0 / 255.0, 118.0 / 255.0, 64.0 / 255.0,
-                   10.0 / 255.0); // neutral volume color
+            ImVec4(200.0 / 255.0, 49.0 / 255.0, 11.0 / 255.0, 10.0 / 255.0);
         static ImVec4 color1 =
-            ImVec4(210.0 / 255.0, 180.0 / 255.0, 140.0 / 255.0,
-                   105.0 / 255.0); // Wikipedia Tan
+            ImVec4(190.0 / 255.0, 95.0 / 255.0, 0.0 / 255.0, 125.0 / 255.0);
         static ImVec4 color2 =
-            ImVec4(143.0 / 255.0, 151.0 / 255.0, 121.0 / 255.0,
-                   95.0 / 255.0); // Wikipedia Artichoke Green
+            ImVec4(207.0 / 255.0, 179.0 / 255.0, 7.0 / 255.0, 155.0 / 255.0);
 
         static float lambda = 0.35;
         static float beta = 0.5;
@@ -1068,9 +1080,12 @@ void engine::show_voraldo_menu(bool *show) {
 
         // string entry, letting the user input a rule
         ImGui::Text("Enter base62 encoded rule, r or i");
-        ImGui::InputTextWithHint("", "", str0, IM_ARRAYSIZE(str0));
+        ImGui::InputText(" ", str0, IM_ARRAYSIZE(str0));
+        // ImGui::InputTextWithHint("", "", str0, IM_ARRAYSIZE(str0));
+        ImGui::SetItemDefaultFocus();
+        // ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
 
-        if (ImGui::Button("Compute", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Compute")) {
           // invoke the constructor, etc - return a string from the
           // OpenGL_container::vat(...), and put it in str0
           glm::vec4 col0, col1, col2;
@@ -1098,7 +1113,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat(" lambda", &lambda, 0.0f, 1.0f, "%.3f");
         ImGui::Text(" ");
 
-        if (ImGui::Button("Compute Random", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Compute Random")) {
           // invoke the constructor, etc - return a string from the
           // OpenGL_container::vat(...), and put it in str0
           glm::vec4 col0, col1, col2;
@@ -1124,7 +1139,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat(" mag", &mag, 0.0f, 1.0f, "%.3f");
         ImGui::Text(" ");
 
-        if (ImGui::Button("Compute IRandom", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Compute IRandom")) {
           // invoke the constructor, etc - return a string from the
           // OpenGL_container::vat(...), and put it in str0
           glm::vec4 col0, col1, col2;
@@ -1199,7 +1214,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Clear", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Clear")) {
           // do the clear all operation - note that this respects the mask
           // values
           // GPU_Data.clear_all(respect_mask);
@@ -1213,7 +1228,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Unmask All", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Unmask All")) {
           // unmask all cells
           // GPU_Data.unmask_all();
         }
@@ -1228,7 +1243,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Invert", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Invert")) {
           // do the toggle operation
           // GPU_Data.invert_mask();
         }
@@ -1297,7 +1312,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("l value", &light_val, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("l variance", &l_variance, 0.0f, 1.0f, "%.3f");
 
-        if (ImGui::Button("Mask", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Mask")) {
           // GPU_Data.mask_by_color(use_r, use_g, use_b, use_a, use_l,
           // glm::vec4(select_color.x, select_color.y, select_color.z,
           // select_color.w), light_val, r_variance, g_variance, b_variance,
@@ -1325,7 +1340,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Blur", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Blur")) {
           // do the blur operation with the selected values
           // GPU_Data.box_blur(blur_radius, touch_alpha, respect_mask);
         }
@@ -1352,14 +1367,14 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Blur", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Blur")) {
           // do the blur operation with the selected values
           // GPU_Data.gaussian_blur(blur_radius, touch_alpha, respect_mask);
         }
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" Limiter ")) {
-        if (ImGui::Button("Limit", ImVec2(100, 22))) {
+        if (ImGui::SmallButton("Limit")) {
           // GPU_Data.limiter();
         }
         ImGui::EndTabItem();
@@ -1417,7 +1432,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Shift", ImVec2(90, 22))) {
+        if (ImGui::SmallButton("Shift")) {
           // GPU_Data.shift(glm::ivec3(xmove,ymove,zmove), loop, shift_mode);
         }
         ImGui::EndTabItem();
@@ -1461,7 +1476,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::Button("Load", ImVec2(60, 22))) {
+        if (ImGui::SmallButton("Load")) {
           // load that image
           // GPU_Data.load(directory_strings[listbox_select_index],
           // respect_mask_on_load);
@@ -1469,7 +1484,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Save", ImVec2(60, 22))) {
+        if (ImGui::SmallButton("Save")) {
           if (hasPNG(std::string(str0))) {
             // GPU_Data.save(std::string(str0));
           } else {
@@ -1520,11 +1535,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Checkbox(" use cached levels ", &use_cache);
 
-        if (ImGui::Button(
-                "Clear",
-                ImVec2(120, 22))) // Buttons return true when clicked (most
-                                  // widgets return true when edited/activated)
-        {
+        if (ImGui::SmallButton("Clear")) {
           // GPU_Data.lighting_clear(use_cache, clear_level);
         }
 
@@ -1547,11 +1558,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("dist power", &point_distance_power, 0, 3.0f,
                            "%.3f");
 
-        if (ImGui::Button(
-                "Point Light",
-                ImVec2(120, 22))) // Buttons return true when clicked (most
-                                  // widgets return true when edited/activated)
-        {
+        if (ImGui::SmallButton("Point Light")) {
           // GPU_Data.compute_point_lighting(point_light_position,
           // point_intensity, point_decay_power,
           // point_distance_power);
@@ -1597,11 +1604,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("value", &directional_intensity, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("decay", &decay_power, 0.0f, 3.0f, "%.3f");
 
-        if (ImGui::Button(
-                "New Directional",
-                ImVec2(120, 22))) // Buttons return true when clicked (most
-                                  // widgets return true when edited/activated)
-        {
+        if (ImGui::SmallButton("New Directional")) {
           // GPU_Data.compute_new_directional_lighting(
           // directional_theta, directional_phi, directional_intensity,
           // decay_power);
@@ -1622,7 +1625,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("alpha threshold", &GI_alpha_thresh, 0.0f, 1.0f);
         ImGui::SliderFloat("sky intensity", &GI_sky_intensity, 0.0f, 1.0f);
 
-        if (ImGui::Button("Apply GI", ImVec2(120, 22))) {
+        if (ImGui::SmallButton("Apply GI")) {
           // GPU_Data.compute_fake_GI(GI_scale_factor, GI_sky_intensity,
           // GI_alpha_thresh);
         }
@@ -1639,7 +1642,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SliderInt("radius", &AO_radius, 0, 5);
 
-        if (ImGui::Button("Apply AO", ImVec2(120, 22))) {
+        if (ImGui::SmallButton("Apply AO")) {
           // GPU_Data.compute_ambient_occlusion(AO_radius);
         }
 
@@ -1653,7 +1656,7 @@ void engine::show_voraldo_menu(bool *show) {
         //             "so that the block can be saved with the lighting
         //             applied.", windowsize.x);
 
-        if (ImGui::Button("Mash", ImVec2(120, 22))) {
+        if (ImGui::SmallButton("Mash")) {
           // GPU_Data.mash();
         }
 
@@ -1827,7 +1830,7 @@ void engine::draw_userscript_editor_tab_contents() {
       // Reserve enough left-over height for 1 separator + 1 input text
       const float footer_height_to_reserve =
           ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing() +
-          12;
+          8;
       ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve),
                         false, ImGuiWindowFlags_HorizontalScrollbar);
 
@@ -1906,6 +1909,9 @@ void engine::draw_userscript_editor_tab_contents() {
           ImGuiInputTextFlags_EnterReturnsTrue |
           ImGuiInputTextFlags_CallbackCompletion |
           ImGuiInputTextFlags_CallbackHistory;
+
+      ImGui::PushItemWidth(ImGui::GetWindowWidth());
+
       if (ImGui::InputText(" ", InputBuf, IM_ARRAYSIZE(InputBuf),
                            input_text_flags, &TextEditCallbackStub,
                            (void *)this)) {
@@ -1916,6 +1922,8 @@ void engine::draw_userscript_editor_tab_contents() {
         strcpy(s, "");
         reclaim_focus = true;
       }
+
+      ImGui::PopItemWidth();
 
       // Auto-focus on window apparition
       ImGui::SetItemDefaultFocus();
@@ -1968,7 +1976,7 @@ void engine::draw_userscript_editor_tab_contents() {
       } else if (Stricmp(command_line, "compile") == 0) {
         // compile what's in the box
       } else {
-        AddLog("Unknown command: '%s'\n", command_line);
+        AddLog("'%s' not found.\n", command_line);
       }
 
       // On command input, we scroll to bottom even if AutoScroll==false
@@ -2086,6 +2094,12 @@ void engine::draw_userscript_editor_tab_contents() {
   //   need to extend Cshader class to take string instead of file
   //   input
   char origtext[] =
+      "// need to add myloc calculation\n\n"
+      "    // important elements of the irec (there are 3):\n"
+      "    //  - is it inside? this determines whether a draw is attempted\n"
+      "    //  - what color is it? RGBA is needed to either replace or\n"
+      "    //      blend with the existing contents of the cell.\n"
+      "    //  - amount to mask - 0 to not mask at all, 255 to fully mask.\n\n"
       "irec is_inside(){  // check Documentation tab for details \n\n"
       "   irec temp;\n\n"
       "   // your SDF definition goes here\n\n"
@@ -2093,15 +2107,23 @@ void engine::draw_userscript_editor_tab_contents() {
       "}";
 
   static char text[1 << 13] =
+      "    // important elements of the irec (there are 3):\n"
+      "    //  - is it inside? this determines whether a draw is attempted\n"
+      "    //  - what color is it? RGBA is needed to either replace or\n"
+      "    //      blend with the existing contents of the cell.\n"
+      "    //  - amount to mask - 0 to not mask at all, 255 to fully mask.\n\n"
+      "// need to add myloc calculation\n\n"
       "irec is_inside(){  // check Documentation tab for details \n\n"
       "   irec temp;\n\n"
       "   // your SDF definition goes here\n\n"
       "   return temp;\n\n"
       "}";
 
-  ImGui::InputTextMultiline("source", text, IM_ARRAYSIZE(text),
-                            ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 36),
-                            ImGuiInputTextFlags_AllowTabInput);
+  ImGui::InputTextMultiline(
+      "source", text, IM_ARRAYSIZE(text),
+      ImVec2(-FLT_MIN, 2 * total_screen_height / 3),
+      // ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 36),
+      ImGuiInputTextFlags_AllowTabInput);
   if (ImGui::SmallButton(" Compile ")) {
     // do some compilation
   }
@@ -2189,7 +2211,7 @@ void engine::quit_conf(bool *open) {
     ImGui::SameLine();
 
     // button to cancel -> set this window's bool to false
-    if (ImGui::Button(" Cancel "))
+    if (ImGui::SmallButton(" Cancel "))
       *open = false;
 
     ImGui::SameLine();
@@ -2197,7 +2219,7 @@ void engine::quit_conf(bool *open) {
     ImGui::SameLine();
 
     // button to quit -> set pquit to true
-    if (ImGui::Button(" Quit "))
+    if (ImGui::SmallButton(" Quit "))
       pquit = true;
 
     ImGui::End();
