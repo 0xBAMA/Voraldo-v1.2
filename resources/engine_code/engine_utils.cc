@@ -272,7 +272,7 @@ void engine::imgui_setup() {
   colors[ImGuiCol_PopupBg] = ImVec4(0.30f, 0.12f, 0.06f, 0.94f);
   colors[ImGuiCol_Border] = ImVec4(0.25f, 0.18f, 0.09f, 0.33f);
   colors[ImGuiCol_BorderShadow] = ImVec4(0.33f, 0.15f, 0.02f, 0.17f);
-  colors[ImGuiCol_FrameBg] = ImVec4(0.33f, 0.4f, 0.02f, 0.17f);
+  colors[ImGuiCol_FrameBg] = ImVec4(0.561f, 0.082f, 0.04f, 0.17f);
   colors[ImGuiCol_FrameBgHovered] = ImVec4(0.19f, 0.09f, 0.02f, 0.17f);
   colors[ImGuiCol_FrameBgActive] = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
   colors[ImGuiCol_TitleBg] = ImVec4(0.25f, 0.12f, 0.01f, 1.00f);
@@ -1543,7 +1543,9 @@ void engine::show_voraldo_menu(bool *show) {
             "other to create a very tall image which contains a lossless copy "
             "of all the volume data.\n\nSelect one from the list to load, or "
             "save one you have created using the provided text entry "
-            "field.\n\nPlease note that if you have lighting applied to your "
+            "field. Respecting mask on load means that the load operation will "
+            "be blended with existing data based on the current blend "
+            "mode.\n\nPlease note that if you have lighting applied to your "
             "model, you need to use the 'mash' function under the lighting tab "
             "in order to destructively combine the RGBA and Lighting values. "
             "Once it has been applied and the lighting buffer is cleared back "
@@ -1605,8 +1607,8 @@ void engine::show_voraldo_menu(bool *show) {
       static int AO_radius = 0;
 
       static float GI_scale_factor = 0.028;
-      static float GI_alpha_thresh = 0.010;
-      static float GI_sky_intensity = 0.16;
+      static float GI_alpha_thresh = 0.05;
+      static float GI_sky_intensity = 0.08;
 
       static glm::vec3 point_light_position = glm::vec3(0, 0, 0);
       static float point_intensity = 0.1;
@@ -1623,10 +1625,20 @@ void engine::show_voraldo_menu(bool *show) {
 
       if (ImGui::BeginTabItem(" Clear ")) {
 
-        ImGui::Text("Clear Level - 0.25 is neutral");
-        ImGui::SliderFloat("level", &clear_level, 0.0f, 1.0f, "%.3f");
+        WrappedText(" Clear Level ");
+        ImGui::SameLine();
+        HelpMarker(
+            "This clears the values kept in each voxel of the lighting "
+            "buffer. If you have a cached lighting volume, you can "
+            "clear existing lighting information to those levels by "
+            "checking the box. Otherwise, you will be using the value "
+            "in the slider for all voxels.\n\n0.25 is 'neutral' in the "
+            "lighting buffer, that is, it faithfully passes color through from "
+            "the RGBA data before the tonemapping etc is applied.");
 
-        ImGui::Checkbox(" use cached levels ", &use_cache);
+        OrangeText("SETTINGS");
+        ImGui::SliderFloat("level", &clear_level, 0.0f, 1.0f, "%.3f");
+        ImGui::Checkbox(" Clear to Cached Levels ", &use_cache);
 
         if (ImGui::SmallButton("Clear")) {
           // GPU_Data.lighting_clear(use_cache, clear_level);
@@ -1638,14 +1650,26 @@ void engine::show_voraldo_menu(bool *show) {
 
       if (ImGui::BeginTabItem(" Point ")) {
 
-        ImGui::Text("Point Light");
+        WrappedText(" Point Light ");
+        ImGui::SameLine();
+        HelpMarker(
+            "Point lights are now invoked per voxel. The ray from the light "
+            "position to the voxel's position is considered, and the alpha "
+            "value of samples along the ray will attenuate it to create "
+            "shadows. Once the location of the voxel is reached, an "
+            "approximation of the inverse square law is used to give more "
+            "depth cues. The value of the attenuated light is then scaled by a "
+            "fraction of one over the distance raised to distance power (to "
+            "approximate inverse square at the default value of 2.0). ");
+
+        OrangeText("POSITION");
         ImGui::SliderFloat("loc x", &point_light_position.x, -100, DIM + 100,
                            "%.3f");
         ImGui::SliderFloat("loc y", &point_light_position.y, -100, DIM + 100,
                            "%.3f");
         ImGui::SliderFloat("loc z", &point_light_position.z, -100, DIM + 100,
                            "%.3f");
-        ImGui::Text(" ");
+        OrangeText("PARAMETERS");
         ImGui::SliderFloat("value", &point_intensity, 0, 1.0, "%.3f");
         ImGui::SliderFloat("decay", &point_decay_power, 0, 3.0, "%.3f");
         ImGui::SliderFloat("dist power", &point_distance_power, 0, 3.0f,
@@ -1662,25 +1686,35 @@ void engine::show_voraldo_menu(bool *show) {
       }
 
       if (ImGui::BeginTabItem(" Cone ")) {
-        ImGui::Text("Location of the tip of the cone");
+        WrappedText(" Cone Lights ");
+        ImGui::SameLine();
+        HelpMarker("Cone lights are similar to point lights, but constrained "
+                   "to a solid angle about the direction vector. The falloff "
+                   "can also be controlled, to soften the edges of the cone.");
+
+        OrangeText("SOURCE LOCATION");
         ImGui::SliderFloat("loc x", &cone_light_position.x, -100, DIM + 100,
                            "%.3f");
         ImGui::SliderFloat("loc y", &cone_light_position.y, -100, DIM + 100,
                            "%.3f");
         ImGui::SliderFloat("loc z", &cone_light_position.z, -100, DIM + 100,
                            "%.3f");
-        ImGui::Text(" ");
-        ImGui::Text("Rotation of the cone");
+        OrangeText("CONE ROTATION");
         ImGui::SliderFloat("theta", &cone_theta, -3.14f, 3.14f, "%.3f");
         ImGui::SliderFloat("phi", &cone_phi, -3.14f, 3.14f, "%.3f");
-        ImGui::Text(" ");
-        ImGui::Text("Defines the width of the cone");
+
+        OrangeText("PARAMETERS");
+        ImGui::SameLine();
+        HelpMarker("Cone angle sets the width of the cone.\n\nValue determines "
+                   "the initial intensity of the light source.\n\nDecay "
+                   "determines the falloff of how the light intensity is "
+                   "attenuated by the alpha samples of the volume.\n\nDist "
+                   "power is used as an approximation of the inverse square "
+                   "law, similar to the point lights.");
+
         ImGui::SliderFloat("cone angle", &cone_angle, -3.14f, 3.14f, "%.3f");
-        ImGui::Text(" ");
-        ImGui::Text("Defines the initial intensity of this light source");
+        // something about falloff (sharp vs gradual)
         ImGui::SliderFloat("value", &cone_intensity, 0, 1.0, "%.3f");
-        ImGui::Text(" ");
-        ImGui::Text("Defines the falloff - decay is interaction with alpha");
         ImGui::SliderFloat("decay", &cone_decay_power, 0, 3.0, "%.3f");
         ImGui::SliderFloat("dist power", &cone_distance_power, 0, 3.0f, "%.3f");
 
@@ -1690,10 +1724,22 @@ void engine::show_voraldo_menu(bool *show) {
 
       if (ImGui::BeginTabItem(" Directional ")) {
 
-        ImGui::Text("Directional");
+        WrappedText(" Directional Lights ");
+        ImGui::SameLine();
+        HelpMarker(
+            "Directional lights are like point lights at an infinite distance. "
+            "There is no divergence of the light rays, so all of them are "
+            "parallel. This is achieved by using a uniform vector for the "
+            "light ray traversal for all voxels. The angles set the rotation "
+            "about the vertical and above the horizon, respectively, and the "
+            "value and decay settings work very much the same as they do in "
+            "the point and cone lighting functions to model attenuation by "
+            "voxels with a nonzero alpha value.");
+
+        OrangeText("DIRECTION");
         ImGui::SliderFloat("theta", &directional_theta, -3.14f, 3.14f, "%.3f");
         ImGui::SliderFloat("phi", &directional_phi, -3.14f, 3.14f, "%.3f");
-        ImGui::Text(" ");
+        OrangeText("PARAMETERS");
         ImGui::SliderFloat("value", &directional_intensity, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("decay", &decay_power, 0.0f, 3.0f, "%.3f");
 
@@ -1708,12 +1754,26 @@ void engine::show_voraldo_menu(bool *show) {
       }
 
       if (ImGui::BeginTabItem(" Fake GI ")) {
-        // WrappedText("Fake GI is computed by tracing rays upwards from each "
-        //             "cell. If they escape the volume, they get the "
-        //             "sky_intensity added. Otherwise they take a portion of
-        //             the " "light of the cell they hit, set by sfactor.",
-        //             windowsize.x);
+        WrappedText(" Fake Global Illumination ");
+        ImGui::SameLine();
+        HelpMarker(
+            "The algorithm comes from the original Voxel Automata "
+            "Terrain project, and has been adapted from the sequential "
+            "processing implementation to a compute shader that "
+            "operates in 2D slices down the y-axis.\n\nFor each voxel in a "
+            "slice under consideration, which is over the alpha threshold, 9 "
+            "rays are considered travelling up from the voxel's location. They "
+            "are generated by looking at the vector between the voxel's center "
+            "and the center of the voxels in a radius-1 neighborhood in the "
+            "layer above. \n\nThese rays are stepped through the volume, till "
+            "one of two things happens - if they don't hit a voxel above the "
+            "alpha threshold before escaping the volume, that ray contributes "
+            "'sky_intensity' to the averaging of these 9 rays. If, on the "
+            "other hand, it hits a voxel above this alpha threshold, some "
+            "portion of the lighting value at that location, determined by the "
+            "sfactor parameter, will be the contribution to the averaging.");
 
+        OrangeText("PARAMETERS");
         ImGui::SliderFloat("sfactor", &GI_scale_factor, 0.0f, 1.0f);
         ImGui::SliderFloat("alpha threshold", &GI_alpha_thresh, 0.0f, 1.0f);
         ImGui::SliderFloat("sky intensity", &GI_sky_intensity, 0.0f, 1.0f);
@@ -1789,7 +1849,6 @@ void engine::show_voraldo_menu(bool *show) {
 
       ImGui::Separator();
 
-      ImGui::Text("");
       ImGui::ColorEdit3(
           "BG Color",
           (float *)&clear_color); // Edit 3 floats representing a color
@@ -1797,8 +1856,7 @@ void engine::show_voraldo_menu(bool *show) {
       GPU_Data.clear_color =
           glm::vec4(clear_color.x, clear_color.y, clear_color.z, 1.0);
       ImGui::SameLine();
-      HelpMarker("OpenGL Clear Color");
-      ImGui::Text("");
+      HelpMarker(" OpenGL Clear Color ");
       ImGui::Separator();
       ImGui::EndTabItem();
     }
