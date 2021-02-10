@@ -48,7 +48,7 @@ private:
   void handle_events();
 
   // due to extensive contents, this is broken out
-  void draw_userscript_editor_tab_contents();
+  void draw_user_editor_tab_contents();
 
   // shows general control window
   bool show_voraldo_window = true;

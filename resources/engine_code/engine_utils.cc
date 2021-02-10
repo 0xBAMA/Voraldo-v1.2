@@ -269,10 +269,10 @@ void engine::imgui_setup() {
   colors[ImGuiCol_TextDisabled] = ImVec4(0.33f, 0.27f, 0.16f, 1.00f);
   colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.05f, 0.00f, 1.00f);
   colors[ImGuiCol_ChildBg] = ImVec4(0.23f, 0.17f, 0.02f, 0.05f);
-  colors[ImGuiCol_PopupBg] = ImVec4(0.12f, 0.07f, 0.01f, 0.94f);
+  colors[ImGuiCol_PopupBg] = ImVec4(0.30f, 0.12f, 0.06f, 0.94f);
   colors[ImGuiCol_Border] = ImVec4(0.25f, 0.18f, 0.09f, 0.33f);
   colors[ImGuiCol_BorderShadow] = ImVec4(0.33f, 0.15f, 0.02f, 0.17f);
-  colors[ImGuiCol_FrameBg] = ImVec4(0.33f, 0.15f, 0.02f, 0.17f);
+  colors[ImGuiCol_FrameBg] = ImVec4(0.33f, 0.4f, 0.02f, 0.17f);
   colors[ImGuiCol_FrameBgHovered] = ImVec4(0.19f, 0.09f, 0.02f, 0.17f);
   colors[ImGuiCol_FrameBgActive] = ImVec4(0.25f, 0.12f, 0.01f, 0.78f);
   colors[ImGuiCol_TitleBg] = ImVec4(0.25f, 0.12f, 0.01f, 1.00f);
@@ -325,6 +325,13 @@ void engine::imgui_setup() {
   style.ScrollbarSize = 10;
 }
 
+void OrangeText(const char *string) {
+  ImGui::Separator();
+  ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.75, 0.35, 0.1, 1.));
+  ImGui::Text(string);
+  ImGui::PopStyleColor();
+}
+
 void WrappedText(const char *string) {
   // ImGui::PushTextWrapPos(ImGui::GetFontSize() * wrap);
   ImGui::PushTextWrapPos(ImGui::GetWindowSize().x);
@@ -365,6 +372,14 @@ void engine::show_voraldo_menu(bool *show) {
         static ImVec4 aabb_draw_color;
         static bool aabb_draw = true, aabb_mask = false;
 
+        WrappedText(" Axis-Aligned Bounding Box (AABB) ");
+        ImGui::SameLine();
+        HelpMarker("This is defined by some minimum and maximum extent on each "
+                   "of the three axes, x, y, and z. The affected area is "
+                   "between the minimum and maximum extents. Make sure each "
+                   "maximum is greater than the corresponding minimum.");
+
+        OrangeText("EXTENTS");
         ImGui::SliderFloat(" x max", &max.x, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat(" x min", &min.x, 0.0f, float(DIM), "%.3f");
 
@@ -379,6 +394,8 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat(" z min", &min.z, 0.0f, float(DIM), "%.3f");
 
         ImGui::Separator();
+
+        OrangeText("OPTIONS");
 
         ImGui::Checkbox("  Draw ", &aabb_draw);
         ImGui::SameLine();
@@ -417,16 +434,29 @@ void engine::show_voraldo_menu(bool *show) {
         static bool cuboid_draw = true, cuboid_mask = false;
         static ImVec4 cuboid_draw_color;
 
-        ImGui::Text("This is hard to use.");
-        ImGui::Text("     e-------g    +y     ");
-        ImGui::Text("    /|      /|     |     ");
-        ImGui::Text("   / |     / |     |___+x");
-        ImGui::Text("  a-------c  |    /      ");
-        ImGui::Text("  |  f----|--h   +z      ");
-        ImGui::Text("  | /     | /            ");
-        ImGui::Text("  |/      |/             ");
-        ImGui::Text("  b-------d              ");
+        WrappedText(" Cuboid ");
+        ImGui::SameLine();
+        HelpMarker(
+            "This is hard to use.\n"
+            "     e-------g    +y     \n"
+            "    /|      /|     |     \n"
+            "   / |     / |     |___+x\n"
+            "  a-------c  |    /      \n"
+            "  |  f----|--h   +z      \n"
+            "  | /     | /            \n"
+            "  |/      |/             \n"
+            "  b-------d              \n"
+            "Also called a quadrillateral hexahedron, this is defined by 8 "
+            "points at the corners. The simplest example is a cube - all faces "
+            "squares, as with the default parameters. The options available to "
+            "you are scaling and skewing, with the limitation that the four "
+            "points making up a face should lie in a plane, or there will be "
+            "artifacts. Due to the way the shape is processed the "
+            "quadrilateral faces have sort of a 'winding order' in the way "
+            "that they are interpreted, because it uses planes defined by the "
+            "verticies of each face.");
 
+        OrangeText("8 POINTS");
         ImGui::Separator();
 
         ImGui::SliderFloat("a x", &a.x, 0.0f, float(DIM), "%.3f");
@@ -476,6 +506,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("h z", &h.z, 0.0f, float(DIM), "%.3f");
 
         ImGui::Separator();
+        OrangeText("OPTIONS");
 
         ImGui::Checkbox("  Draw ", &cuboid_draw);
         ImGui::SameLine();
@@ -503,17 +534,19 @@ void engine::show_voraldo_menu(bool *show) {
         static ImVec4 cylinder_draw_color;
         static float cylinder_radius;
 
-        // WrappedText("Cylinder is defined by two points. tvec is in the center
-        // "
-        //             "of the top and bvec is in the center of the bottom. "
-        //             "Thickness determines the radius of the cylinder. ",
-        //             ImGui::GetWindowSize().x);
-        ImGui::Text(" ");
+        WrappedText(" Cylinder ");
+        ImGui::SameLine();
+        HelpMarker("Cylinder is defined by two points. tvec is in the center "
+                   "of the top and bvec is in the center of the bottom. "
+                   "Thickness determines the radius of the cylinder.");
 
-        ImGui::SliderFloat(" radius", &cylinder_radius, 0.0f, 300.0f, "%.3f");
+        OrangeText("RADIUS");
+        ImGui::SliderFloat("radius", &cylinder_radius, 0.0f, float(DIM),
+                           "%.3f");
 
         ImGui::Separator();
 
+        OrangeText("BVEC");
         ImGui::SliderFloat("bvec x", &cylinder_bvec.x, 0.0f, float(DIM),
                            "%.3f");
         ImGui::SliderFloat("bvec y", &cylinder_bvec.y, 0.0f, float(DIM),
@@ -523,6 +556,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Separator();
 
+        OrangeText("TVEC");
         ImGui::SliderFloat("tvec x", &cylinder_tvec.x, 0.0f, float(DIM),
                            "%.3f");
         ImGui::SliderFloat("tvec y", &cylinder_tvec.y, 0.0f, float(DIM),
@@ -531,6 +565,7 @@ void engine::show_voraldo_menu(bool *show) {
                            "%.3f");
 
         ImGui::Separator();
+        OrangeText("OPTIONS");
 
         ImGui::Checkbox("  Draw ", &cylinder_draw);
         ImGui::SameLine();
@@ -557,28 +592,34 @@ void engine::show_voraldo_menu(bool *show) {
         static bool ellipsoid_draw = true, ellipsoid_mask = false;
         static ImVec4 ellipsoid_draw_color;
 
-        // WrappedText("Ellipsoid is similar to the sphere but has three "
-        //             "different radii. In addition to this it can be rotated
-        //             to " "give the desired orientation. ", windowsize.x);
-        ImGui::Text(" ");
+        WrappedText(" Ellipsoid ");
+        ImGui::SameLine();
+        HelpMarker(
+            "The ellipsoid is similar to the sphere but has three different "
+            "radii, one for each axis. In addition to this, three rotations "
+            "can be combined to give the desired orientation.");
 
-        ImGui::SliderFloat("x location", &center.x, 0.0f, float(DIM), "%.3f");
-        ImGui::SliderFloat("y location", &center.y, 0.0f, float(DIM), "%.3f");
-        ImGui::SliderFloat("z location", &center.z, 0.0f, float(DIM), "%.3f");
+        OrangeText("LOCATION");
+        ImGui::SliderFloat(" x", &center.x, 0.0f, float(DIM), "%.3f");
+        ImGui::SliderFloat(" y", &center.y, 0.0f, float(DIM), "%.3f");
+        ImGui::SliderFloat(" z", &center.z, 0.0f, float(DIM), "%.3f");
 
         ImGui::Separator();
 
+        OrangeText("RADII");
         ImGui::SliderFloat("x radius", &radius.x, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("y radius", &radius.y, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("z radius", &radius.z, 0.0f, float(DIM), "%.3f");
 
         ImGui::Separator();
 
+        OrangeText("ROTATION");
         ImGui::SliderFloat("x rotation", &rotation.x, 0.0f, 6.28f, "%.3f");
         ImGui::SliderFloat("y rotation", &rotation.y, 0.0f, 6.28f, "%.3f");
         ImGui::SliderFloat("z rotation", &rotation.z, 0.0f, 6.28f, "%.3f");
 
         ImGui::Separator();
+        OrangeText("OPTIONS");
 
         ImGui::Checkbox("  Draw ", &ellipsoid_draw);
         ImGui::SameLine();
@@ -607,25 +648,29 @@ void engine::show_voraldo_menu(bool *show) {
         static bool grid_draw = true;
         static bool grid_mask = false;
 
-        // WrappedText("Use the spacing control to set the distance between grid
-        // lines. Width sets the width of these grid lines, and offset allows
-        // the whole grid to be moved. ", windowsize.x);
-        ImGui::Text(" ");
-        ImGui::Text("spacing");
+        WrappedText(" Grid ");
+        ImGui::SameLine();
+        HelpMarker("Grid is a regularly spaced orthogonal lattice. Use the "
+                   "spacing control to set the distance between grid lines on "
+                   "each axis. Width sets the width of these grid lines, along "
+                   "each axis, and offset allows the whole grid to be moved.");
+
+        OrangeText("SPACING");
         ImGui::SliderInt(" xs", &xspacing, 0, 15);
         ImGui::SliderInt(" ys", &yspacing, 0, 15);
         ImGui::SliderInt(" zs", &zspacing, 0, 15);
 
-        ImGui::Text("width");
+        OrangeText("WIDTH");
         ImGui::SliderInt(" xw", &xwid, 0, 15);
         ImGui::SliderInt(" yw", &ywid, 0, 15);
         ImGui::SliderInt(" zw", &zwid, 0, 15);
 
-        ImGui::Text("offset");
+        OrangeText("OFFSET");
         ImGui::SliderInt(" xo", &xoff, 0, 15);
         ImGui::SliderInt(" yo", &yoff, 0, 15);
         ImGui::SliderInt(" zo", &zoff, 0, 15);
 
+        OrangeText("OPTIONS");
         ImGui::Checkbox("  Draw ", &grid_draw);
         ImGui::SameLine();
         ImGui::Checkbox("  Mask ", &grid_mask);
@@ -650,21 +695,20 @@ void engine::show_voraldo_menu(bool *show) {
         static bool heightmap_draw = true, heightmap_mask = false;
         static ImVec4 heightmap_draw_color;
 
-        // ImGui::Text("This is a tool to draw heightmaps.");
-        // ImGui::Text("Use the options to generate new");
-        // ImGui::Text("ones, and use the vertical scale");
-        // ImGui::Text("to set the height scaling. ");
-        // ImGui::Text(" ");
-        // ImGui::Text("There are three types of maps you");
-        // ImGui::Text("can generate. ");
-        // ImGui::Text(" ");
+        WrappedText(" Heightmap ");
+        ImGui::SameLine();
+        HelpMarker("This is a tool to draw heightmaps up the y-axis. Use the "
+                   "vertical scale to set the height scaling. There are three "
+                   "algorithms for heightmap generation, as labeled below.");
 
+        OrangeText("PREVIEW");
         // show off the currently held texture - for some reason it is the
         // number of the texture unit + 1
         ImGui::Image((void *)(intptr_t)13 /*not a good way to do this, but it
                                              works right now*/
                      ,
                      ImVec2(240, 256));
+        OrangeText("GENERATION ALGORITHMS");
 
         if (ImGui::SmallButton(" Perlin ")) {
           // GPU_Data.generate_heightmap_perlin();
@@ -682,11 +726,14 @@ void engine::show_voraldo_menu(bool *show) {
           // GPU_Data.generate_heightmap_XOR();
         }
 
+        OrangeText("VERTICAL SCALE");
+
         ImGui::Separator();
         ImGui::SliderFloat(" Scale", &heightmap_vertical_scale, 0.0f, 5.0f,
                            "%.3f");
         ImGui::Separator();
 
+        OrangeText("OPTIONS");
         ImGui::Checkbox("  Draw ", &heightmap_draw);
         ImGui::SameLine();
         ImGui::Checkbox("  Mask ", &heightmap_mask);
@@ -708,13 +755,20 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" Icosahedron ")) {
-        static ImVec4 vertex_color;
+        static ImVec4 color0 =
+            ImVec4(200.0 / 255.0, 49.0 / 255.0, 11.0 / 255.0, 10.0 / 255.0);
+        static ImVec4 color1 =
+            ImVec4(207.0 / 255.0, 179.0 / 255.0, 7.0 / 255.0, 125.0 / 255.0);
+        static ImVec4 color2 =
+            ImVec4(190.0 / 255.0, 95.0 / 255.0, 0.0 / 255.0, 155.0 / 255.0);
+
+        static ImVec4 vertex_color = color0;
         static float vertex_radius = 0.;
 
-        static ImVec4 edge_color;
+        static ImVec4 edge_color = color1;
         static float edge_radius = 0.;
 
-        static ImVec4 face_color;
+        static ImVec4 face_color = color2;
         static float face_thickness = 0.;
 
         static glm::vec3 center_point = glm::vec3(0);
@@ -723,37 +777,44 @@ void engine::show_voraldo_menu(bool *show) {
         static bool mask = false;
         static float scale = 20.0;
 
-        ImGui::Text(" ");
+        WrappedText(" Icosahedron ");
+        ImGui::SameLine();
+        HelpMarker(
+            "This is a simple way to draw a regular icosahedron. You may be "
+            "familiar with the shape from a 20-sided die. It is defined by the "
+            "12 points at the corners of '3 mutually orthogonal golden "
+            "rectangles' that share a center point. The shape itself can be "
+            "scaled and rotated, and parameters can be set for each component "
+            "of the drawn result, colors, radii, etc.");
+
+        OrangeText("SCALE");
         ImGui::SliderFloat("  scale", &scale, 0.0f, DIM, "%.3f");
 
-        ImGui::Text(" ");
+        OrangeText("POSITION");
         ImGui::SliderFloat("  xpos", &center_point.x, 0.0f, DIM, "%.3f");
         ImGui::SliderFloat("  ypos", &center_point.y, 0.0f, DIM, "%.3f");
         ImGui::SliderFloat("  zpos", &center_point.z, 0.0f, DIM, "%.3f");
-        ImGui::Text(" ");
-        ImGui::Text(" ");
+        OrangeText("ROTATION");
         ImGui::SliderFloat("  xrot", &rotations.x, -2. * pi, 2 * pi, "%.3f");
         ImGui::SliderFloat("  yrot", &rotations.y, -2. * pi, 2 * pi, "%.3f");
         ImGui::SliderFloat("  zrot", &rotations.z, -2. * pi, 2 * pi, "%.3f");
-        ImGui::Text(" ");
-        ImGui::Text(" ");
+        OrangeText("SUBSHAPE PARAMETERS");
         ImGui::SliderFloat("  vertex radius", &vertex_radius, 0., 20., "%.3f");
         ImGui::SliderFloat("  edge radius", &edge_radius, 0., 20., "%.3f");
         ImGui::SliderFloat("  face thickness", &face_thickness, 0., 20.,
                            "%.3f");
-        ImGui::Text(" ");
+        OrangeText("COLORS");
 
         ImGui::ColorEdit4("  Vertex", (float *)&vertex_color,
                           ImGuiColorEditFlags_AlphaBar |
                               ImGuiColorEditFlags_AlphaPreviewHalf);
-        ImGui::Text(" ");
         ImGui::ColorEdit4("  Edge", (float *)&edge_color,
                           ImGuiColorEditFlags_AlphaBar |
                               ImGuiColorEditFlags_AlphaPreviewHalf);
-        ImGui::Text(" ");
         ImGui::ColorEdit4("  Face", (float *)&face_color,
                           ImGuiColorEditFlags_AlphaBar |
                               ImGuiColorEditFlags_AlphaPreviewHalf);
+        OrangeText("OPTIONS");
 
         ImGui::Checkbox("  Draw ", &draw);
         ImGui::SameLine();
@@ -782,11 +843,17 @@ void engine::show_voraldo_menu(bool *show) {
         static bool perlin_mask = false;
         static bool perlin_smooth = false;
 
-        // WrappedText("Larger numbers are smaller lobes. Click generate to send
-        // your new scalings to the GPU to draw with.", windowsize.x);
-        ImGui::Text(" ");
-        ImGui::Text("WIP FastNoise2 integration");
-        ImGui::Text(" ");
+        WrappedText(" WIP FastNoise2 integration ");
+        ImGui::SameLine();
+        HelpMarker(
+            "This is to create a more general and flexible noise tool with "
+            "different algorithms and a node graph. TBD how multiple channels "
+            "will be used, but that seems to have potential. \n\nThe way the "
+            "noise has been used in previous verions, there is a low and high "
+            "threshold set when drawing - noise values are in the range 0-1, "
+            "so the drawing operation will be applied to cells which read a "
+            "noise sample in the defined range between lothresh and hithresh.");
+
         ImGui::SliderFloat("  xscale", &perlin_scale_x, 0.01f, 0.5f, "%.3f");
         ImGui::SliderFloat("  yscale", &perlin_scale_y, 0.01f, 0.5f, "%.3f");
         ImGui::SliderFloat("  zscale", &perlin_scale_z, 0.01f, 0.5f, "%.3f");
@@ -803,6 +870,7 @@ void engine::show_voraldo_menu(bool *show) {
         // lowthresh to tell how much of this perlin texture to color in.",
         // windowsize.x);
 
+        OrangeText("THRESHOLDING");
         ImGui::SliderFloat(" hithresh", &perlin_threshold_hi, 0.0f, 1.0f,
                            "%.3f");
         ImGui::SliderFloat(" lothresh", &perlin_threshold_lo, 0.0f, 1.0f,
@@ -812,6 +880,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Separator();
 
+        OrangeText("OPTIONS");
         ImGui::Checkbox("  Draw ", &perlin_draw);
         ImGui::SameLine();
         ImGui::Checkbox("  Mask ", &perlin_mask);
@@ -837,23 +906,25 @@ void engine::show_voraldo_menu(bool *show) {
         static ImVec4 sphere_draw_color;
         static glm::vec3 sphere_location;
 
-        // WrappedText("Use the sliders to set the radius and the x, y, z
-        // components of the center's position.", windowsize.x);
-        ImGui::Text(" ");
+        WrappedText(" Sphere ");
+        ImGui::SameLine();
+        HelpMarker(
+            "Spheres are all the points that are within a certain "
+            "distance of a center point. Specify radius and center point.");
 
+        OrangeText("RADIUS");
         ImGui::SliderFloat("  radius", &sphere_radius, 0.0f, 500.0f, "%.3f");
 
         ImGui::Separator();
 
-        ImGui::SliderFloat("  x pos", &sphere_location.x, 0.0f, float(DIM),
-                           "%.3f");
-        ImGui::SliderFloat("  y pos", &sphere_location.y, 0.0f, float(DIM),
-                           "%.3f");
-        ImGui::SliderFloat("  z pos", &sphere_location.z, 0.0f, float(DIM),
-                           "%.3f");
+        OrangeText("POSITION");
+        ImGui::SliderFloat(" x", &sphere_location.x, 0.0f, float(DIM), "%.3f");
+        ImGui::SliderFloat(" y", &sphere_location.y, 0.0f, float(DIM), "%.3f");
+        ImGui::SliderFloat(" z", &sphere_location.z, 0.0f, float(DIM), "%.3f");
 
         ImGui::Separator();
 
+        OrangeText("OPTIONS");
         ImGui::Checkbox("  Draw ", &sphere_draw);
         ImGui::SameLine();
         ImGui::Checkbox("  Mask ", &sphere_mask);
@@ -879,18 +950,22 @@ void engine::show_voraldo_menu(bool *show) {
         static ImVec4 tube_draw_color;
         static float tube_inner_radius, tube_outer_radius;
 
-        WrappedText(
+        WrappedText(" Tube ");
+        ImGui::SameLine();
+        HelpMarker(
             "Tube is a cylinder with a cylinder cut out from the "
             "center. Outer is the outer radius, and inner is the radius of the "
-            "cutout.");
-        ImGui::Text(" ");
+            "cutout. Bvec and tvec are the center points of the bottom and top "
+            "faces, respectively.");
 
-        ImGui::Text("Radii");
-
-        ImGui::SliderFloat("inner", &tube_inner_radius, 0.0f, 300.0f, "%.3f");
-        ImGui::SliderFloat("outer", &tube_outer_radius, 0.0f, 300.0f, "%.3f");
+        OrangeText("RADII");
+        ImGui::SliderFloat("inner radius", &tube_inner_radius, 0.0f, 300.0f,
+                           "%.3f");
+        ImGui::SliderFloat("outer radius", &tube_outer_radius, 0.0f, 300.0f,
+                           "%.3f");
 
         ImGui::Separator();
+        OrangeText("BVEC");
 
         ImGui::SliderFloat("bvec x", &tube_bvec.x, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("bvec y", &tube_bvec.y, 0.0f, float(DIM), "%.3f");
@@ -898,12 +973,14 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Separator();
 
+        OrangeText("TVEC");
         ImGui::SliderFloat("tvec x", &tube_tvec.x, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("tvec y", &tube_tvec.y, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("tvec z", &tube_tvec.z, 0.0f, float(DIM), "%.3f");
 
         ImGui::Separator();
 
+        OrangeText("OPTIONS");
         ImGui::Checkbox("  Draw ", &tube_draw);
         ImGui::SameLine();
         ImGui::Checkbox("  Mask ", &tube_mask);
@@ -929,32 +1006,42 @@ void engine::show_voraldo_menu(bool *show) {
         static bool triangle_draw = true;
         static bool triangle_mask = false;
 
-        WrappedText("Triangles consist of three points, use the sliders below "
-                    "to set each x, y and z value. Thickness will set the "
-                    "thickness of the triangle.");
-        ImGui::Text(" ");
+        WrappedText(" Triangle ");
+        ImGui::SameLine();
+        HelpMarker(
+            "Triangles consist of three points, use the sliders below "
+            "to set each x, y and z value. Thickness will set the "
+            "thickness of the triangle. The basic algorithm considers a plane "
+            "in which these three points lie, and constructs a convex "
+            "triangular prism from them - there are better (faster) methods, "
+            "but I like the way it considers the volume in a flexible way. ");
 
+        OrangeText("THICKNESS");
         ImGui::SliderFloat(" thickness", &thickness, 0.0f, 300.0f, "%.3f");
 
         ImGui::Separator();
+        OrangeText("POINT 1");
 
         ImGui::SliderFloat("  x1 ", &point1.x, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("  y1 ", &point1.y, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("  z1 ", &point1.z, 0.0f, float(DIM), "%.3f");
 
         ImGui::Separator();
+        OrangeText("POINT 2");
 
         ImGui::SliderFloat("  x2 ", &point2.x, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("  y2 ", &point2.y, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("  z2 ", &point2.z, 0.0f, float(DIM), "%.3f");
 
         ImGui::Separator();
+        OrangeText("POINT 3");
 
         ImGui::SliderFloat("  x3 ", &point3.x, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("  y3 ", &point3.y, 0.0f, float(DIM), "%.3f");
         ImGui::SliderFloat("  z3 ", &point3.z, 0.0f, float(DIM), "%.3f");
 
         ImGui::Separator();
+        OrangeText("OPTIONS");
 
         ImGui::Checkbox("  Draw ", &triangle_draw);
         ImGui::SameLine();
@@ -975,11 +1062,11 @@ void engine::show_voraldo_menu(bool *show) {
         }
         ImGui::EndTabItem();
       }
-      if (ImGui::BeginTabItem(" UserScript ")) {
+      if (ImGui::BeginTabItem(" User ")) {
 
-        ImGui::BeginTabBar("userscript", tab_bar_flags_wodropdown);
+        ImGui::BeginTabBar("user", tab_bar_flags_wodropdown);
         if (ImGui::BeginTabItem(" Editor ")) {
-          draw_userscript_editor_tab_contents();
+          draw_user_editor_tab_contents();
           ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem(" Documentation ")) {
@@ -1009,9 +1096,13 @@ void engine::show_voraldo_menu(bool *show) {
               "contained in the manual entries.");
           ImGui::Separator();
           WrappedText("Fill out an irec it will be applied with the"
-                      " selected mask blending mode.");
+                      " selected mask blending mode.\n");
 
           // this goes in the documentation tab
+          ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.75, 0.35, 0.1, 1.));
+          ImGui::Text("HOW TO USE");
+          ImGui::PopStyleColor();
+
           ImGui::Text("");
           WrappedText("Abstractions are provided as follows:");
           ImGui::Separator();
@@ -1032,6 +1123,12 @@ void engine::show_voraldo_menu(bool *show) {
         }
 
         ImGui::EndTabBar();
+        ImGui::SameLine();
+
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.75, 0.35, 0.1, 1.));
+        ImGui::Text("Voraldo v1.2 User Shader Editor");
+        ImGui::PopStyleColor();
+
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" VAT ")) {
@@ -1051,41 +1148,114 @@ void engine::show_voraldo_menu(bool *show) {
         static ImVec4 color0 =
             ImVec4(200.0 / 255.0, 49.0 / 255.0, 11.0 / 255.0, 10.0 / 255.0);
         static ImVec4 color1 =
-            ImVec4(190.0 / 255.0, 95.0 / 255.0, 0.0 / 255.0, 125.0 / 255.0);
+            ImVec4(207.0 / 255.0, 179.0 / 255.0, 7.0 / 255.0, 125.0 / 255.0);
         static ImVec4 color2 =
-            ImVec4(207.0 / 255.0, 179.0 / 255.0, 7.0 / 255.0, 155.0 / 255.0);
+            ImVec4(190.0 / 255.0, 95.0 / 255.0, 0.0 / 255.0, 155.0 / 255.0);
 
         static float lambda = 0.35;
         static float beta = 0.5;
         static float mag = 0.0;
 
-        static bool respect_mask = false;
+        static bool respect_mask = true;
 
-        static int initmode;
+        static int initmode = 3;
         static float flip;
 
         static char str0[256] = "";
 
-        static bool plusx, plusy, plusz;
-        static bool minusx, minusy, minusz;
+        static bool plusx = false, plusy = false, plusz = false;
+        static bool minusx = false, minusy = true, minusz = false;
 
-        // config options for this operation
-        // WrappedText(
-        //     "This is an interesting way to generate shapes, developed by
-        //     Brent " "Werness - enter a rule, r for Random or i for
-        //     IsingRandom", windowsize.x); // may want to parameterize this
-        //     further, with beta,
-        // lambda, mag - just want to get it working first
-        ImGui::Text(" ");
+        WrappedText(" Voxel Automata Terrain ");
+        ImGui::SameLine();
+        HelpMarker(
+            "This is a very interesting noise algorithm from Brent Werness - "
+            "if you know the code for a rule, you can enter it in the box "
+            "below. If you do not, you can use the random parameters and then "
+            "tell it to generate a random rule. The random rule is then stored "
+            "in the same text box.\n\nThe remaining parameters influence "
+            "seeding, which faces will be seeded with values, and what those "
+            "values are. Symmetrical structures come from filling faces with "
+            "the same value, while more chaotic structures come from random "
+            "seeding. The flip parameter is used to randomly flip state while "
+            "recursively evaluating the cube's voxels.");
 
         // string entry, letting the user input a rule
-        ImGui::Text("Enter base62 encoded rule, r or i");
-        ImGui::InputText(" ", str0, IM_ARRAYSIZE(str0));
-        // ImGui::InputTextWithHint("", "", str0, IM_ARRAYSIZE(str0));
-        ImGui::SetItemDefaultFocus();
-        // ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
 
-        if (ImGui::SmallButton("Compute")) {
+        OrangeText("SEEDING ");
+        // mode slider (int)
+        switch (initmode) {
+        case 0:
+          ImGui::Text(" Seed with state '0' ");
+          break;
+        case 1:
+          ImGui::Text(" Seed with state '1' ");
+          break;
+        case 2:
+          ImGui::Text(" Seed with state '2' ");
+          break;
+        case 3:
+          ImGui::Text(" Random seeding ");
+          break;
+        default:
+          break;
+        }
+        ImGui::SliderInt(" mode", &initmode, 0, 3);
+
+        ImGui::Checkbox(" fill +x", &plusx);
+        ImGui::SameLine();
+        ImGui::Checkbox(" fill +y", &plusy);
+        ImGui::SameLine();
+        ImGui::Checkbox(" fill +z", &plusz);
+
+        ImGui::Checkbox(" fill -x", &minusx);
+        ImGui::SameLine();
+        ImGui::Checkbox(" fill -y", &minusy);
+        ImGui::SameLine();
+        ImGui::Checkbox(" fill -z", &minusz);
+
+        ImGui::Separator();
+        OrangeText("EVALUATION ");
+        ImGui::Checkbox(" respect mask ", &respect_mask);
+        ImGui::SliderFloat(" flip chance", &flip, 0.0f, 1.0f, "%.3f");
+        ImGui::SameLine();
+        HelpMarker(
+            "Make nonzero for stochastic result. Random flips occur with this "
+            "probability, during the evaluation of the block.");
+
+        // three colors
+        ImGui::ColorEdit4(" State 0 Color", (float *)&color0,
+                          ImGuiColorEditFlags_AlphaBar |
+                              ImGuiColorEditFlags_AlphaPreviewHalf);
+        ImGui::ColorEdit4(" State 1 Color", (float *)&color1,
+                          ImGuiColorEditFlags_AlphaBar |
+                              ImGuiColorEditFlags_AlphaPreviewHalf);
+        ImGui::ColorEdit4(" State 2 Color", (float *)&color2,
+                          ImGuiColorEditFlags_AlphaBar |
+                              ImGuiColorEditFlags_AlphaPreviewHalf);
+
+        OrangeText("RULE ");
+
+        ImGui::SameLine();
+        HelpMarker(
+            "Enter base62 encoded rule and hit Compute String, or mess with "
+            "the random parameters (lambda for Random, beta and mag for "
+            "IRandom) and hit Compute Random or Compute IRandom. The resulting "
+            "base62 string is reported back to the text box if you find one "
+            "you like and want to save it for later. See VAT_cool_rules.txt in "
+            "the root directory of this repo for some that I've found.");
+
+        ImGui::InputText(" rule", str0, IM_ARRAYSIZE(str0));
+        ImGui::SetItemDefaultFocus();
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::SliderFloat(" lambda", &lambda, 0.0f, 1.0f, "%.3f");
+        ImGui::Separator();
+        ImGui::SliderFloat(" beta", &beta, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat(" mag", &mag, 0.0f, 1.0f, "%.3f");
+
+        if (ImGui::SmallButton("Compute String")) {
           // invoke the constructor, etc - return a string from the
           // OpenGL_container::vat(...), and put it in str0
           glm::vec4 col0, col1, col2;
@@ -1104,18 +1274,9 @@ void engine::show_voraldo_menu(bool *show) {
           //                       // generated, or retain the rule you entered
         }
 
-        // flip slider (float)
-        ImGui::Text("Make nonzero for stochastic result");
-        ImGui::SliderFloat(" flip", &flip, 0.0f, 1.0f, "%.3f");
-        ImGui::Text(" ");
-
-        ImGui::Text("Lambda is a parameter for Random");
-        ImGui::SliderFloat(" lambda", &lambda, 0.0f, 1.0f, "%.3f");
-        ImGui::Text(" ");
+        ImGui::SameLine();
 
         if (ImGui::SmallButton("Compute Random")) {
-          // invoke the constructor, etc - return a string from the
-          // OpenGL_container::vat(...), and put it in str0
           glm::vec4 col0, col1, col2;
           col0 = glm::vec4(color0.x, color0.y, color0.z, color0.w);
           col1 = glm::vec4(color1.x, color1.y, color1.z, color1.w);
@@ -1132,16 +1293,9 @@ void engine::show_voraldo_menu(bool *show) {
           //                       // generated, or retain the rule you entered
         }
 
-        ImGui::Text(" ");
-        ImGui::Text("Beta and Mag are parameters");
-        ImGui::Text("for IRandom");
-        ImGui::SliderFloat(" beta", &beta, 0.0f, 1.0f, "%.3f");
-        ImGui::SliderFloat(" mag", &mag, 0.0f, 1.0f, "%.3f");
-        ImGui::Text(" ");
+        ImGui::SameLine();
 
         if (ImGui::SmallButton("Compute IRandom")) {
-          // invoke the constructor, etc - return a string from the
-          // OpenGL_container::vat(...), and put it in str0
           glm::vec4 col0, col1, col2;
           col0 = glm::vec4(color0.x, color0.y, color0.z, color0.w);
           col1 = glm::vec4(color1.x, color1.y, color1.z, color1.w);
@@ -1158,41 +1312,6 @@ void engine::show_voraldo_menu(bool *show) {
           //                       // generated, or retain the rule you entered
         }
 
-        ImGui::Text(" ");
-        // mode slider (int)
-        ImGui::Text("0 - fill side with 0");
-        ImGui::Text("1 - fill side with 1");
-        ImGui::Text("2 - fill side with 2");
-        ImGui::Text("3 - fill side with random values");
-        ImGui::SliderInt(" mode", &initmode, 0, 3);
-        ImGui::Text(" ");
-
-        ImGui::Checkbox(" fill -x", &minusx);
-        ImGui::Checkbox(" fill +x", &plusx);
-
-        ImGui::Checkbox(" fill -y", &minusy);
-        ImGui::Checkbox(" fill +y", &plusy);
-
-        ImGui::Checkbox(" fill -z", &minusz);
-        ImGui::Checkbox(" fill +z", &plusz);
-
-        // three colors
-        ImGui::ColorEdit4(" State 0", (float *)&color0,
-                          ImGuiColorEditFlags_AlphaBar |
-                              ImGuiColorEditFlags_AlphaPreviewHalf);
-        ImGui::ColorEdit4(" State 1", (float *)&color1,
-                          ImGuiColorEditFlags_AlphaBar |
-                              ImGuiColorEditFlags_AlphaPreviewHalf);
-        ImGui::ColorEdit4(" State 2", (float *)&color2,
-                          ImGuiColorEditFlags_AlphaBar |
-                              ImGuiColorEditFlags_AlphaPreviewHalf);
-
-        ImGui::Text(" ");
-        ImGui::Checkbox(" respect mask ", &respect_mask);
-
-        ImGui::Text(" ");
-        ImGui::SetCursorPosX(16);
-
         ImGui::EndTabItem();
       }
       ImGui::EndTabBar();
@@ -1204,17 +1323,18 @@ void engine::show_voraldo_menu(bool *show) {
       if (ImGui::BeginTabItem(" Clear ")) {
         static bool respect_mask = false;
 
-        // WrappedText("This will clear the block, with an option to respect the
-        // mask. If you check that, masked cells won't be cleared.",
-        // windowsize.x);
-        ImGui::Text(" ");
+        WrappedText(" Clear ");
+        ImGui::SameLine();
+        HelpMarker("This will clear the block, with an option to respect the "
+                   "mask. If you check that, masked cells won't be cleared.");
+
+        OrangeText("SETTINGS");
 
         ImGui::Checkbox("  Respect mask ", &respect_mask);
 
-        ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Clear")) {
+        if (ImGui::SmallButton(" Clear ")) {
           // do the clear all operation - note that this respects the mask
           // values
           // GPU_Data.clear_all(respect_mask);
@@ -1224,32 +1344,26 @@ void engine::show_voraldo_menu(bool *show) {
       if (ImGui::BeginTabItem(" Masking ")) {
         // WrappedText("This will clear the mask value for all cells.
         // Equivalently, set mask to false for all voxels. ", windowsize.x);
-        ImGui::Text(" ");
 
-        ImGui::SetCursorPosX(16);
+        WrappedText(" Masking ");
+        ImGui::SameLine();
+        HelpMarker("Masking is a function which allows all or part of the "
+                   "block to be protected from subsequent draw calls. The "
+                   "value of the mask for each voxel tells how subsequent "
+                   "operations will affect its contents.");
 
-        if (ImGui::SmallButton("Unmask All")) {
+        OrangeText("BASIC OPERATIONS");
+        if (ImGui::SmallButton(" Unmask All ")) {
           // unmask all cells
           // GPU_Data.unmask_all();
         }
 
-        ImGui::Text(" ");
-        ImGui::Text(" ");
+        ImGui::SameLine();
 
-        // WrappedText("This will toggle the value of mask for all voxels.
-        // Masked cells will become unmasked, and unmasked will become masked.",
-        // windowsize.x);
-        ImGui::Text(" ");
-
-        ImGui::SetCursorPosX(16);
-
-        if (ImGui::SmallButton("Invert")) {
+        if (ImGui::SmallButton(" Invert Mask ")) {
           // do the toggle operation
           // GPU_Data.invert_mask();
         }
-
-        ImGui::Text(" ");
-        ImGui::Text(" ");
 
         static bool use_r;
         static bool use_g;
@@ -1266,22 +1380,20 @@ void engine::show_voraldo_menu(bool *show) {
         static float a_variance = 0.0;
         static float l_variance = 0.0;
 
-        // WrappedText("Use the HSV picker or the RGB fields to enter a color.
-        // Once you do that, use the check boxes and sliders to express how you
-        // want to use each channel. ", windowsize.x);
-        ImGui::Text(" ");
-        // WrappedText("For example, if I pick 255 in the red channel, check the
-        // red check box, and set the slider to a non zero value, you will be
-        // masking the parts of the image that have a high value in the red
-        // channel. ", windowsize.x);
-        ImGui::Text(" ");
-        // WrappedText("The slider sets how broadly this operation will be
-        // applied. ", windowsize.x);
-        ImGui::Text(" ");
-        // WrappedText("This can be applied to the RGBA color channels as well
-        // as the value in the lighting buffer, to mask only light or dark
-        // areas. ", windowsize.x);
-        ImGui::Text(" ");
+        OrangeText("MASK BY COLOR");
+        ImGui::SameLine();
+        HelpMarker(
+            "Use the HSV picker or the RGB fields to enter a color. Once you "
+            "do that, use the check boxes and sliders to express how you want "
+            "to use each channel.\n\nFor example, if I pick 255 in the red "
+            "channel, check the red check box, and set the slider to a non "
+            "zero value, you will be masking the parts of the image that have "
+            "a high value in the red channel.\n\nThe slider sets how broadly "
+            "this operation will be applied. Each channel's spread value tells "
+            "how far above and below the specified value will be considered in "
+            "this masking operation. \n\nThis can be applied to the RGBA color "
+            "channels as well as the value in the lighting buffer, to mask "
+            "only light or dark areas. ");
 
         ImGui::ColorEdit4("  Color", (float *)&select_color,
                           ImGuiColorEditFlags_AlphaBar |
@@ -1291,28 +1403,28 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Checkbox("use r", &use_r);
         ImGui::SameLine();
-        ImGui::SliderFloat("r variance", &r_variance, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("r spread", &r_variance, 0.0f, 1.0f, "%.3f");
 
         ImGui::Checkbox("use g", &use_g);
         ImGui::SameLine();
-        ImGui::SliderFloat("g variance", &g_variance, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("g spread", &g_variance, 0.0f, 1.0f, "%.3f");
 
         ImGui::Checkbox("use b", &use_b);
         ImGui::SameLine();
-        ImGui::SliderFloat("b variance", &b_variance, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("b spread", &b_variance, 0.0f, 1.0f, "%.3f");
 
         ImGui::Checkbox("use a", &use_a);
         ImGui::SameLine();
-        ImGui::SliderFloat("a variance", &a_variance, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("a spread", &a_variance, 0.0f, 1.0f, "%.3f");
 
         ImGui::Separator();
 
         ImGui::Checkbox("use l", &use_l);
         ImGui::SameLine();
         ImGui::SliderFloat("l value", &light_val, 0.0f, 1.0f, "%.3f");
-        ImGui::SliderFloat("l variance", &l_variance, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("l spread", &l_variance, 0.0f, 1.0f, "%.3f");
 
-        if (ImGui::SmallButton("Mask")) {
+        if (ImGui::SmallButton(" Mask by Color")) {
           // GPU_Data.mask_by_color(use_r, use_g, use_b, use_a, use_l,
           // glm::vec4(select_color.x, select_color.y, select_color.z,
           // select_color.w), light_val, r_variance, g_variance, b_variance,
@@ -1320,55 +1432,38 @@ void engine::show_voraldo_menu(bool *show) {
         }
         ImGui::EndTabItem();
       }
-      if (ImGui::BeginTabItem(" Box Blur ")) {
+      if (ImGui::BeginTabItem(" Blur ")) {
         static int blur_radius = 0;
         static bool touch_alpha = true;
         static bool respect_mask = false;
 
-        // WrappedText("This is a simple box blur. It will consider the size
-        // neighborhood you select, and average the colors to give smoother
-        // transitions beteen neighboring cells.", windowsize.x);
-        ImGui::Text(" ");
+        WrappedText(" Blur ");
+        ImGui::SameLine();
+        HelpMarker(
+            "This to invoke either a simple box blur or a fancier Gaussian "
+            "blur. Either algorithm will consider the size neighborhood you "
+            "select, and average the colors to give smoother transitions "
+            "beteen neighboring cells.\n\nIf you use 'respect mask' on masked "
+            "cells with high alpha, the colors will begin to diffuse outwards "
+            "like an aura, around the sharper masked shapes.\n\nAlso note that "
+            "as the neighborhood of the blur increases, more texture reads are "
+            "required in order to compute the result of the kernel. Please "
+            "keep this in mind as this number of memory accesses becomes "
+            "large, it can become prohibitively slow on some hardware without "
+            "dedicated graphics memory.");
 
+        OrangeText("SETTINGS");
+        ImGui::Checkbox("  Touch alpha ", &touch_alpha);
+        ImGui::SameLine();
+        ImGui::Checkbox("  Respect mask ", &respect_mask);
         ImGui::SliderInt(" Radius", &blur_radius, 0, 5);
 
-        ImGui::Separator();
-
-        ImGui::Checkbox("  Touch alpha ", &touch_alpha);
-        ImGui::Checkbox("  Respect mask ", &respect_mask);
-
-        ImGui::Text(" ");
-        ImGui::SetCursorPosX(16);
-
-        if (ImGui::SmallButton("Blur")) {
-          // do the blur operation with the selected values
+        // do the blur operation with the selected values
+        if (ImGui::SmallButton(" Box Blur ")) {
           // GPU_Data.box_blur(blur_radius, touch_alpha, respect_mask);
         }
-        ImGui::EndTabItem();
-      }
-      if (ImGui::BeginTabItem(" Gaussian Blur ")) {
-        static int blur_radius = 0;
-        static bool touch_alpha = true;
-        static bool respect_mask = false;
-
-        // WrappedText("This is a gaussian blur. It will consider the size "
-        //             "neighborhood you select, and average the colors to give
-        //             " "smoother transitions beteen neighboring cells.",
-        //             windowsize.x);
-        ImGui::Text(" ");
-
-        ImGui::SliderInt(" Radius", &blur_radius, 0, 5);
-
-        ImGui::Separator();
-
-        ImGui::Checkbox("  Touch alpha ", &touch_alpha);
-        ImGui::Checkbox("  Respect mask ", &respect_mask);
-
-        ImGui::Text(" ");
-        ImGui::SetCursorPosX(16);
-
-        if (ImGui::SmallButton("Blur")) {
-          // do the blur operation with the selected values
+        ImGui::SameLine();
+        if (ImGui::SmallButton(" Gaussian Blur ")) {
           // GPU_Data.gaussian_blur(blur_radius, touch_alpha, respect_mask);
         }
         ImGui::EndTabItem();
@@ -1383,56 +1478,43 @@ void engine::show_voraldo_menu(bool *show) {
         static int xmove;
         static int ymove;
         static int zmove;
-        static bool loop;
+        static bool loop = false;
         static int shift_mode = 1;
 
-        // WrappedText("This allows you to shift the voxel data, by some amount
-        // along the x, y and z axes. Modes are described below. ",
-        // windowsize.x);
-        ImGui::Text(" ");
-        // WrappedText("If you turn on looping, data that goes off one side will
-        // appear on the opposite edge, torus-style.", windowsize.x);
+        WrappedText(" Shift ");
+        ImGui::SameLine();
+        HelpMarker(
+            "This allows you to shift the voxel data by some amount "
+            "along the x, y, and z axes. This can be a very interesting way to "
+            "look at the inside of a volume model. Modes of operation are "
+            "described below.\n\nIf you turn on looping, data that goes off "
+            "one side will appear on the opposite side, torus-style.");
 
-        ImGui::Text(" ");
-        ImGui::SetCursorPosX(16);
+        OrangeText("MOVEMENT AMOUNT");
         ImGui::SliderInt(" x", &xmove, -DIM, DIM);
-        ImGui::SetCursorPosX(16);
         ImGui::SliderInt(" y", &ymove, -DIM, DIM);
-        ImGui::SetCursorPosX(16);
         ImGui::SliderInt(" z", &zmove, -DIM, DIM);
-        ImGui::Text(" ");
 
-        ImGui::SetCursorPosX(16);
+        OrangeText("SETTINGS");
+        ImGui::Checkbox(" Loop Edges", &loop);
         ImGui::SliderInt(" Mode", &shift_mode, 1, 3);
-        ImGui::Text(" ");
-
-        ImGui::SetCursorPosX(16);
 
         switch (shift_mode) {
         case 1:
-          ImGui::Text("Mode 1: Ignore mask buffer, \nmove color data only");
+          WrappedText("Mode 1: Ignore mask buffer, move color data only");
           break;
         case 2:
-          ImGui::Text(
-              "Mode 2: Respect mask buffer, \ncells retain color if masked");
+          WrappedText("Mode 2: Respect mask buffer, masked cells retain color");
           break;
         case 3:
-          ImGui::Text(
-              "Mode 3: Carry mask buffer, \nmask and color move together");
+          WrappedText("Mode 3: Carry mask buffer, both mask and color move");
           break;
         default:
           ImGui::Text("Pick a valid mode");
           break;
         }
 
-        ImGui::Text(" ");
-        ImGui::SetCursorPosX(16);
-        ImGui::Checkbox(" loop", &loop);
-
-        ImGui::Text(" ");
-        ImGui::SetCursorPosX(16);
-
-        if (ImGui::SmallButton("Shift")) {
+        if (ImGui::SmallButton(" Shift ")) {
           // GPU_Data.shift(glm::ivec3(xmove,ymove,zmove), loop, shift_mode);
         }
         ImGui::EndTabItem();
@@ -1453,15 +1535,26 @@ void engine::show_voraldo_menu(bool *show) {
 
         static bool respect_mask_on_load = false;
 
-        // WrappedText("This function lets you load or save of blocks using the
-        // PNG image format. ", windowsize.x);
-        ImGui::Text(" ");
+        WrappedText(" Load/Save ");
+        ImGui::SameLine();
+        HelpMarker(
+            "This function lets you load or save of blocks using the PNG image "
+            "format. Slices of the block are enumerated out one after the "
+            "other to create a very tall image which contains a lossless copy "
+            "of all the volume data.\n\nSelect one from the list to load, or "
+            "save one you have created using the provided text entry "
+            "field.\n\nPlease note that if you have lighting applied to your "
+            "model, you need to use the 'mash' function under the lighting tab "
+            "in order to destructively combine the RGBA and Lighting values. "
+            "Once it has been applied and the lighting buffer is cleared back "
+            "to neutral levels, what you see is what you get in terms of what "
+            "will be saved to disk.");
 
-        ImGui::Text("Files in saves folder:");
+        OrangeText("FILES IN SAVES FOLDER");
         static int listbox_select_index = 1;
         ImGui::ListBox(" ", &listbox_select_index, listbox_items, i, 10);
 
-        ImGui::Text("Enter filename to save:");
+        OrangeText("ENTER FILENAME TO SAVE");
         ImGui::InputTextWithHint(".png", "", str0, IM_ARRAYSIZE(str0));
         ImGui::SameLine();
         // HelpMarker("(?)", "USER:\nHold SHIFT or use mouse to select text.\n"
@@ -1476,7 +1569,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Load")) {
+        if (ImGui::SmallButton(" Load ")) {
           // load that image
           // GPU_Data.load(directory_strings[listbox_select_index],
           // respect_mask_on_load);
@@ -1484,7 +1577,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::SameLine();
 
-        if (ImGui::SmallButton("Save")) {
+        if (ImGui::SmallButton(" Save ")) {
           if (hasPNG(std::string(str0))) {
             // GPU_Data.save(std::string(str0));
           } else {
@@ -1501,24 +1594,24 @@ void engine::show_voraldo_menu(bool *show) {
     if (ImGui::BeginTabItem(" Lighting ")) {
       ImGui::BeginTabBar("l", tab_bar_flags_wdropdown);
 
-      static float clear_level;
+      static float clear_level = 0.25f;
       static bool use_cache;
 
       static float directional_theta;
       static float directional_phi;
-      static float directional_intensity;
-      static float decay_power;
+      static float directional_intensity = 0.20f;
+      static float decay_power = 2.0f;
 
-      static int AO_radius;
+      static int AO_radius = 0;
 
       static float GI_scale_factor = 0.028;
       static float GI_alpha_thresh = 0.010;
       static float GI_sky_intensity = 0.16;
 
       static glm::vec3 point_light_position = glm::vec3(0, 0, 0);
-      static float point_intensity = 0;
-      static float point_decay_power = 0;
-      static float point_distance_power = 0;
+      static float point_intensity = 0.1;
+      static float point_decay_power = 2.1;
+      static float point_distance_power = 2.0;
 
       static glm::vec3 cone_light_position = glm::vec3(0, 0, 0);
       static float cone_theta = 0;
@@ -1635,11 +1728,17 @@ void engine::show_voraldo_menu(bool *show) {
       }
 
       if (ImGui::BeginTabItem(" Ambient Occlusion ")) {
-        // WrappedText("Ambient occlusion is based on a weighted average of the
-        // "
-        //             "alpha values in the specified size neighborhood.",
-        //             windowsize.x);
-        ImGui::Text(" ");
+        WrappedText(" Ambient Occlusion ");
+        ImGui::SameLine();
+        HelpMarker(
+            "Ambient occlusion is based on a weighted average of the alpha "
+            "values in the specified size neighborhood. Generally speaking it "
+            "will only dim your existing ligting values. Interesting results "
+            "with zero radius, maybe due to divide by zero?\n\nNote that large "
+            "neighborhoods incur a lot of texture reads and will thus become "
+            "increasingly slow.");
+
+        OrangeText("SETTINGS");
         ImGui::SliderInt("radius", &AO_radius, 0, 5);
 
         if (ImGui::SmallButton("Apply AO")) {
@@ -1651,13 +1750,26 @@ void engine::show_voraldo_menu(bool *show) {
       }
 
       if (ImGui::BeginTabItem(" Mash ")) {
-        // WrappedText("Mash combines the lighting buffer and the color buffer,
-        // "
-        //             "so that the block can be saved with the lighting
-        //             applied.", windowsize.x);
+        WrappedText(" Mash ");
+        ImGui::SameLine();
+        HelpMarker("Mash combines the lighting buffer and the color buffer, so "
+                   "that the block can be saved with the lighting applied. By "
+                   "playing with feedback effects, I have found this can have "
+                   "creative applicaitons as well.");
 
+        OrangeText("SETTINGS");
+        // checkbox to tell if you want to clear to neutral level in the buffer
+        static bool clear = true;
+        ImGui::Checkbox(" Reset Buffer Values on Mash", &clear);
+        ImGui::SameLine();
+        HelpMarker(
+            "Checking this box prevents feedback from clicking 'mash' again. "
+            "With it unchecked, you can continue to scale existing color "
+            "values in the RGBA buffer until they clip.");
         if (ImGui::SmallButton("Mash")) {
           // GPU_Data.mash();
+          // if(clear)
+          //   //GPU_Data.whatever it is to clear the lighting buffer
         }
 
         ImGui::Separator();
@@ -1696,7 +1808,7 @@ void engine::show_voraldo_menu(bool *show) {
   }
 }
 
-void engine::draw_userscript_editor_tab_contents() {
+void engine::draw_user_editor_tab_contents() {
   // assumes an already open window
   // locally declared class, static instance held to keep the info
 
@@ -1775,9 +1887,10 @@ void engine::draw_userscript_editor_tab_contents() {
       for (int i = 0; i < Items.Size; i++)
         free(Items[i]);
       Items.clear();
-      AddLog(std::string(return_current_time_and_date() +
-                         std::string(" Voraldo v1.2 UserScript Console. "
-                                     "\n'help' for command list."))
+      AddLog(std::string(
+                 return_current_time_and_date() +
+                 std::string("Welcome to the Voraldo v1.2 User Shader Console. "
+                             "\n'help' for command list."))
                  .c_str());
     }
 
@@ -2095,11 +2208,7 @@ void engine::draw_userscript_editor_tab_contents() {
   //   input
   char origtext[] =
       "// need to add myloc calculation\n\n"
-      "    // important elements of the irec (there are 3):\n"
-      "    //  - is it inside? this determines whether a draw is attempted\n"
-      "    //  - what color is it? RGBA is needed to either replace or\n"
-      "    //      blend with the existing contents of the cell.\n"
-      "    //  - amount to mask - 0 to not mask at all, 255 to fully mask.\n\n"
+      "// need to provide values of my color and mask\n\n"
       "irec is_inside(){  // check Documentation tab for details \n\n"
       "   irec temp;\n\n"
       "   // your SDF definition goes here\n\n"
@@ -2107,12 +2216,8 @@ void engine::draw_userscript_editor_tab_contents() {
       "}";
 
   static char text[1 << 13] =
-      "    // important elements of the irec (there are 3):\n"
-      "    //  - is it inside? this determines whether a draw is attempted\n"
-      "    //  - what color is it? RGBA is needed to either replace or\n"
-      "    //      blend with the existing contents of the cell.\n"
-      "    //  - amount to mask - 0 to not mask at all, 255 to fully mask.\n\n"
       "// need to add myloc calculation\n\n"
+      "// need to provide values of my color and mask\n\n"
       "irec is_inside(){  // check Documentation tab for details \n\n"
       "   irec temp;\n\n"
       "   // your SDF definition goes here\n\n"
@@ -2121,19 +2226,22 @@ void engine::draw_userscript_editor_tab_contents() {
 
   ImGui::InputTextMultiline(
       "source", text, IM_ARRAYSIZE(text),
-      ImVec2(-FLT_MIN, 2 * total_screen_height / 3),
-      // ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 36),
+      ImVec2(-FLT_MIN, 2 * total_screen_height / 3), // 2/3 of screen height
+      // ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 36), // 36 lines
       ImGuiInputTextFlags_AllowTabInput);
-  if (ImGui::SmallButton(" Compile ")) {
+  if (ImGui::SmallButton(" Compile and Run ")) {
     // do some compilation
+    // report compilation result / errors
+    // also how long did this take to compile
+    // run the shader for every voxel
+    // report the execution time
   }
+
   ImGui::SameLine();
+
   if (ImGui::SmallButton(" Clear Editor ")) {
     strcpy(text, origtext);
   }
-
-  // the second part, the console
-  // compilation result in the console - report result + timing
 
   console.Draw("ex", &draw);
 }
@@ -2174,22 +2282,6 @@ void engine::fps_overlay(bool *p_open) {
       sprintf(overlay, "avg %.2f fps (%.2f ms)", average, 1000.0f / average);
       ImGui::PlotLines("", values, IM_ARRAYSIZE(values), 0, overlay, 0.0f,
                        140.0f, ImVec2(200, 45));
-
-      if (ImGui::BeginPopupContextWindow()) {
-        if (ImGui::MenuItem("Custom", NULL, corner == -1))
-          corner = -1;
-        if (ImGui::MenuItem("Top-left", NULL, corner == 0))
-          corner = 0;
-        if (ImGui::MenuItem("Top-right", NULL, corner == 1))
-          corner = 1;
-        if (ImGui::MenuItem("Bottom-left", NULL, corner == 2))
-          corner = 2;
-        if (ImGui::MenuItem("Bottom-right", NULL, corner == 3))
-          corner = 3;
-        if (p_open && ImGui::MenuItem("Close"))
-          *p_open = false;
-        ImGui::EndPopup();
-      }
     }
     ImGui::End();
   }
