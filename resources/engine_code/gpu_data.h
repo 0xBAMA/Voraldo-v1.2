@@ -29,7 +29,12 @@ public:
   // screen dimensions
   unsigned int screen_width, screen_height;
   float theta = -0.7, phi = -0.5;
+
+  // settings variables
   glm::vec3 orientation_widget_offset;
+  float alpha_correction_power = 2.0;
+  int color_temp = 6500;
+  int tonemap_mode = 2;
 
 private:
   // init helper functions

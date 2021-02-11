@@ -1787,7 +1787,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::EndTabItem();
       }
 
-      if (ImGui::BeginTabItem(" Ambient Occlusion ")) {
+      if (ImGui::BeginTabItem(" AO ")) {
         WrappedText(" Ambient Occlusion ");
         ImGui::SameLine();
         HelpMarker(
@@ -1842,12 +1842,11 @@ void engine::show_voraldo_menu(bool *show) {
             " Settings ")) // just going to have everything on one page here, no
                            // real point breaking it out into tabs
     {
+
       static ImVec4 clear_color(GPU_Data.clear_color.x, GPU_Data.clear_color.y,
                                 GPU_Data.clear_color.z, GPU_Data.clear_color.w);
 
-      ImGui::Text("");
-
-      ImGui::Separator();
+      OrangeText("APPLICATION SETTINGS");
 
       ImGui::ColorEdit3(
           "BG Color",
@@ -1858,6 +1857,34 @@ void engine::show_voraldo_menu(bool *show) {
       ImGui::SameLine();
       HelpMarker(" OpenGL Clear Color ");
       ImGui::Separator();
+
+      OrangeText("RENDERING ADJUSTMENTS");
+      ImGui::SliderFloat("alpha correction power",
+                         &GPU_Data.alpha_correction_power, 0.5, 4.0);
+
+      ImGui::SliderInt("color temp", &GPU_Data.color_temp, 1000, 45000);
+
+      switch (GPU_Data.tonemap_mode) {
+      case 0:
+        ImGui::Text("0 - none");
+        break;
+      case 1:
+        ImGui::Text("1 - cheap ACES approx");
+        break;
+      case 2:
+        ImGui::Text("2 - full ACES");
+        break;
+      default:
+        break;
+      }
+
+      OrangeText("ORIENTATION WIDGET");
+      // x and y adjustment
+      ImGui::SliderFloat("offset x", &GPU_Data.orientation_widget_offset.x, -1,
+                         1);
+      ImGui::SliderFloat("offset y", &GPU_Data.orientation_widget_offset.y, -1,
+                         1);
+
       ImGui::EndTabItem();
     }
 
@@ -2265,8 +2292,6 @@ void engine::draw_user_editor_tab_contents() {
   //   need to extend Cshader class to take string instead of file
   //   input
   char origtext[] =
-      "// need to add myloc calculation\n\n"
-      "// need to provide values of my color and mask\n\n"
       "irec is_inside(){  // check Documentation tab for details \n\n"
       "   irec temp;\n\n"
       "   // your SDF definition goes here\n\n"
@@ -2274,8 +2299,6 @@ void engine::draw_user_editor_tab_contents() {
       "}";
 
   static char text[1 << 13] =
-      "// need to add myloc calculation\n\n"
-      "// need to provide values of my color and mask\n\n"
       "irec is_inside(){  // check Documentation tab for details \n\n"
       "   irec temp;\n\n"
       "   // your SDF definition goes here\n\n"
@@ -2289,10 +2312,8 @@ void engine::draw_user_editor_tab_contents() {
       ImGuiInputTextFlags_AllowTabInput);
   if (ImGui::SmallButton(" Compile and Run ")) {
     // do some compilation
-    // report compilation result / errors
-    // also how long did this take to compile
-    // run the shader for every voxel
-    // report the execution time
+    // report compilation result / errors / timing
+    // run the shader for every voxel and report timing
   }
 
   ImGui::SameLine();
