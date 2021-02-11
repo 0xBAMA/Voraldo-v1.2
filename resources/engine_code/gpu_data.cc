@@ -44,8 +44,14 @@ void GLContainer::display_orientation_widget() {
 
   // glUniform1f(glGetUniformLocation(owidget_shader_program, "time"),
   // 0.001*SDL_GetTicks());
-  glUniform1f(glGetUniformLocation(owidget_shader_program, "theta"), theta);
-  glUniform1f(glGetUniformLocation(owidget_shader_program, "phi"), phi);
+  // glUniform1f(glGetUniformLocation(owidget_shader_program, "theta"), theta);
+  // glUniform1f(glGetUniformLocation(owidget_shader_program, "phi"), phi);
+  glUniform3f(glGetUniformLocation(owidget_shader_program, "basis_x"), basisx.x,
+              basisx.y, basisx.z);
+  glUniform3f(glGetUniformLocation(owidget_shader_program, "basis_y"), basisy.x,
+              basisy.y, basisy.z);
+  glUniform3f(glGetUniformLocation(owidget_shader_program, "basis_z"), basisz.x,
+              basisz.y, basisz.z);
   glUniform1f(glGetUniformLocation(owidget_shader_program, "ratio"),
               io.DisplaySize.x / io.DisplaySize.y);
 

@@ -35,6 +35,7 @@ using std::flush;
 #include "../glm/glm.hpp"                  //general vector types
 #include "../glm/gtc/matrix_transform.hpp" // for glm::ortho
 #include "../glm/gtc/type_ptr.hpp"         //to send matricies gpu-side
+#include "../glm/gtx/rotate_vector.hpp"
 #include "../glm/gtx/transform.hpp"
 
 // not sure as to the utility of this

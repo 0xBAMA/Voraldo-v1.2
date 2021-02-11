@@ -28,13 +28,32 @@ public:
 
   // screen dimensions
   unsigned int screen_width, screen_height;
-  float theta = -0.7, phi = -0.5;
+  // float theta = -0.7, phi = -0.5;
+
+  // basis vectors
+  glm::vec3 basisx = glm::vec3(1., 0., 0.), basisy = glm::vec3(0., 1., 0.),
+            basisz = glm::vec3(0., 0., 1.);
+
+  // apply the rotation to the basis vectors about the x and y axes
+  void rotate_horizontal(float amnt) {
+    basisx = glm::rotate(basisx, amnt, glm::vec3(0, 1, 0));
+    basisy = glm::rotate(basisy, amnt, glm::vec3(0, 1, 0));
+    basisz = glm::rotate(basisz, amnt, glm::vec3(0, 1, 0));
+  }
+
+  void rotate_vertical(float amnt) {
+    basisx = glm::rotate(basisx, amnt, glm::vec3(1, 0, 0));
+    basisy = glm::rotate(basisy, amnt, glm::vec3(1, 0, 0));
+    basisz = glm::rotate(basisz, amnt, glm::vec3(1, 0, 0));
+  }
 
   // settings variables
   glm::vec3 orientation_widget_offset;
   float alpha_correction_power = 2.0;
   int color_temp = 6500;
   int tonemap_mode = 2;
+
+  float scale = 5.;
 
 private:
   // init helper functions
@@ -57,6 +76,9 @@ private:
 
   // orientation widget with phong shading
   GLuint owidget_vao, owidget_vbo, owidget_shader_program;
+
+  // texture handles
+  // shader handles
 };
 
 #endif

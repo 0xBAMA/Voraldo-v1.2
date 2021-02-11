@@ -1864,6 +1864,8 @@ void engine::show_voraldo_menu(bool *show) {
 
       ImGui::SliderInt("color temp", &GPU_Data.color_temp, 1000, 45000);
 
+      ImGui::SliderInt("tonemapping mode", &GPU_Data.tonemap_mode, 0, 2);
+
       switch (GPU_Data.tonemap_mode) {
       case 0:
         ImGui::Text("0 - none");
@@ -2449,6 +2451,30 @@ void engine::handle_events() {
          event.button.button ==
              SDL_BUTTON_X1)) // x1 is browser back on the mouse
       quitconfirm = !quitconfirm;
+
+    if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE &&
+        SDL_GetModState() & KMOD_SHIFT)
+      pquit = true; // force quit
+
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_UP) {
+      GPU_Data.rotate_vertical(0.03f);
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_DOWN) {
+      GPU_Data.rotate_vertical(-0.03f);
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_LEFT) {
+      GPU_Data.rotate_horizontal(0.03f);
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RIGHT) {
+      GPU_Data.rotate_horizontal(-0.03f);
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_MINUS) {
+      GPU_Data.scale += 0.1f; // make scale smaller (offsets are larger)
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_EQUALS) {
+      // SDLK_PLUS requires that you hit the shift
+      GPU_Data.scale -= 0.1f; // make scale larger  (offsets are smaller)
+    }
   }
 }
 
