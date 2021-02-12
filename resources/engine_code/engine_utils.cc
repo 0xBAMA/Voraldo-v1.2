@@ -1885,6 +1885,19 @@ void engine::show_voraldo_menu(bool *show) {
         break;
       }
 
+      OrangeText("VOXEL RENDERER DATA ACCESS TYPE");
+      if (ImGui::SmallButton(" Image3D ")) {
+        GPU_Data.main_block_image();
+      }
+      ImGui::SameLine();
+      if (ImGui::SmallButton(" Texture (Nearest) ")) {
+        GPU_Data.main_block_nearest_filter();
+      }
+      ImGui::SameLine();
+      if (ImGui::SmallButton(" Texture (Linear) ")) {
+        GPU_Data.main_block_linear_filter();
+      }
+
       OrangeText("ORIENTATION WIDGET");
       // x and y adjustment
       ImGui::SliderFloat("offset x", &GPU_Data.orientation_widget_offset.x, -1,

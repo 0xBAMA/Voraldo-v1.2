@@ -2,34 +2,138 @@
 #include "includes.h"
 
 void GLContainer::display_block() {
-  glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // check redraw flag
-  // blah blah
+  // ------------------------
+  // compute shader raycasts, puts result into texture
 
-  // draw fullscreen geometry, use blit shader
-  // uniforms for color correction, tonemapping
-  // draw 1 trangle
+  // check for state updates
+  static float temp_scale;
+  static float temp_clickndragx;
+  static float temp_clickndragy;
+  static float acp; // alpha correction power
+  // color temperature, done this way so it hooks on the first frame
+  static int temp_temperature = 0;
+  static glm::vec4 temp_clear_color;
+
+  if ((temp_scale != scale) || (temp_clickndragx != clickndragx) ||
+      (temp_clickndragy != clickndragy) || (acp != alpha_correction_power) ||
+      (clear_color != temp_clear_color))
+    redraw_flag = true;
+
+  temp_scale = scale;
+  temp_clickndragx = clickndragx;
+  temp_clickndragy = clickndragy;
+  acp = alpha_correction_power;
+  temp_clear_color = clear_color;
+
+  if (redraw_flag) {
+    // cout << "redrawing" << endl;
+    auto t1 = std::chrono::high_resolution_clock::now();
+
+    // regen mipmap if needed
+
+    static GLuint display_compute_shader;
+    // pick a display compute shader based on rendermode
+    switch (rendermode) {
+    case IMAGE:
+      display_compute_shader = display_compute_image;
+      break;
+    case NEAREST:
+    case LINEAR:
+    default:
+      display_compute_shader = display_compute_sampler;
+      break;
+    }
+
+    // do the tile based rendering using the raycast compute shader
+    glUseProgram(display_compute_shader);
+
+    // display texture
+    glUniform1i(glGetUniformLocation(display_compute_shader, "current"), 0);
+    glUniform1i(glGetUniformLocation(display_compute_shader, "block"),
+                2 + tex_offset);
+    glUniform1i(glGetUniformLocation(display_compute_shader, "lighting"), 6);
+
+    // basis vectors
+    glUniform3f(glGetUniformLocation(display_compute_shader, "basis_x"),
+                basisx.x, basisx.y, basisx.z);
+    glUniform3f(glGetUniformLocation(display_compute_shader, "basis_y"),
+                basisy.x, basisy.y, basisy.z);
+    glUniform3f(glGetUniformLocation(display_compute_shader, "basis_z"),
+                basisz.x, basisz.y, basisz.z);
+
+    // zoom parameter
+    glUniform1f(glGetUniformLocation(display_compute_shader, "scale"), scale);
+
+    // click and drag
+    glUniform1i(glGetUniformLocation(display_compute_shader, "clickndragx"),
+                clickndragx);
+    glUniform1i(glGetUniformLocation(display_compute_shader, "clickndragy"),
+                clickndragy);
+
+    // clear color
+    glUniform4fv(glGetUniformLocation(display_compute_shader, "clear_color"), 1,
+                 glm::value_ptr(clear_color));
+
+    // alpha power
+    glUniform1f(glGetUniformLocation(display_compute_shader, "upow"),
+                alpha_correction_power);
+
+    // loop through tiles
+    for (int x = 0; x < SSFACTOR * screen_width; x += TILESIZE) {
+      // update the x offset
+      glUniform1i(glGetUniformLocation(display_compute_shader, "x_offset"), x);
+      for (int y = 0; y < SSFACTOR * screen_height; y += TILESIZE) {
+        // update the y offset
+        glUniform1i(glGetUniformLocation(display_compute_shader, "y_offset"),
+                    y);
+
+        // dispatch tiles
+        glDispatchCompute(TILESIZE / 32, TILESIZE / 32, 1);
+      }
+    }
+
+    // make sure everything finishes before blitting
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+
+    cout << "tiled refresh took "
+         << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1)
+                .count()
+         << " microseconds" << endl;
+
+    redraw_flag =
+        false; // we won't need to draw anything again, till something changes
+  }
+
+  // clear the screen
+  glClearColor(clear_color.x, clear_color.y, clear_color.z,
+               clear_color.w);                        // from hsv picker
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the background
+
+  // ------------------------
+  // display shader takes texture and blits it to the screen
 
   glUseProgram(display_shader_program);
   glBindVertexArray(display_vao);
   glBindBuffer(GL_ARRAY_BUFFER, display_vbo);
 
   // color temperature
-  // if (temp_temperature != color_temp) {
-  // temp_temperature = color_temp;
-  // glm::vec3 col = get_color_for_temp(double(color_temp));
-  // glUniform3f(glGetUniformLocation(display_shader, "temp_adjustment"), col.x,
-  // col.y, col.z);
-  // }
+  if (temp_temperature != color_temp) {
+    temp_temperature = color_temp;
+    glm::vec3 col = get_color_for_temp(double(color_temp));
+    glUniform3f(glGetUniformLocation(display_shader_program, "temp_adjustment"),
+                col.x, col.y, col.z);
+  }
 
   // tonemapping setting
-  // glUniform1i(glGetUniformLocation(display_shader, "ACES_behavior"),
-  // tonemap_mode);
+  glUniform1i(glGetUniformLocation(display_shader_program, "ACES_behavior"),
+              tonemap_mode);
 
   // pixel scaling
-  // glUniform1f(glGetUniformLocation(display_shader, "ssfactor"), SSFACTOR);
+  glUniform1f(glGetUniformLocation(display_shader_program, "ssfactor"),
+              SSFACTOR);
 
   // one triangle, 3 verticies
   glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -295,6 +399,26 @@ void GLContainer::buffer_geometry() {
   cout << "done." << endl;
 }
 
+// helpers for below
+void tri(glm::vec3 a, glm::vec3 b, glm::vec3 c,
+         std::vector<glm::vec3> &points) {
+  points.push_back(a);
+  points.push_back(b);
+  points.push_back(c);
+}
+
+void face(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d,
+          std::vector<glm::vec3> &points, std::vector<glm::vec3> &normals,
+          std::vector<glm::vec3> &colors, glm::vec3 color) {
+  glm::vec3 normal = glm::normalize(glm::cross(a - b, a - c));
+  tri(a, b, c, points);
+  tri(c, b, d, points);
+  for (int i = 0; i < 6; i++) {
+    normals.push_back(normal);
+    colors.push_back(color);
+  }
+}
+
 void GLContainer::cube_geometry(glm::vec3 a, glm::vec3 b, glm::vec3 c,
                                 glm::vec3 d, glm::vec3 e, glm::vec3 f,
                                 glm::vec3 g, glm::vec3 h,
@@ -313,89 +437,221 @@ void GLContainer::cube_geometry(glm::vec3 a, glm::vec3 b, glm::vec3 c,
 
   glm::vec3 normal;
 
-  // face ABCD
-  normal = glm::normalize(glm::cross(a - b, a - c));
-  points.push_back(a);
-  points.push_back(b);
-  points.push_back(c);
-
-  points.push_back(c);
-  points.push_back(b);
-  points.push_back(d);
-  for (int i = 0; i < 6; i++) {
-    normals.push_back(normal);
-    colors.push_back(color);
-  }
-
-  // face CDGH
-  normal = glm::normalize(glm::cross(c - d, c - g));
-  points.push_back(c);
-  points.push_back(d);
-  points.push_back(g);
-
-  points.push_back(g);
-  points.push_back(d);
-  points.push_back(h);
-  for (int i = 0; i < 6; i++) {
-    normals.push_back(normal);
-    colors.push_back(color);
-  }
-
-  // face EGFH
-  normal = glm::normalize(glm::cross(g - h, g - e));
-  points.push_back(f);
-  points.push_back(g);
-  points.push_back(h);
-
-  points.push_back(g);
-  points.push_back(f);
-  points.push_back(e);
-  for (int i = 0; i < 6; i++) {
-    normals.push_back(normal);
-    colors.push_back(color);
-  }
-
-  // face AEBF
-  normal = glm::normalize(glm::cross(e - f, e - a));
-  points.push_back(a);
-  points.push_back(e);
-  points.push_back(f);
-
-  points.push_back(f);
-  points.push_back(a);
-  points.push_back(b);
-  for (int i = 0; i < 6; i++) {
-    normals.push_back(normal);
-    colors.push_back(color);
-  }
-
-  // face AECG
-  normal = glm::normalize(glm::cross(e - a, e - g));
-  points.push_back(a);
-  points.push_back(e);
-  points.push_back(c);
-
-  points.push_back(c);
-  points.push_back(e);
-  points.push_back(g);
-  for (int i = 0; i < 6; i++) {
-    normals.push_back(normal);
-    colors.push_back(color);
-  }
-
-  // face BDFH
-  normal = glm::normalize(glm::cross(b - f, b - d));
-  points.push_back(b);
-  points.push_back(f);
-  points.push_back(d);
-
-  points.push_back(f);
-  points.push_back(d);
-  points.push_back(h);
-  for (int i = 0; i < 6; i++) {
-    normals.push_back(normal);
-    colors.push_back(color);
-  }
+  face(a, b, c, d, points, normals, colors, color); // face ABCD
+  face(c, d, g, h, points, normals, colors, color); // face CDGH
+  face(e, g, f, h, points, normals, colors, color); // face EGFH
+  face(a, e, b, f, points, normals, colors, color); // face AEBF
+  face(a, e, c, g, points, normals, colors, color); // face AECG
+  face(b, d, f, h, points, normals, colors, color); // face BDFH
 }
 
-void GLContainer::load_textures() {}
+void GLContainer::load_textures() {
+
+  // ------------------------
+  // for v1.1, I am planning out the locations of all textures at the
+  //  beginning of the project - I hope to keep a more consistent environment
+  //  across all the shaders, to make it easier to understand and extend
+
+  // see gpu_data.h for the numbered listing
+
+  // data arrays
+  std::vector<unsigned char> ucxor, light, zeroes, random;
+
+  std::default_random_engine generator;
+  std::uniform_int_distribution<unsigned char> distribution(0, 255);
+
+  cout << "generating init xor texture.....";
+
+  for (unsigned int x = 0; x < DIM; x++) {
+    for (unsigned int y = 0; y < DIM; y++) {
+      for (unsigned int z = 0; z < DIM; z++) {
+        for (int i = 0; i < 4; i++) // fill r, g, b with the result of the xor
+        {
+          ucxor.push_back(((unsigned char)(x % 256) ^ (unsigned char)(y % 256) ^
+                           (unsigned char)(z % 256)));
+        }
+      }
+    }
+  }
+
+  cout << "....done." << endl;
+
+  random.resize(8 * screen_height * screen_width * SSFACTOR * SSFACTOR, 64);
+  light.resize(3 * DIM * DIM * DIM, 64); // fill the array with '64'
+  zeroes.resize(3 * DIM * DIM * DIM, 0); // fill the array with zeroes
+
+  cout << "Creating texture handles...";
+  // create all the texture handles
+  glGenTextures(13, &textures[0]);
+  cout << "...........done." << endl;
+
+  class MyNumPunct : public std::numpunct<char> {
+  protected:
+    virtual char do_thousands_sep() const { return ','; }
+    virtual std::string do_grouping() const { return "\03"; }
+  };
+
+  // supposed to add separators to numbers
+  std::cout.imbue(std::locale(std::locale::classic(), new MyNumPunct));
+
+  cout << "rendertextures ("
+       << int(SSFACTOR * SSFACTOR * screen_width * screen_height * 8)
+       << " bytes).....";
+  // main render texture - this is going to be a rectangular texture, larger
+  // than the screen so we can do some supersampling
+  glActiveTexture(GL_TEXTURE0 + 0);
+  glBindTexture(GL_TEXTURE_RECTANGLE, textures[0]);
+  glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA16, screen_width * SSFACTOR,
+               screen_height * SSFACTOR, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+               &random[0]);
+  glBindImageTexture(
+      0, textures[0], 0, GL_TRUE, 0, GL_READ_WRITE,
+      GL_RGBA16); // 16 bits, hopefully higher precision is helpful
+  // set up filtering for this texture
+  glTexParameterf(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameterf(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  // copy/paste buffer render texture - this is going to be a small rectangular
+  // texture, will only be shown inside the menus
+  glActiveTexture(GL_TEXTURE0 + 1);
+  glBindTexture(GL_TEXTURE_2D, textures[1]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, 512, 256, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, NULL);
+  glBindImageTexture(1, textures[1], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16);
+  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  cout << "...........done." << endl;
+
+  cout << "color voxel blocks at " << DIM << " resolution ("
+       << DIM * DIM * DIM * 4 * 2 << " bytes).......";
+  // main block front color buffer - initialize with xor
+  glActiveTexture(GL_TEXTURE0 + 2);
+  glBindTexture(GL_TEXTURE_3D, textures[2]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, &ucxor[0]);
+  glBindImageTexture(2, textures[2], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+
+  // main block back color buffer - initially empty
+  glActiveTexture(GL_TEXTURE0 + 3);
+  glBindTexture(GL_TEXTURE_3D, textures[3]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, NULL);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindImageTexture(3, textures[3], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+
+  // sets the texture filtering to linear
+  main_block_linear_filter();
+
+  // generate a mipmap for the front RGBA buffer
+  main_block_mipmap_gen();
+
+  cout << "...........done." << endl;
+
+  cout << "mask voxel blocks at " << DIM << " resolution ("
+       << DIM * DIM * DIM * 2 << " bytes).......";
+
+  // main block front mask buffer - initially empty
+  glActiveTexture(GL_TEXTURE0 + 4);
+  glBindTexture(GL_TEXTURE_3D, textures[4]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, DIM, DIM, DIM, 0, GL_RED,
+               GL_UNSIGNED_BYTE, NULL);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindImageTexture(4, textures[4], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+
+  // main block back mask buffer - initially empty
+  glActiveTexture(GL_TEXTURE0 + 5);
+  glBindTexture(GL_TEXTURE_3D, textures[5]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, DIM, DIM, DIM, 0, GL_RED,
+               GL_UNSIGNED_BYTE, NULL);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindImageTexture(5, textures[5], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+
+  cout << "...........done." << endl;
+
+  cout << "light buffer voxel blocks at " << DIM << " resolution ("
+       << DIM * DIM * DIM * 2 << " bytes).......";
+
+  // display lighting buffer - initialize with some base value representing
+  // neutral coloration
+  glActiveTexture(GL_TEXTURE0 + 6);
+  glBindTexture(GL_TEXTURE_3D, textures[6]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, DIM, DIM, DIM, 0, GL_RED,
+               GL_UNSIGNED_BYTE, &light[0]);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindImageTexture(6, textures[6], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+
+  // lighting cache buffer - this is going to have the same data in it as the
+  // regular lighting buffer initially
+  glActiveTexture(GL_TEXTURE0 + 7);
+  glBindTexture(GL_TEXTURE_3D, textures[7]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, DIM, DIM, DIM, 0, GL_RED,
+               GL_UNSIGNED_BYTE, &light[0]);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindImageTexture(7, textures[7], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+
+  cout << "...........done." << endl;
+
+  // copy/paste front buffer - initally empty
+  glActiveTexture(GL_TEXTURE0 + 8);
+  glBindTexture(GL_TEXTURE_3D, textures[8]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, NULL);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindImageTexture(8, textures[8], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+
+  // copy/paste back buffer - initially empty
+  glActiveTexture(GL_TEXTURE0 + 9);
+  glBindTexture(GL_TEXTURE_3D, textures[9]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, NULL);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindImageTexture(9, textures[9], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+
+  // load buffer - initially empty
+  glActiveTexture(GL_TEXTURE0 + 10);
+  glBindTexture(GL_TEXTURE_3D, textures[10]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, NULL);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindImageTexture(10, textures[10], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+
+  cout << "perlin texture generation....." << std::flush;
+
+  // perlin noise - initialize with noise at some default scaling
+  glActiveTexture(GL_TEXTURE0 + 11);
+  glBindTexture(GL_TEXTURE_3D, textures[11]);
+
+  glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
+  // 3d texture for perlin noise - DIM on a side
+  // generate_perlin_noise(0.014, 0.04, 0.014);
+
+  cout << ".............done." << endl;
+  cout << "heightmap............";
+  // heightmap - initialize with a generated diamond square heightmap
+  glActiveTexture(GL_TEXTURE0 + 12);
+  glBindTexture(GL_TEXTURE_2D, textures[12]);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  // 2d texture for representation of a heightmap (greyscale - use some channels
+  // to hold more data?) - also, DIM on a side
+  // generate_heightmap_diamond_square();
+  cout << "........done." << endl;
+}

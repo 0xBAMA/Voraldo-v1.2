@@ -47,6 +47,32 @@ public:
     basisz = glm::rotate(basisz, amnt, glm::vec3(1, 0, 0));
   }
 
+  // use an image object instead of samplers
+  void main_block_image() { rendermode = IMAGE; }
+
+  // set linear filtering
+  void main_block_linear_filter() {
+    rendermode = LINEAR;
+    glBindTexture(GL_TEXTURE_3D, textures[2]);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_3D, textures[3]);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  }
+  // set nearest filtering
+  void main_block_nearest_filter() {
+    rendermode = NEAREST;
+    glBindTexture(GL_TEXTURE_3D, textures[2]);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_3D, textures[3]);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  }
+
   // settings variables
   glm::vec3 orientation_widget_offset;
   float alpha_correction_power = 2.0;
@@ -58,11 +84,20 @@ public:
   int clickndragy = 0;
 
 private:
+  enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = IMAGE;
   bool redraw_flag = true; // need to update render texture
   bool mipmap_flag = true; // need to recompute mipmap before render
 
   // this is better than rebinding textures, it is either 0 or 1
   int tex_offset = 0; // the method by which front/back are toggled
+
+  // when mipmap_flag is true, this is used in the display function
+  void main_block_mipmap_gen() {
+    // bind front buffer texture to GL_TEXTURE_3D
+    glBindTexture(GL_TEXTURE_3D, textures[2 + tex_offset]);
+    // compute the mipmap
+    glGenerateMipmap(GL_TEXTURE_3D);
+  }
 
   // init helper functions
   void compile_shaders();
@@ -79,6 +114,9 @@ private:
   void display_orientation_widget();
 
   // OpenGL Data
+  // the two versions of the raycast shader
+  GLuint display_compute_image, display_compute_sampler;
+
   // blitting via fullscreen geometry
   GLuint display_vao, display_vbo, display_shader_program;
 
@@ -109,7 +147,8 @@ private:
   GLuint box_blur_compute;
   GLuint gaussian_blur_compute;
   GLuint shift_compute;
-  GLuint copy_loadbuff_compute;
+  GLuint copy_loadbuff_compute; // for VAT and load
+  GLuint user_compute;          // from the user script editor
 
   // Lighting
   GLuint lighting_clear_compute;
