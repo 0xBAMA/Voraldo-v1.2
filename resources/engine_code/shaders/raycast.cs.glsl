@@ -148,12 +148,12 @@ void main()
     float y_start = scale*((Global_Loc.y/float(dimensions.y)) - 0.5)*(aspect_ratio);
 
     //start with a vector pointing down the z axis (greater than half the corner to corner distance, i.e. > ~1.75)
-    mat3 rot = mat3(basis_x.x, basis_x.y, basis_x.z,
-                    basis_y.x, basis_y.y, basis_y.z,
-                    basis_z.x, basis_z.y, basis_z.z);
+    mat3 rot = inverse(mat3(basis_x.x, basis_x.y, basis_x.z,
+                            basis_y.x, basis_y.y, basis_y.z,
+                            basis_z.x, basis_z.y, basis_z.z));
 
-    vec3 org = inverse(rot) * vec3(-x_start, -y_start,  2); //add the offsets in x and y
-    vec3 dir = inverse(rot) * vec3(       0,        0, -2); //simply a vector pointing in the opposite direction, no xy offsets
+    vec3 org = rot * vec3(-x_start, -y_start,  2); //add the offsets in x and y
+    vec3 dir = rot * vec3(       0,        0, -2); //simply a vector pointing in the opposite direction, no xy offsets
 
     //use the basis vectors to get the rotated vector
     // dir = dir.x * basis_x + dir.y * basis_y + dir.z * basis_z;

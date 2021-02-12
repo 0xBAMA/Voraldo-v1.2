@@ -2012,38 +2012,13 @@ void engine::draw_user_editor_tab_contents() {
 
     void Draw(const char *title, bool *p_open) {
 
-      // if (ImGui::SmallButton("Add Debug Error")) {
-      //   AddLog("[error] something went wrong");
-      // }
-
       ImGui::SameLine();
       if (ImGui::SmallButton(" Clear Console ")) {
         ClearLog();
       }
 
-      // ImGui::SameLine();
-      // bool copy_to_clipboard = ImGui::SmallButton("Copy");
       bool copy_to_clipboard = false;
-      // static float t = 0.0f; if (ImGui::GetTime() - t > 0.02f) { t =
-      // ImGui::GetTime(); AddLog("Spam %f", t); }
-
-      // if (!Stricmp(std::string("nut").c_str(), std::string("nut").c_str())) {
-      //   cout << "evaluated true" << endl;
-      // }
       ImGui::Separator();
-
-      // Options menu
-      // if (ImGui::BeginPopup("Options")) {
-      // ImGui::Checkbox("Auto-scroll", &AutoScroll);
-      // ImGui::EndPopup();
-      // }
-
-      // Options, Filter
-      // if (ImGui::Button("Options"))
-      //   ImGui::OpenPopup("Options");
-      // ImGui::SameLine();
-      // Filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
-      // ImGui::Separator();
 
       // Reserve enough left-over height for 1 separator + 1 input text
       const float footer_height_to_reserve =
@@ -2052,38 +2027,9 @@ void engine::draw_user_editor_tab_contents() {
       ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve),
                         false, ImGuiWindowFlags_HorizontalScrollbar);
 
-      // Display every line as a separate entry so we can change their color or
-      // add custom widgets. If you only want raw text you can use
-      // ImGui::TextUnformatted(log.begin(), log.end()); NB- if you have
-      // thousands of entries this approach may be too inefficient and may
-      // require user-side clipping to only process visible items. The clipper
-      // will automatically measure the height of your first item and then
-      // "seek" to display only items in the visible area.
-      // To use the clipper we can replace your standard loop:
-      //      for (int i = 0; i < Items.Size; i++)
-      //   With:
-      //      ImGuiListClipper clipper;
-      //      clipper.Begin(Items.Size);
-      //      while (clipper.Step())
-      //         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-      // - That your items are evenly spaced (same height)
-      // - That you have cheap random access to your elements (you can access
-      // them given their index,
-      //   without processing all the ones before)
-      // You cannot this code as-is if a filter is active because it breaks the
-      // 'cheap random-access' property. We would need random-access on the
-      // post-filtered list. A typical application wanting coarse clipping and
-      // filtering may want to pre-compute an array of indices or offsets of
-      // items that passed the filtering test, recomputing this array when user
-      // changes the filter, and appending newly elements as they are inserted.
-      // This is left as a task to the user until we can manage to improve this
-      // example code! If your items are of variable height:
-      // - Split them into same height items would be simpler and facilitate
-      // random-seeking into your list.
-      // - Consider using manual call to IsRectVisible() and skipping extraneous
-      // decoration from your items.
       ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,
                           ImVec2(4, 1)); // Tighten spacing
+
       if (copy_to_clipboard)
         ImGui::LogToClipboard();
       for (int i = 0; i < Items.Size; i++) {
@@ -2434,7 +2380,7 @@ void engine::draw_windows() {
   ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
   // show the demo window
-  static bool show_demo_window = true;
+  static bool show_demo_window = false;
   if (show_demo_window)
     ImGui::ShowDemoWindow(&show_demo_window);
 

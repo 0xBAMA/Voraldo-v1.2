@@ -29,7 +29,6 @@ public:
 
   // screen dimensions
   unsigned int screen_width, screen_height;
-  // float theta = -0.7, phi = -0.5;
 
   // basis vectors
   glm::vec3 basisx = glm::vec3(1., 0., 0.), basisy = glm::vec3(0., 1., 0.),
@@ -80,7 +79,7 @@ public:
   int color_temp = 6500;
   int tonemap_mode = 2;
 
-  float scale = 5.;
+  float scale = 7.;
   int clickndragx = 0;
   int clickndragy = 0;
 
