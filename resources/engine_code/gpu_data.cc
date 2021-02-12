@@ -14,10 +14,12 @@ void GLContainer::display_block() {
   // color temperature, done this way so it hooks on the first frame
   static int temp_temperature = 0;
   static glm::vec4 temp_clear_color;
+  static glm::vec3 bx, by, bz;
 
   if ((temp_scale != scale) || (temp_clickndragx != clickndragx) ||
       (temp_clickndragy != clickndragy) || (acp != alpha_correction_power) ||
-      (clear_color != temp_clear_color))
+      (clear_color != temp_clear_color) || (bx != basisx) || (by != basisy) ||
+      (bz != basisz))
     redraw_flag = true;
 
   temp_scale = scale;
@@ -25,6 +27,9 @@ void GLContainer::display_block() {
   temp_clickndragy = clickndragy;
   acp = alpha_correction_power;
   temp_clear_color = clear_color;
+  bx = basisx;
+  by = basisy;
+  bz = basisz;
 
   if (redraw_flag) {
     // cout << "redrawing" << endl;
@@ -32,7 +37,7 @@ void GLContainer::display_block() {
 
     // regen mipmap if needed
 
-    static GLuint display_compute_shader;
+    GLuint display_compute_shader = display_compute_image;
     // pick a display compute shader based on rendermode
     switch (rendermode) {
     case IMAGE:
@@ -152,6 +157,7 @@ void GLContainer::display_orientation_widget() {
               basisy.y, basisy.z);
   glUniform3f(glGetUniformLocation(owidget_shader_program, "basis_z"), basisz.x,
               basisz.y, basisz.z);
+
   glUniform1f(glGetUniformLocation(owidget_shader_program, "ratio"),
               io.DisplaySize.x / io.DisplaySize.y);
 
@@ -170,6 +176,11 @@ void GLContainer::compile_shaders() {
       Shader("resources/engine_code/shaders/widget.vs.glsl",
              "resources/engine_code/shaders/widget.fs.glsl")
           .Program;
+
+  display_compute_image =
+      CShader("resources/engine_code/shaders/raycast.cs.glsl").Program;
+  // display_compute_sampler =
+  // CShader("resources/engine_code/shaders/raycast_sampler.cs.glsl").Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -245,107 +256,39 @@ void GLContainer::buffer_geometry() {
   float factor = 0.25f;
   float length = 2.0f;
 
+#define LFF(X) glm::vec3(X.x *length, X.y *factor, X.z *factor)
+#define FLF(X) glm::vec3(X.x *factor, X.y *length, X.z *factor)
+#define FFL(X) glm::vec3(X.x *factor, X.y *factor, X.z *length)
+
   offset = glm::vec3(POS, 0, 0);
-  glm::vec3 ax = a + offset;
-  ax.x *= length;
-  ax.y *= factor;
-  ax.z *= factor;
-  glm::vec3 bx = b + offset;
-  bx.x *= length;
-  bx.y *= factor;
-  bx.z *= factor;
-  glm::vec3 cx = c + offset;
-  cx.x *= length;
-  cx.y *= factor;
-  cx.z *= factor;
-  glm::vec3 dx = d + offset;
-  dx.x *= length;
-  dx.y *= factor;
-  dx.z *= factor;
-  glm::vec3 ex = e + offset;
-  ex.x *= length;
-  ex.y *= factor;
-  ex.z *= factor;
-  glm::vec3 fx = f + offset;
-  fx.x *= length;
-  fx.y *= factor;
-  fx.z *= factor;
-  glm::vec3 gx = g + offset;
-  gx.x *= length;
-  gx.y *= factor;
-  gx.z *= factor;
-  glm::vec3 hx = h + offset;
-  hx.x *= length;
-  hx.y *= factor;
-  hx.z *= factor;
+  glm::vec3 ax = LFF((a + offset));
+  glm::vec3 bx = LFF((b + offset));
+  glm::vec3 cx = LFF((c + offset));
+  glm::vec3 dx = LFF((d + offset));
+  glm::vec3 ex = LFF((e + offset));
+  glm::vec3 fx = LFF((f + offset));
+  glm::vec3 gx = LFF((g + offset));
+  glm::vec3 hx = LFF((h + offset));
 
   offset = glm::vec3(0, POS, 0);
-  glm::vec3 ay = a + offset;
-  ay.x *= factor;
-  ay.y *= length;
-  ay.z *= factor;
-  glm::vec3 by = b + offset;
-  by.x *= factor;
-  by.y *= length;
-  by.z *= factor;
-  glm::vec3 cy = c + offset;
-  cy.x *= factor;
-  cy.y *= length;
-  cy.z *= factor;
-  glm::vec3 dy = d + offset;
-  dy.x *= factor;
-  dy.y *= length;
-  dy.z *= factor;
-  glm::vec3 ey = e + offset;
-  ey.x *= factor;
-  ey.y *= length;
-  ey.z *= factor;
-  glm::vec3 fy = f + offset;
-  fy.x *= factor;
-  fy.y *= length;
-  fy.z *= factor;
-  glm::vec3 gy = g + offset;
-  gy.x *= factor;
-  gy.y *= length;
-  gy.z *= factor;
-  glm::vec3 hy = h + offset;
-  hy.x *= factor;
-  hy.y *= length;
-  hy.z *= factor;
+  glm::vec3 ay = FLF((a + offset));
+  glm::vec3 by = FLF((b + offset));
+  glm::vec3 cy = FLF((c + offset));
+  glm::vec3 dy = FLF((d + offset));
+  glm::vec3 ey = FLF((e + offset));
+  glm::vec3 fy = FLF((f + offset));
+  glm::vec3 gy = FLF((g + offset));
+  glm::vec3 hy = FLF((h + offset));
 
   offset = glm::vec3(0, 0, NEG);
-  glm::vec3 az = a + offset;
-  az.x *= factor;
-  az.y *= factor;
-  az.z *= length;
-  glm::vec3 bz = b + offset;
-  bz.x *= factor;
-  bz.y *= factor;
-  bz.z *= length;
-  glm::vec3 cz = c + offset;
-  cz.x *= factor;
-  cz.y *= factor;
-  cz.z *= length;
-  glm::vec3 dz = d + offset;
-  dz.x *= factor;
-  dz.y *= factor;
-  dz.z *= length;
-  glm::vec3 ez = e + offset;
-  ez.x *= factor;
-  ez.y *= factor;
-  ez.z *= length;
-  glm::vec3 fz = f + offset;
-  fz.x *= factor;
-  fz.y *= factor;
-  fz.z *= length;
-  glm::vec3 gz = g + offset;
-  gz.x *= factor;
-  gz.y *= factor;
-  gz.z *= length;
-  glm::vec3 hz = h + offset;
-  hz.x *= factor;
-  hz.y *= factor;
-  hz.z *= length;
+  glm::vec3 az = FFL((a + offset));
+  glm::vec3 bz = FFL((b + offset));
+  glm::vec3 cz = FFL((c + offset));
+  glm::vec3 dz = FFL((d + offset));
+  glm::vec3 ez = FFL((e + offset));
+  glm::vec3 fz = FFL((f + offset));
+  glm::vec3 gz = FFL((g + offset));
+  glm::vec3 hz = FFL((h + offset));
 
   cube_geometry(a, b, c, d, e, f, g, h, points, normals, colors,
                 glm::vec3(0.618f, 0.618f, 0.618f));
@@ -435,8 +378,6 @@ void GLContainer::cube_geometry(glm::vec3 a, glm::vec3 b, glm::vec3 c,
   //   |/      |/
   //   b-------d
 
-  glm::vec3 normal;
-
   face(a, b, c, d, points, normals, colors, color); // face ABCD
   face(c, d, g, h, points, normals, colors, color); // face CDGH
   face(e, g, f, h, points, normals, colors, color); // face EGFH
@@ -446,13 +387,6 @@ void GLContainer::cube_geometry(glm::vec3 a, glm::vec3 b, glm::vec3 c,
 }
 
 void GLContainer::load_textures() {
-
-  // ------------------------
-  // for v1.1, I am planning out the locations of all textures at the
-  //  beginning of the project - I hope to keep a more consistent environment
-  //  across all the shaders, to make it easier to understand and extend
-
-  // see gpu_data.h for the numbered listing
 
   // data arrays
   std::vector<unsigned char> ucxor, light, zeroes, random;
@@ -508,8 +442,8 @@ void GLContainer::load_textures() {
       0, textures[0], 0, GL_TRUE, 0, GL_READ_WRITE,
       GL_RGBA16); // 16 bits, hopefully higher precision is helpful
   // set up filtering for this texture
-  glTexParameterf(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameterf(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // copy/paste buffer render texture - this is going to be a small rectangular
   // texture, will only be shown inside the menus
@@ -518,8 +452,6 @@ void GLContainer::load_textures() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, 512, 256, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, NULL);
   glBindImageTexture(1, textures[1], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16);
-  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   cout << "...........done." << endl;
 
@@ -537,8 +469,6 @@ void GLContainer::load_textures() {
   glBindTexture(GL_TEXTURE_3D, textures[3]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, NULL);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glBindImageTexture(3, textures[3], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 
   // sets the texture filtering to linear
@@ -557,8 +487,6 @@ void GLContainer::load_textures() {
   glBindTexture(GL_TEXTURE_3D, textures[4]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, DIM, DIM, DIM, 0, GL_RED,
                GL_UNSIGNED_BYTE, NULL);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glBindImageTexture(4, textures[4], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
 
   // main block back mask buffer - initially empty
@@ -566,8 +494,6 @@ void GLContainer::load_textures() {
   glBindTexture(GL_TEXTURE_3D, textures[5]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, DIM, DIM, DIM, 0, GL_RED,
                GL_UNSIGNED_BYTE, NULL);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glBindImageTexture(5, textures[5], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
 
   cout << "...........done." << endl;
@@ -602,8 +528,6 @@ void GLContainer::load_textures() {
   glBindTexture(GL_TEXTURE_3D, textures[8]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, NULL);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glBindImageTexture(8, textures[8], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 
   // copy/paste back buffer - initially empty
@@ -611,8 +535,6 @@ void GLContainer::load_textures() {
   glBindTexture(GL_TEXTURE_3D, textures[9]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, NULL);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glBindImageTexture(9, textures[9], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 
   // load buffer - initially empty
@@ -624,30 +546,27 @@ void GLContainer::load_textures() {
   // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glBindImageTexture(10, textures[10], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 
-  cout << "perlin texture generation....." << std::flush;
-
-  // perlin noise - initialize with noise at some default scaling
+  // noise - initialize with noise at some default scaling
   glActiveTexture(GL_TEXTURE0 + 11);
   glBindTexture(GL_TEXTURE_3D, textures[11]);
 
-  glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
                   GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
-  // 3d texture for perlin noise - DIM on a side
+  // 3d texture for noise - DIM on a side
   // generate_perlin_noise(0.014, 0.04, 0.014);
 
-  cout << ".............done." << endl;
   cout << "heightmap............";
   // heightmap - initialize with a generated diamond square heightmap
   glActiveTexture(GL_TEXTURE0 + 12);
   glBindTexture(GL_TEXTURE_2D, textures[12]);
 
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                   GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   // 2d texture for representation of a heightmap (greyscale - use some channels

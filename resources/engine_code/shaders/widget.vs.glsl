@@ -23,8 +23,13 @@ void main()
 {
 	normal = basis_x * vNormal.x + basis_y * vNormal.y + basis_z * vNormal.z;
 	color = vColor;
-	vpos = 0.2 * (basis_x * vPosition.x + basis_y * vPosition.y + basis_z * vPosition.z);
-	
+	mat3 rot = mat3(basis_x.x, basis_x.y, basis_x.z,
+					basis_y.x, basis_y.y, basis_y.z,
+					basis_z.x, basis_z.y, basis_z.z);
+
+	// vpos = 0.2 * (basis_x * vPosition.x + basis_y * vPosition.y + basis_z * vPosition.z);
+	vpos = 0.2 * rot * vPosition;
+
 	vpos.x /= ratio;
 	vpos += offset;
 

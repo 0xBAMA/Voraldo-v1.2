@@ -65,9 +65,6 @@ vec3 aces_fitted(vec3 v)
 }
 
 
-
-
-
 // COLOR TEMP ADJUSTMENT
 uniform vec3 temp_adjustment;
 
@@ -80,16 +77,8 @@ mat3 temp_adjust(vec3 c)
 	return t;
 }
 
-
-
-
 void main()
 {
-	// if(int(gl_FragCoord.y) % 2 == 0 && int(gl_FragCoord.x) % 3 == 0)
-	// 	fragment_output = vec4(v_pos.x,v_pos.y,v_pos.x*v_pos.y,1);
-	// else
-	// 	discard;
-
 	vec4 texread_color = texture(main_display_texture, ssfactor*(gl_FragCoord.xy + gl_SamplePosition.xy));
 	vec4 running_color = texread_color;
 
@@ -98,7 +87,6 @@ void main()
 
 	// luminance preservation
 	running_color.xyz *= dot(texread_color.xyz, vec3(0.2126, 0.7152, 0.0722)) / max(dot(running_color.xyz, vec3(0.2126, 0.7152, 0.0722)), 1e-5);
-
 
 	// tonemapping
 	switch(ACES_behavior)

@@ -13,6 +13,7 @@ public:
     compile_shaders();
     buffer_geometry();
     load_textures();
+    main_block_image();
   }
 
   // display functions
@@ -84,7 +85,7 @@ public:
   int clickndragy = 0;
 
 private:
-  enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = IMAGE;
+  enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode;
   bool redraw_flag = true; // need to update render texture
   bool mipmap_flag = true; // need to recompute mipmap before render
 
