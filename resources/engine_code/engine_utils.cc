@@ -2475,6 +2475,33 @@ void engine::handle_events() {
       // SDLK_PLUS requires that you hit the shift
       GPU_Data.scale -= 0.1f; // make scale larger  (offsets are smaller)
     }
+
+    // till I come up with a good way to maintain state for the mouse click and
+    // drag, this is how that offset is controlled
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_h) {
+      GPU_Data.clickndragx += SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_l) {
+      GPU_Data.clickndragx -= SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
+    }
+
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_k) {
+      GPU_Data.clickndragy += SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_j) {
+      GPU_Data.clickndragy -= SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
+    }
+
+    if (event.type == SDL_MOUSEWHEEL) {
+      // allow scroll to do the same thing as +/-
+      if (event.wheel.y > 0) // scroll up
+      {
+        GPU_Data.scale -= 0.1f;
+      } else if (event.wheel.y < 0) // scroll down
+      {
+        GPU_Data.scale += 0.1f;
+      }
+    }
   }
 }
 

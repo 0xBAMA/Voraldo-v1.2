@@ -54,8 +54,14 @@ public:
   int tonemap_mode = 2;
 
   float scale = 5.;
+  int clickndragx = 0;
+  int clickndragy = 0;
 
 private:
+  bool redraw_flag = true;
+  // this is better than rebinding textures, it is either 0 or 1
+  int tex_offset = 0; // the method by which front/back are toggled
+
   // init helper functions
   void compile_shaders();
   void buffer_geometry();
