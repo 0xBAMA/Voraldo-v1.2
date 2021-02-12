@@ -58,7 +58,9 @@ public:
   int clickndragy = 0;
 
 private:
-  bool redraw_flag = true;
+  bool redraw_flag = true; // need to update render texture
+  bool mipmap_flag = true; // need to recompute mipmap before render
+
   // this is better than rebinding textures, it is either 0 or 1
   int tex_offset = 0; // the method by which front/back are toggled
 
@@ -84,7 +86,39 @@ private:
   GLuint owidget_vao, owidget_vbo, owidget_shader_program;
 
   // texture handles
-  // shader handles
+  GLuint textures[13];
+
+  // Compute Shader Handles
+  // Shapes
+  GLuint aabb_compute;
+  GLuint cuboid_compute;
+  GLuint cylinder_compute;
+  GLuint ellipsoid_compute;
+  GLuint grid_compute;
+  GLuint heightmap_compute;
+  GLuint perlin_compute;
+  GLuint sphere_compute;
+  GLuint tube_compute;
+  GLuint triangle_compute;
+
+  // GPU-side utilities
+  GLuint clear_all_compute;
+  GLuint unmask_all_compute;
+  GLuint invert_mask_compute;
+  GLuint mask_by_color_compute;
+  GLuint box_blur_compute;
+  GLuint gaussian_blur_compute;
+  GLuint shift_compute;
+  GLuint copy_loadbuff_compute;
+
+  // Lighting
+  GLuint lighting_clear_compute;
+  GLuint new_directional_lighting_compute;
+  GLuint point_lighting_compute;
+  GLuint cone_lighting_compute;
+  GLuint ambient_occlusion_compute;
+  GLuint fakeGI_compute;
+  GLuint mash_compute;
 };
 
 #endif

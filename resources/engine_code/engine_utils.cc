@@ -1063,11 +1063,13 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" User ")) {
+        static bool in_editor;
 
         ImGui::BeginTabBar("user", tab_bar_flags_wodropdown);
         if (ImGui::BeginTabItem(" Editor ")) {
           draw_user_editor_tab_contents();
           ImGui::EndTabItem();
+          in_editor = true;
         }
         if (ImGui::BeginTabItem(" Documentation ")) {
           // documentation provides the very basic description and
@@ -1097,13 +1099,13 @@ void engine::show_voraldo_menu(bool *show) {
           ImGui::Separator();
           WrappedText("Fill out an irec it will be applied with the"
                       " selected mask blending mode.\n");
+          ImGui::Text("");
 
           // this goes in the documentation tab
           ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.75, 0.35, 0.1, 1.));
           ImGui::Text("HOW TO USE");
           ImGui::PopStyleColor();
 
-          ImGui::Text("");
           WrappedText("Abstractions are provided as follows:");
           ImGui::Separator();
           WrappedText(
@@ -1120,14 +1122,17 @@ void engine::show_voraldo_menu(bool *show) {
                       "  };\n");
 
           ImGui::EndTabItem();
+          in_editor = false;
         }
 
         ImGui::EndTabBar();
-        ImGui::SameLine();
 
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.75, 0.35, 0.1, 1.));
-        ImGui::Text("Voraldo v1.2 User Shader Editor");
-        ImGui::PopStyleColor();
+        if (in_editor) {
+          ImGui::SameLine();
+          ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.75, 0.35, 0.1, 1.));
+          ImGui::Text("Voraldo v1.2 User Shader Editor");
+          ImGui::PopStyleColor();
+        }
 
         ImGui::EndTabItem();
       }
