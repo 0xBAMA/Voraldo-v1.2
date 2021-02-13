@@ -96,8 +96,6 @@ bool hit(vec3 org, vec3 dir)
 vec4 get_color_for_pixel(vec3 org, vec3 dir)
 {
     float current_t = float(tmax);
-    //vec4 t_color = vec4(1, 1, 1, 0);
-
     vec4 t_color = clear_color;
 
     float step = float((tmax-tmin))/NUM_STEPS;
@@ -106,7 +104,7 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
     
     vec3 block_size = vec3(imageSize(block));
 
-    ivec3 samp = ivec3((block_size/2.0f)*(org+current_t*dir+vec3(1)));
+    ivec3 samp = ivec3((block_size/2.0f)*(org+current_t*dir+vec3(1.)));
 
     vec4 new_read = imageLoad(block,samp);
     vec4 new_light_read = imageLoad(lighting,samp);
@@ -118,17 +116,17 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
         if(current_t>=tmin)
         {
             //apply the lighting scaling
-            new_read.rgb *= (4*new_light_read.r);
+            new_read.rgb *= (4.*new_light_read.r);
 
             // parameterizing the alpha power
             alpha_squared = pow(new_read.a, upow);
 
             // a over b, where a is the new sample and b is the current color, t_color
-            t_color.rgb = new_read.rgb * alpha_squared + t_color.rgb * t_color.a * ( 1 - alpha_squared );
-            t_color.a = alpha_squared + t_color.a * ( 1 - alpha_squared );
+            t_color.rgb = new_read.rgb * alpha_squared + t_color.rgb * t_color.a * ( 1. - alpha_squared );
+            t_color.a = alpha_squared + t_color.a * ( 1. - alpha_squared );
 
             current_t -= step;
-            samp = ivec3((block_size/2.0f)*(org+current_t*dir+vec3(1)));
+            samp = ivec3((block_size/2.0f)*(org+current_t*dir+vec3(1.)));
 
             new_read = imageLoad(block,samp);
             new_light_read = imageLoad(lighting,samp);
@@ -147,22 +145,16 @@ void main()
     float x_start = scale*((Global_Loc.x/float(dimensions.x)) - 0.5);
     float y_start = scale*((Global_Loc.y/float(dimensions.y)) - 0.5)*(aspect_ratio);
 
-    //start with a vector pointing down the z axis (greater than half the corner to corner distance, i.e. > ~1.75)
     mat3 rot = inverse(mat3(basis_x.x, basis_x.y, basis_x.z,
                             basis_y.x, basis_y.y, basis_y.z,
                             basis_z.x, basis_z.y, basis_z.z));
 
-    vec3 org = rot * vec3(-x_start, -y_start,  2); //add the offsets in x and y
-    vec3 dir = rot * vec3(       0,        0, -2); //simply a vector pointing in the opposite direction, no xy offsets
-
-    //use the basis vectors to get the rotated vector
-    // dir = dir.x * basis_x + dir.y * basis_y + dir.z * basis_z;
-    // org = org.x * basis_x + org.y * basis_y + org.z * basis_z;
+    vec3 org = rot * vec3(-x_start, -y_start,  2.); //add the offsets in x and y
+    vec3 dir = rot * vec3(      0.,       0., -2.); //simply a vector pointing in the opposite direction, no xy offsets
 
     Global_Loc -= ivec2(clickndragx, clickndragy);
     if(Global_Loc.x < dimensions.x && Global_Loc.y < dimensions.y)
-    {  // we are good to check the ray against the AABB
-        if(hit(org,dir))
+    {   if(hit(org,dir))
         {
             imageStore(current, Global_Loc, get_color_for_pixel(org, dir));
         }

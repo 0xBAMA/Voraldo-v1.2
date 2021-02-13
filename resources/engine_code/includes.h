@@ -92,7 +92,7 @@ constexpr double pi = 3.14159265358979323846;
 // #define SSFACTOR 1.65
 // #define SSFACTOR 1.25  // small amount of multisampling
 // #define SSFACTOR 1.0  // no multisampling
-#define SSFACTOR 0.236 // this is <1x multisampling
+#define SSFACTOR 0.66 // this is <1x multisampling
 
 // for the tile based rendering - needs to be a multiple of 32
 #define TILESIZE 64

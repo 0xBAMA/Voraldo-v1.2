@@ -37,18 +37,19 @@ void GLContainer::display_block() {
 
     // regen mipmap if needed
 
-    GLuint display_compute_shader = display_compute_image;
+    // GLuint display_compute_shader = display_compute_image;
+    GLuint display_compute_shader = display_compute_sampler;
     // pick a display compute shader based on rendermode
-    switch (rendermode) {
-    case IMAGE:
-      display_compute_shader = display_compute_image;
-      break;
-    case NEAREST:
-    case LINEAR:
-    default:
-      display_compute_shader = display_compute_sampler;
-      break;
-    }
+    // switch (rendermode) {
+    // case IMAGE:
+    //   display_compute_shader = display_compute_image;
+    //   break;
+    // case NEAREST:
+    // case LINEAR:
+    // default:
+    //   display_compute_shader = display_compute_sampler;
+    //   break;
+    // }
 
     // do the tile based rendering using the raycast compute shader
     glUseProgram(display_compute_shader);
@@ -179,8 +180,8 @@ void GLContainer::compile_shaders() {
 
   display_compute_image =
       CShader("resources/engine_code/shaders/raycast.cs.glsl").Program;
-  // display_compute_sampler =
-  // CShader("resources/engine_code/shaders/raycast_sampler.cs.glsl").Program;
+  display_compute_sampler =
+      CShader("resources/engine_code/shaders/raycast_sampler.cs.glsl").Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -465,6 +466,9 @@ void GLContainer::load_textures() {
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, &ucxor[0]);
   glBindImageTexture(2, textures[2], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
 
   // main block back color buffer - initially empty
   glActiveTexture(GL_TEXTURE0 + 3);
@@ -472,6 +476,9 @@ void GLContainer::load_textures() {
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, NULL);
   glBindImageTexture(3, textures[3], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
 
   // sets the texture filtering to linear
   main_block_linear_filter();
