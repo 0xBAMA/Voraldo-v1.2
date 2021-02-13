@@ -185,7 +185,7 @@ void GLContainer::compile_shaders() {
 }
 
 void GLContainer::buffer_geometry() {
-  clickndragx = -265 * SSFACTOR;
+  clickndragx = -200 * SSFACTOR;
 
   std::vector<glm::vec3> points;
   std::vector<glm::vec3> normals;
@@ -480,12 +480,6 @@ void GLContainer::load_textures() {
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
 
-  // sets the texture filtering to linear
-  main_block_linear_filter();
-
-  // generate a mipmap for the front RGBA buffer
-  main_block_mipmap_gen();
-
   cout << "...........done." << endl;
 
   cout << "mask voxel blocks at " << DIM << " resolution ("
@@ -582,4 +576,10 @@ void GLContainer::load_textures() {
   // to hold more data?) - also, DIM on a side
   // generate_heightmap_diamond_square();
   cout << "........done." << endl;
+
+  // sets the texture filtering to linear
+  main_block_linear_filter();
+
+  // generate a mipmap for the front RGBA buffer
+  main_block_mipmap_gen();
 }

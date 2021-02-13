@@ -13,7 +13,8 @@ public:
     compile_shaders();
     buffer_geometry();
     load_textures();
-    main_block_image();
+    // main_block_image();
+    main_block_linear_filter();
   }
 
   // display functions
@@ -53,11 +54,15 @@ public:
   // set linear filtering
   void main_block_linear_filter() {
     rendermode = LINEAR;
-    glBindTexture(GL_TEXTURE_3D, textures[2]);
+    glBindTexture(GL_TEXTURE_3D, textures[2]); // front color
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
                     GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_3D, textures[3]);
+    glBindTexture(GL_TEXTURE_3D, textures[3]); // back color
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_3D, textures[6]); // lighting
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
                     GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -69,6 +74,9 @@ public:
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_3D, textures[3]);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_3D, textures[6]);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   }
@@ -84,7 +92,7 @@ public:
   int clickndragy = 0;
 
 private:
-  enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode;
+  enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = LINEAR;
   bool redraw_flag = true; // need to update render texture
   bool mipmap_flag = true; // need to recompute mipmap before render
 
