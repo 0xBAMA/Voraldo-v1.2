@@ -112,8 +112,7 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
     {   if(current_t>=tmin)
         {
             //apply the lighting scaling
-            // new_read.rgb *= (4.*new_light_read.r);
-            new_read.rgb = new_read.aaa;
+            new_read.rgb *= new_light_read.a;
 
             // parameterizing the alpha power
             alpha_squared = pow(new_read.a, upow);

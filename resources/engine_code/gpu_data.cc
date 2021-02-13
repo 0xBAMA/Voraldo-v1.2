@@ -40,16 +40,16 @@ void GLContainer::display_block() {
     // GLuint display_compute_shader = display_compute_image;
     GLuint display_compute_shader = display_compute_sampler;
     // pick a display compute shader based on rendermode
-    // switch (rendermode) {
-    // case IMAGE:
-    //   display_compute_shader = display_compute_image;
-    //   break;
-    // case NEAREST:
-    // case LINEAR:
-    // default:
-    //   display_compute_shader = display_compute_sampler;
-    //   break;
-    // }
+    switch (rendermode) {
+    case IMAGE:
+      display_compute_shader = display_compute_image;
+      break;
+    case NEAREST:
+    case LINEAR:
+    default:
+      display_compute_shader = display_compute_sampler;
+      break;
+    }
 
     // do the tile based rendering using the raycast compute shader
     glUseProgram(display_compute_shader);
