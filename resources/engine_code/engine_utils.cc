@@ -2417,24 +2417,51 @@ void engine::handle_events() {
         SDL_GetModState() & KMOD_SHIFT)
       pquit = true; // force quit
 
+    float smallstep = 0.008;
+    float largestep = 0.120;
+
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_UP) {
-      GPU_Data.rotate_vertical(0.03f);
-    }
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_DOWN) {
-      GPU_Data.rotate_vertical(-0.03f);
-    }
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_LEFT) {
-      GPU_Data.rotate_horizontal(0.03f);
-    }
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RIGHT) {
-      GPU_Data.rotate_horizontal(-0.03f);
+      if (SDL_GetModState() & KMOD_SHIFT) {
+        GPU_Data.rotate_vertical(largestep);
+      } else {
+        GPU_Data.rotate_vertical(smallstep);
+      }
     }
 
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_DOWN) {
+      if (SDL_GetModState() & KMOD_SHIFT) {
+        GPU_Data.rotate_vertical(-largestep);
+      } else {
+        GPU_Data.rotate_vertical(-smallstep);
+      }
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_LEFT) {
+      if (SDL_GetModState() & KMOD_SHIFT) {
+        GPU_Data.rotate_horizontal(largestep);
+      } else {
+        GPU_Data.rotate_horizontal(smallstep);
+      }
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RIGHT) {
+      if (SDL_GetModState() & KMOD_SHIFT) {
+        GPU_Data.rotate_horizontal(-largestep);
+      } else {
+        GPU_Data.rotate_horizontal(-smallstep);
+      }
+    }
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PAGEDOWN) {
-      GPU_Data.rolltate(-0.03f);
+      if (SDL_GetModState() & KMOD_SHIFT) {
+        GPU_Data.rolltate(-largestep);
+      } else {
+        GPU_Data.rolltate(-smallstep);
+      }
     }
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PAGEUP) {
-      GPU_Data.rolltate(0.03f);
+      if (SDL_GetModState() & KMOD_SHIFT) {
+        GPU_Data.rolltate(largestep);
+      } else {
+        GPU_Data.rolltate(smallstep);
+      }
     }
 
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_MINUS) {

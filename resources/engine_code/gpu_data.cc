@@ -14,12 +14,10 @@ void GLContainer::display_block() {
   // color temperature, done this way so it hooks on the first frame
   static int temp_temperature = 0;
   static glm::vec4 temp_clear_color;
-  static glm::vec3 bx, by, bz;
 
   if ((temp_scale != scale) || (temp_clickndragx != clickndragx) ||
       (temp_clickndragy != clickndragy) || (acp != alpha_correction_power) ||
-      (clear_color != temp_clear_color) || (bx != basisx) || (by != basisy) ||
-      (bz != basisz))
+      (clear_color != temp_clear_color))
     redraw_flag = true;
 
   temp_scale = scale;
@@ -27,9 +25,6 @@ void GLContainer::display_block() {
   temp_clickndragy = clickndragy;
   acp = alpha_correction_power;
   temp_clear_color = clear_color;
-  bx = basisx;
-  by = basisy;
-  bz = basisz;
 
   if (redraw_flag) {
     // cout << "redrawing" << endl;
@@ -397,7 +392,12 @@ void GLContainer::load_textures() {
   std::default_random_engine generator;
   std::uniform_int_distribution<unsigned char> distribution(0, 255);
 
+  random.resize(8 * screen_height * screen_width * SSFACTOR * SSFACTOR, 64);
+  // light.resize(4 * DIM * DIM * DIM, 64); // fill the array with '64'
+  zeroes.resize(4 * DIM * DIM * DIM, 0); // fill the array with zeroes
+
   cout << "generating init xor texture.....";
+  PerlinNoise p;
 
   for (unsigned int x = 0; x < DIM; x++) {
     for (unsigned int y = 0; y < DIM; y++) {
@@ -406,16 +406,14 @@ void GLContainer::load_textures() {
         {
           ucxor.push_back(((unsigned char)(x % 256) ^ (unsigned char)(y % 256) ^
                            (unsigned char)(z % 256)));
+          light.push_back(
+              i - 3 % 4 ? 256 * p.noise(x * 0.01, y * 0.01, z * 0.01) : 255);
         }
       }
     }
   }
 
   cout << "....done." << endl;
-
-  random.resize(8 * screen_height * screen_width * SSFACTOR * SSFACTOR, 64);
-  light.resize(3 * DIM * DIM * DIM, 64); // fill the array with '64'
-  zeroes.resize(3 * DIM * DIM * DIM, 0); // fill the array with zeroes
 
   cout << "Creating texture handles...";
   // create all the texture handles
@@ -445,8 +443,6 @@ void GLContainer::load_textures() {
       0, textures[0], 0, GL_TRUE, 0, GL_READ_WRITE,
       GL_RGBA16); // 16 bits, hopefully higher precision is helpful
   // set up filtering for this texture
-  glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // copy/paste buffer render texture - this is going to be a small rectangular
   // texture, will only be shown inside the menus
@@ -508,21 +504,23 @@ void GLContainer::load_textures() {
   // neutral coloration
   glActiveTexture(GL_TEXTURE0 + 6);
   glBindTexture(GL_TEXTURE_3D, textures[6]);
-  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, DIM, DIM, DIM, 0, GL_RED,
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, &light[0]);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glBindImageTexture(6, textures[6], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+  glBindImageTexture(6, textures[6], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
 
   // lighting cache buffer - this is going to have the same data in it as the
   // regular lighting buffer initially
   glActiveTexture(GL_TEXTURE0 + 7);
   glBindTexture(GL_TEXTURE_3D, textures[7]);
-  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, DIM, DIM, DIM, 0, GL_RED,
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, &light[0]);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glBindImageTexture(7, textures[7], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+  glBindImageTexture(7, textures[7], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
 
   cout << "...........done." << endl;
 
@@ -545,8 +543,6 @@ void GLContainer::load_textures() {
   glBindTexture(GL_TEXTURE_3D, textures[10]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, NULL);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glBindImageTexture(10, textures[10], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 
   // noise - initialize with noise at some default scaling

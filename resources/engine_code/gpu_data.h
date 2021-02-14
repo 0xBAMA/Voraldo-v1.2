@@ -41,22 +41,28 @@ public:
     basisx = glm::rotate(basisx, amnt, glm::vec3(1, 0, 0));
     basisy = glm::rotate(basisy, amnt, glm::vec3(1, 0, 0));
     basisz = glm::rotate(basisz, amnt, glm::vec3(1, 0, 0));
+    redraw_flag = true;
   }
 
   void rotate_horizontal(float amnt) {
     basisx = glm::rotate(basisx, amnt, glm::vec3(0, 1, 0));
     basisy = glm::rotate(basisy, amnt, glm::vec3(0, 1, 0));
     basisz = glm::rotate(basisz, amnt, glm::vec3(0, 1, 0));
+    redraw_flag = true;
   }
 
   void rolltate(float amnt) {
     basisx = glm::rotate(basisx, amnt, glm::vec3(0, 0, 1));
     basisy = glm::rotate(basisy, amnt, glm::vec3(0, 0, 1));
     basisz = glm::rotate(basisz, amnt, glm::vec3(0, 0, 1));
+    redraw_flag = true;
   }
 
   // use an image object instead of samplers
-  void main_block_image() { rendermode = IMAGE; }
+  void main_block_image() {
+    rendermode = IMAGE;
+    redraw_flag = true;
+  }
 
   // set linear filtering
   void main_block_linear_filter() {
@@ -73,6 +79,7 @@ public:
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
                     GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    redraw_flag = true;
   }
   // set nearest filtering
   void main_block_nearest_filter() {
@@ -86,6 +93,7 @@ public:
     glBindTexture(GL_TEXTURE_3D, textures[6]);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    redraw_flag = true;
   }
 
   // settings variables
@@ -111,6 +119,10 @@ private:
     // bind front buffer texture to GL_TEXTURE_3D
     glBindTexture(GL_TEXTURE_3D, textures[2 + tex_offset]);
     // compute the mipmap
+    glGenerateMipmap(GL_TEXTURE_3D);
+
+    // same for the lighting buffer
+    glBindTexture(GL_TEXTURE_3D, textures[6]);
     glGenerateMipmap(GL_TEXTURE_3D);
   }
 

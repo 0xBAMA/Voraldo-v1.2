@@ -112,7 +112,11 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
     {   if(current_t>=tmin)
         {
             //apply the lighting scaling
-            new_read.rgb *= new_light_read.a;
+            new_read.r *= new_light_read.r;
+            new_read.g *= new_light_read.g;
+            new_read.b *= new_light_read.b;
+           
+            // new_read.rgb *= new_light_read.a;
 
             // parameterizing the alpha power
             alpha_squared = pow(new_read.a, upow);
@@ -150,8 +154,8 @@ void main()
                             basis_z.x, basis_z.y, basis_z.z));
 
     //start with a vector pointing down the z axis (greater than half the corner to corner distance, i.e. > ~1.75)
-    vec3 org = rot * vec3(-x_start, -y_start,  2); //add the offsets in x and y
-    vec3 dir = rot * vec3(       0,        0, -2); //simply a vector pointing in the opposite direction, no xy offsets
+    vec3 org = rot * vec3(-x_start, -y_start,  2.); //add the offsets in x and y
+    vec3 dir = rot * vec3(       0,        0, -2.); //simply a vector pointing in the opposite direction, no xy offsets
 
     Global_Loc -= ivec2(clickndragx, clickndragy);
 

@@ -16,11 +16,7 @@ double tmin, tmax; //global scope, set in hit() to tell min and max parameters
 // the display texture
 uniform layout(rgba16) image2D current; // we can get the dimensions with imageSize
 uniform layout(rgba8) image3D block;
-uniform layout(r8) image3D lighting;
-
-// samplers
-// uniform sampler3D block;
-// uniform sampler3D lighting;
+uniform layout(rgba8) image3D lighting;
 
 // because this is going to have to be tile-based, we need this local offset
 uniform int x_offset;
@@ -116,7 +112,7 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
         if(current_t>=tmin)
         {
             //apply the lighting scaling
-            new_read.rgb *= (4.*new_light_read.r);
+            new_read.rgb *= (4.*new_light_read.rgb);
 
             // parameterizing the alpha power
             alpha_squared = pow(new_read.a, upow);
