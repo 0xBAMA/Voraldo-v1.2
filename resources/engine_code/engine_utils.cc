@@ -351,13 +351,10 @@ static void HelpMarker(const char *desc) {
 }
 
 void engine::show_voraldo_menu(bool *show) {
-  // ImGui::Begin("Voraldo Menu", show, ImGuiWindowFlags_NoDecoration);
   ImGui::Begin("Voraldo Menu", show,
                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar |
                    ImGuiWindowFlags_NoScrollbar);
 
-  // window contents
-  // ImGui::Text("This is some text");
   ImGuiTabBarFlags tab_bar_flags_wdropdown =
       ImGuiTabBarFlags_TabListPopupButton |
       ImGuiTabBarFlags_FittingPolicyScroll;
@@ -2432,6 +2429,14 @@ void engine::handle_events() {
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RIGHT) {
       GPU_Data.rotate_horizontal(-0.03f);
     }
+
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PAGEDOWN) {
+      GPU_Data.rolltate(-0.03f);
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PAGEUP) {
+      GPU_Data.rolltate(0.03f);
+    }
+
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_MINUS) {
       GPU_Data.scale += 0.1f; // make scale smaller (offsets are larger)
     }

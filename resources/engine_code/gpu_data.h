@@ -36,16 +36,23 @@ public:
             basisz = glm::vec3(0., 0., 1.);
 
   // apply the rotation to the basis vectors about the x and y axes
+
+  void rotate_vertical(float amnt) {
+    basisx = glm::rotate(basisx, amnt, glm::vec3(1, 0, 0));
+    basisy = glm::rotate(basisy, amnt, glm::vec3(1, 0, 0));
+    basisz = glm::rotate(basisz, amnt, glm::vec3(1, 0, 0));
+  }
+
   void rotate_horizontal(float amnt) {
     basisx = glm::rotate(basisx, amnt, glm::vec3(0, 1, 0));
     basisy = glm::rotate(basisy, amnt, glm::vec3(0, 1, 0));
     basisz = glm::rotate(basisz, amnt, glm::vec3(0, 1, 0));
   }
 
-  void rotate_vertical(float amnt) {
-    basisx = glm::rotate(basisx, amnt, glm::vec3(1, 0, 0));
-    basisy = glm::rotate(basisy, amnt, glm::vec3(1, 0, 0));
-    basisz = glm::rotate(basisz, amnt, glm::vec3(1, 0, 0));
+  void rolltate(float amnt) {
+    basisx = glm::rotate(basisx, amnt, glm::vec3(0, 0, 1));
+    basisy = glm::rotate(basisy, amnt, glm::vec3(0, 0, 1));
+    basisz = glm::rotate(basisz, amnt, glm::vec3(0, 0, 1));
   }
 
   // use an image object instead of samplers
