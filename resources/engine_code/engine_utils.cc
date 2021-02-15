@@ -1598,22 +1598,19 @@ void engine::show_voraldo_menu(bool *show) {
     if (ImGui::BeginTabItem(" Lighting ")) {
       ImGui::BeginTabBar("l", tab_bar_flags_wdropdown);
 
-      static float clear_level = 0.25f;
+      // static float clear_level = 0.25f;
       static bool use_cache;
 
       static float directional_theta;
       static float directional_phi;
-      static float directional_intensity = 0.20f;
       static float decay_power = 2.0f;
 
       static int AO_radius = 0;
 
       static float GI_scale_factor = 0.028;
       static float GI_alpha_thresh = 0.05;
-      static float GI_sky_intensity = 0.08;
 
       static glm::vec3 point_light_position = glm::vec3(0, 0, 0);
-      static float point_intensity = 0.1;
       static float point_decay_power = 2.1;
       static float point_distance_power = 2.0;
 
@@ -1621,7 +1618,6 @@ void engine::show_voraldo_menu(bool *show) {
       static float cone_theta = 0;
       static float cone_phi = 0;
       static float cone_angle = 0;
-      static float cone_intensity = 0;
       static float cone_decay_power = 0;
       static float cone_distance_power = 0;
 
@@ -1639,11 +1635,17 @@ void engine::show_voraldo_menu(bool *show) {
             "the RGBA data before the tonemapping etc is applied.");
 
         OrangeText("SETTINGS");
-        ImGui::SliderFloat("level", &clear_level, 0.0f, 1.0f, "%.3f");
+
+        static ImVec4 color0;
+        ImGui::ColorEdit4(" Color", (float *)&color0,
+                          ImGuiColorEditFlags_AlphaBar |
+                              ImGuiColorEditFlags_AlphaPreviewHalf);
+
         ImGui::Checkbox(" Clear to Cached Levels ", &use_cache);
 
-        if (ImGui::SmallButton("Clear")) {
-          // GPU_Data.lighting_clear(use_cache, clear_level);
+        if (ImGui::SmallButton(" Clear ")) {
+          GPU_Data.lighting_clear(
+              use_cache, glm::vec4(color0.x, color0.y, color0.z, color0.w));
         }
 
         ImGui::Separator();
@@ -1672,15 +1674,22 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("loc z", &point_light_position.z, -100, DIM + 100,
                            "%.3f");
         OrangeText("PARAMETERS");
-        ImGui::SliderFloat("value", &point_intensity, 0, 1.0, "%.3f");
+        // ImGui::SliderFloat("value", &point_intensity, 0, 1.0, "%.3f");
         ImGui::SliderFloat("decay", &point_decay_power, 0, 3.0, "%.3f");
         ImGui::SliderFloat("dist power", &point_distance_power, 0, 3.0f,
                            "%.3f");
 
+        OrangeText("COLOR");
+        static ImVec4 color0;
+        ImGui::ColorEdit4(" ", (float *)&color0,
+                          ImGuiColorEditFlags_AlphaBar |
+                              ImGuiColorEditFlags_AlphaPreviewHalf);
+
         if (ImGui::SmallButton("Point Light")) {
-          // GPU_Data.compute_point_lighting(point_light_position,
-          // point_intensity, point_decay_power,
-          // point_distance_power);
+          GPU_Data.compute_point_lighting(
+              point_light_position,
+              glm::vec4(color0.x, color0.y, color0.z, color0.w),
+              point_decay_power, point_distance_power);
         }
 
         ImGui::Separator();
@@ -1716,9 +1725,18 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::SliderFloat("cone angle", &cone_angle, -3.14f, 3.14f, "%.3f");
         // something about falloff (sharp vs gradual)
-        ImGui::SliderFloat("value", &cone_intensity, 0, 1.0, "%.3f");
+        // ImGui::SliderFloat("value", &cone_intensity, 0, 1.0, "%.3f");
         ImGui::SliderFloat("decay", &cone_decay_power, 0, 3.0, "%.3f");
         ImGui::SliderFloat("dist power", &cone_distance_power, 0, 3.0f, "%.3f");
+
+        OrangeText("COLOR");
+        static ImVec4 color0;
+        ImGui::ColorEdit4(" ", (float *)&color0,
+                          ImGuiColorEditFlags_AlphaBar |
+                              ImGuiColorEditFlags_AlphaPreviewHalf);
+
+        if (ImGui::SmallButton(" Cone Light ")) {
+        }
 
         ImGui::Separator();
         ImGui::EndTabItem();
@@ -1742,10 +1760,14 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("theta", &directional_theta, -3.14f, 3.14f, "%.3f");
         ImGui::SliderFloat("phi", &directional_phi, -3.14f, 3.14f, "%.3f");
         OrangeText("PARAMETERS");
-        ImGui::SliderFloat("value", &directional_intensity, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("decay", &decay_power, 0.0f, 3.0f, "%.3f");
+        OrangeText("COLOR");
+        static ImVec4 color0;
+        ImGui::ColorEdit4(" ", (float *)&color0,
+                          ImGuiColorEditFlags_AlphaBar |
+                              ImGuiColorEditFlags_AlphaPreviewHalf);
 
-        if (ImGui::SmallButton("New Directional")) {
+        if (ImGui::SmallButton(" Directional ")) {
           // GPU_Data.compute_new_directional_lighting(
           // directional_theta, directional_phi, directional_intensity,
           // decay_power);
@@ -1778,7 +1800,11 @@ void engine::show_voraldo_menu(bool *show) {
         OrangeText("PARAMETERS");
         ImGui::SliderFloat("sfactor", &GI_scale_factor, 0.0f, 1.0f);
         ImGui::SliderFloat("alpha threshold", &GI_alpha_thresh, 0.0f, 1.0f);
-        ImGui::SliderFloat("sky intensity", &GI_sky_intensity, 0.0f, 1.0f);
+        // ImGui::SliderFloat("sky intensity", &GI_sky_intensity, 0.0f, 1.0f);
+        static ImVec4 color0;
+        ImGui::ColorEdit4("sky color", (float *)&color0,
+                          ImGuiColorEditFlags_AlphaBar |
+                              ImGuiColorEditFlags_AlphaPreviewHalf);
 
         if (ImGui::SmallButton("Apply GI")) {
           // GPU_Data.compute_fake_GI(GI_scale_factor, GI_sky_intensity,

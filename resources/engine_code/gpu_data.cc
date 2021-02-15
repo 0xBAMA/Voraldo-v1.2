@@ -31,6 +31,17 @@ void GLContainer::display_block() {
     auto t1 = std::chrono::high_resolution_clock::now();
 
     // regen mipmap if needed
+    if (color_mipmap_flag) {
+      // regnerate the color mipmap
+      color_mipmap_gen();
+      color_mipmap_flag = false;
+    }
+
+    if (light_mipmap_flag) {
+      // generate the light mipmap
+      light_mipmap_gen();
+      light_mipmap_flag = false;
+    }
 
     // GLuint display_compute_shader = display_compute_image;
     GLuint display_compute_shader = display_compute_sampler;
@@ -165,18 +176,31 @@ void GLContainer::display_orientation_widget() {
 }
 
 void GLContainer::compile_shaders() {
+
+  // display geometry
   display_shader_program = Shader("resources/engine_code/shaders/blit.vs.glsl",
                                   "resources/engine_code/shaders/blit.fs.glsl")
                                .Program;
+
+  // orientation widget
   owidget_shader_program =
       Shader("resources/engine_code/shaders/widget.vs.glsl",
              "resources/engine_code/shaders/widget.fs.glsl")
           .Program;
 
+  // raycasting
   display_compute_image =
       CShader("resources/engine_code/shaders/raycast.cs.glsl").Program;
+
+  // raycasting, but with compute shaders
   display_compute_sampler =
       CShader("resources/engine_code/shaders/raycast_sampler.cs.glsl").Program;
+
+  // lighting functions
+  lighting_clear_compute =
+      CShader("resources/engine_code/shaders/light_clear.cs.glsl").Program;
+  point_lighting_compute =
+      CShader("resources/engine_code/shaders/point_light.cs.glsl").Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -218,6 +242,7 @@ void GLContainer::buffer_geometry() {
   points.clear();
   normals.clear();
   colors.clear();
+
   // ------------------------
   // orientation widget, to indicate the orientation of the block
 
@@ -393,7 +418,7 @@ void GLContainer::load_textures() {
   std::uniform_int_distribution<unsigned char> distribution(0, 255);
 
   random.resize(8 * screen_height * screen_width * SSFACTOR * SSFACTOR, 64);
-  // light.resize(4 * DIM * DIM * DIM, 64); // fill the array with '64'
+  light.resize(4 * DIM * DIM * DIM, 64); // fill the array with '64'
   zeroes.resize(4 * DIM * DIM * DIM, 0); // fill the array with zeroes
 
   cout << "generating init xor texture.....";
@@ -406,8 +431,10 @@ void GLContainer::load_textures() {
         {
           ucxor.push_back(((unsigned char)(x % 256) ^ (unsigned char)(y % 256) ^
                            (unsigned char)(z % 256)));
-          light.push_back(
-              i - 3 % 4 ? 256 * p.noise(x * 0.01, y * 0.01, z * 0.01) : 255);
+          // light.push_back(i - 3 % 4 ? (i % 2 ? 64. : 128.) *
+          //                                 p.noise(x * 0.01, y * 0.01, z *
+          //                                 0.01)
+          //                           : 255);
         }
       }
     }
@@ -577,5 +604,49 @@ void GLContainer::load_textures() {
   main_block_linear_filter();
 
   // generate a mipmap for the front RGBA buffer
-  main_block_mipmap_gen();
+  color_mipmap_gen();
+  light_mipmap_gen();
+}
+
+void GLContainer::lighting_clear(bool use_cache, glm::vec4 clear_level) {
+  glUseProgram(lighting_clear_compute);
+  redraw_flag = true;
+  light_mipmap_flag = true;
+
+  glUniform1i(glGetUniformLocation(lighting_clear_compute, "lighting"), 6);
+  glUniform1i(glGetUniformLocation(lighting_clear_compute, "lighting_cache"),
+              7);
+  glUniform1i(glGetUniformLocation(lighting_clear_compute, "use_cache"),
+              use_cache);
+  glUniform4f(glGetUniformLocation(lighting_clear_compute, "intensity"),
+              clear_level.x, clear_level.y, clear_level.z, clear_level[3]);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void GLContainer::compute_point_lighting(glm::vec3 light_position,
+                                         glm::vec4 color,
+                                         float point_decay_power,
+                                         float point_distance_power) {
+  glUseProgram(point_lighting_compute);
+  redraw_flag = true;
+  light_mipmap_flag = true;
+
+  glUniform1i(glGetUniformLocation(point_lighting_compute, "lighting"), 6);
+  glUniform1i(glGetUniformLocation(point_lighting_compute, "lighting_cache"),
+              7);
+  glUniform1i(glGetUniformLocation(point_lighting_compute, "block"),
+              2 + tex_offset);
+  glUniform3f(glGetUniformLocation(point_lighting_compute, "light_position"),
+              light_position.x, light_position.y, light_position.z);
+  glUniform1f(glGetUniformLocation(point_lighting_compute, "decay_power"),
+              point_decay_power);
+  glUniform1f(glGetUniformLocation(point_lighting_compute, "distance_power"),
+              point_distance_power);
+  glUniform4f(glGetUniformLocation(point_lighting_compute, "light_intensity"),
+              color.x, color.y, color.z, color[3]);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }

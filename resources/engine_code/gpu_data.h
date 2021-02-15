@@ -106,26 +106,47 @@ public:
   int clickndragx = 0;
   int clickndragy = 0;
 
+  // functions as invoked from the menu
+  void lighting_clear(bool use_cache, glm::vec4 clear_level);
+
+  void compute_point_lighting(glm::vec3 light_position, glm::vec4 color,
+                              float point_decay_power,
+                              float point_distance_power);
+
 private:
   enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = LINEAR;
-  bool redraw_flag = true; // need to update render texture
-  bool mipmap_flag = true; // need to recompute mipmap before render
+  bool redraw_flag = true;       // need to update render texture
+  bool color_mipmap_flag = true; // need to recompute mipmap before render
+  bool light_mipmap_flag = true; // need to recompute mipmap before render
 
   // this is better than rebinding textures, it is either 0 or 1
   int tex_offset = 0; // the method by which front/back are toggled
 
   // when mipmap_flag is true, this is used in the display function
-  void main_block_mipmap_gen() {
+  void color_mipmap_gen() {
+    auto t1 = std::chrono::high_resolution_clock::now();
     // bind front buffer texture to GL_TEXTURE_3D
     glBindTexture(GL_TEXTURE_3D, textures[2 + tex_offset]);
     // compute the mipmap
     glGenerateMipmap(GL_TEXTURE_3D);
-
-    // same for the lighting buffer
-    glBindTexture(GL_TEXTURE_3D, textures[6]);
-    glGenerateMipmap(GL_TEXTURE_3D);
+    cout << "main color block mipmap generated in "
+         << std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::high_resolution_clock::now() - t1)
+                .count()
+         << " microseconds" << endl;
   }
 
+  void light_mipmap_gen() {
+    // same for the lighting buffer
+    auto t1 = std::chrono::high_resolution_clock::now();
+    glBindTexture(GL_TEXTURE_3D, textures[6]);
+    glGenerateMipmap(GL_TEXTURE_3D);
+    cout << "light block mipmap generated in "
+         << std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::high_resolution_clock::now() - t1)
+                .count()
+         << " microseconds" << endl;
+  }
   // init helper functions
   void compile_shaders();
   void buffer_geometry();
@@ -153,7 +174,7 @@ private:
   // texture handles
   GLuint textures[13];
 
-  // Compute Shader Handles
+  // Compute Shader Handles and associated functions
   // Shapes
   GLuint aabb_compute;
   GLuint cuboid_compute;
