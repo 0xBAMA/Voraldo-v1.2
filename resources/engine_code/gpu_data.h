@@ -113,6 +113,10 @@ public:
                               float point_decay_power,
                               float point_distance_power);
 
+  void compute_new_directional_lighting(float theta, float phi,
+                                        glm::vec4 initial_ray_intensity,
+                                        float decay_power);
+
 private:
   enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = LINEAR;
   bool redraw_flag = true;       // need to update render texture
@@ -200,7 +204,7 @@ private:
 
   // Lighting
   GLuint lighting_clear_compute;
-  GLuint new_directional_lighting_compute;
+  GLuint directional_lighting_compute;
   GLuint point_lighting_compute;
   GLuint cone_lighting_compute;
   GLuint ambient_occlusion_compute;

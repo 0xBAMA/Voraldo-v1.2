@@ -1768,9 +1768,9 @@ void engine::show_voraldo_menu(bool *show) {
                               ImGuiColorEditFlags_AlphaPreviewHalf);
 
         if (ImGui::SmallButton(" Directional ")) {
-          // GPU_Data.compute_new_directional_lighting(
-          // directional_theta, directional_phi, directional_intensity,
-          // decay_power);
+          GPU_Data.compute_new_directional_lighting(
+              directional_theta, directional_phi,
+              glm::vec4(color0.x, color0.y, color0.z, color0.w), decay_power);
         }
 
         ImGui::Separator();

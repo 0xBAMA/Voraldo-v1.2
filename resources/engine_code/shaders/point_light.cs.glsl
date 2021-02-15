@@ -15,8 +15,8 @@ uniform float distance_power;
 double tmin, tmax; //global scope, set in hit() to tell min and max parameters
 
 #define NUM_STEPS 5000
-#define MIN_DISTANCE -10000.0
-#define MAX_DISTANCE 10000.0
+#define MIN_DISTANCE -100.0
+#define MAX_DISTANCE 100.0
 
 bool hit(vec3 org, vec3 dir)
 {
@@ -123,7 +123,6 @@ void traceray(vec3 dir)
 
                     // increment t with the step
                     current_t += step;
-
                 }
                 else
                 {

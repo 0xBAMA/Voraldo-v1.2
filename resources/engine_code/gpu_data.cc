@@ -27,7 +27,7 @@ void GLContainer::display_block() {
   temp_clear_color = clear_color;
 
   if (redraw_flag) {
-    // cout << "redrawing" << endl;
+
     auto t1 = std::chrono::high_resolution_clock::now();
 
     // regen mipmap if needed
@@ -201,6 +201,9 @@ void GLContainer::compile_shaders() {
       CShader("resources/engine_code/shaders/light_clear.cs.glsl").Program;
   point_lighting_compute =
       CShader("resources/engine_code/shaders/point_light.cs.glsl").Program;
+  directional_lighting_compute =
+      CShader("resources/engine_code/shaders/directional_light.cs.glsl")
+          .Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -648,5 +651,33 @@ void GLContainer::compute_point_lighting(glm::vec3 light_position,
               color.x, color.y, color.z, color[3]);
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void GLContainer::compute_new_directional_lighting(
+    float theta, float phi, glm::vec4 initial_ray_intensity,
+    float decay_power) {
+
+  redraw_flag = true;
+  light_mipmap_flag = true;
+
+  glUseProgram(directional_lighting_compute);
+
+  glUniform1f(glGetUniformLocation(directional_lighting_compute, "utheta"),
+              theta);
+  glUniform1f(glGetUniformLocation(directional_lighting_compute, "uphi"), phi);
+  glUniform4f(
+      glGetUniformLocation(directional_lighting_compute, "light_intensity"),
+      initial_ray_intensity.r, initial_ray_intensity.g, initial_ray_intensity.b,
+      initial_ray_intensity.a);
+  glUniform1f(glGetUniformLocation(directional_lighting_compute, "decay_power"),
+              decay_power);
+
+  glUniform1i(glGetUniformLocation(directional_lighting_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(directional_lighting_compute, "lighting"),
+              6);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8); // workgroup is 8x8x8
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
