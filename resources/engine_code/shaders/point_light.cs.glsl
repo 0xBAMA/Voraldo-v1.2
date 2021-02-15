@@ -89,9 +89,8 @@ void traceray(vec3 dir)
     // and each of those two points, to figure out which is smaller
 
 
-
-    float prev_intensity = imageLoad(lighting, ivec3(gl_GlobalInvocationID.xyz)).r; // the lighting value that was in the cell, before this operation
-    float current_intensity = light_intensity; // the strength of the light, before traversing any of the volume
+    vec4 prev_intensity = imageLoad(lighting, ivec3(gl_GlobalInvocationID.xyz)); // the lighting value that was in the cell, before this operation
+    vec4 current_intensity = light_intensity; // the strength of the light, before traversing any of the volume
 
     // float step = float((tmax-tmin))/NUM_STEPS;
     float step = 0.003; // uniform step seems to fit better here
@@ -99,7 +98,7 @@ void traceray(vec3 dir)
    
     // note also that in the shader invocation that shares a location with the point light, there is a case that needs to be handled -
     //   that shader invocation will simply take the light intensity as specified by the uniform input, skipping any traversal of the space
-    if(vec3(gl_GlobalInvocationID.xyz) != light_position)
+    if(ivec3(gl_GlobalInvocationID.xyz) != ivec3(light_position))
     {
         if(bounddist < lightdist)  // boundary distance is less than the distance to the light
         {
@@ -110,16 +109,14 @@ void traceray(vec3 dir)
 
             for(int i = 0; i < NUM_STEPS; i++)
             {
-                if(current_t < 0 && current_intensity > 0)
+                if(current_t < 0 && (current_intensity.r > 0 || current_intensity.g > 0 || current_intensity.b > 0))
                 {
                     // new sample location
                     sample_location = ivec3((vec3(imageSize(lighting))/2.0f)*(org+current_t*dir+vec3(1)));
 
-                    if(sample_location == ivec3(gl_GlobalInvocationID.xyz))
-                        break;
-
                     // new read for the alpha_sample
-                    alpha_sample = imageLoad(current, sample_location).a;
+                    // alpha_sample = imageLoad(current, sample_location).a;
+                    alpha_sample = texture3D(current, vec3(sample_location)/vec3(imageSize(lighting))).a/256.;
 
                     // decrement intensity with the value of alpha_sample
                     current_intensity *= 1-pow(alpha_sample, decay_power);
@@ -143,23 +140,20 @@ void traceray(vec3 dir)
 
             for(int i = 0; i < NUM_STEPS; i++)
             {
-                if(current_t < 0 && current_intensity > 0)
+                if(current_t < 0 && (current_intensity.r > 0 || current_intensity.g > 0 || current_intensity.b > 0))
                 {
                     // new sample location
                     sample_location = ivec3((vec3(imageSize(lighting))/2.0f)*(org+current_t*dir+vec3(1)));
 
-                    if(sample_location == ivec3(gl_GlobalInvocationID.xyz))
-                        break;
-
                     // new read for the alpha_sample
-                    alpha_sample = imageLoad(current, sample_location).a;
+                    // alpha_sample = imageLoad(current, sample_location).a;
+                    alpha_sample = texture3D(current, vec3(sample_location)/vec3(imageSize(lighting))).a/256.;
 
                     // decrement intensity with the value of alpha_sample
                     current_intensity *= 1-pow(alpha_sample, decay_power);
 
                     // increment t with the step
                     current_t += step;
-
                 }
                 else
                 {
