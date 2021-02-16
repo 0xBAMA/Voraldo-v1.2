@@ -118,6 +118,7 @@ public:
                                         float decay_power);
 
   void compute_ambient_occlusion(int radius);
+  void mash();
 
 private:
   enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = LINEAR;

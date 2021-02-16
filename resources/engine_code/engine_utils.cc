@@ -1855,9 +1855,10 @@ void engine::show_voraldo_menu(bool *show) {
             "With it unchecked, you can continue to scale existing color "
             "values in the RGBA buffer until they clip.");
         if (ImGui::SmallButton("Mash")) {
-          // GPU_Data.mash();
-          // if(clear)
-          //   //GPU_Data.whatever it is to clear the lighting buffer
+          GPU_Data.mash();
+          if (clear) {
+            GPU_Data.lighting_clear(false, glm::vec4(0.25));
+          }
         }
 
         ImGui::Separator();

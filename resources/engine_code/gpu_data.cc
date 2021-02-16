@@ -207,6 +207,7 @@ void GLContainer::compile_shaders() {
   ambient_occlusion_compute =
       CShader("resources/engine_code/shaders/ambient_occlusion.cs.glsl")
           .Program;
+  mash_compute = CShader("resources/engine_code/shaders/mash.cs.glsl").Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -699,5 +700,16 @@ void GLContainer::compute_ambient_occlusion(int radius) {
   glUniform1i(glGetUniformLocation(ambient_occlusion_compute, "lighting"), 6);
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void GLContainer::mash() {
+  glUseProgram(mash_compute);
+
+  glUniform1i(glGetUniformLocation(mash_compute, "current"), 2 + tex_offset);
+  glUniform1i(glGetUniformLocation(mash_compute, "lighting"), 6);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
