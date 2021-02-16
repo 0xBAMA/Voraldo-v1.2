@@ -23,8 +23,24 @@ void main()
 	if(pmask.r > 0 && respect_mask) //the cell was masked
 	{
 		// this will be more complex, need to figure out how variable mask works
-		// imageStore(current, ivec3(gl_GlobalInvocationID.xyz), pcol);  //color takes on previous color
-		// imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), pmask);  //mask is set true
+		vec4 temp = vec4(0);
+
+		// temp.r = mix(lbcontent.r, pcol.r, pmask.r/255.);
+		// temp.g = mix(lbcontent.g, pcol.g, pmask.g/255.);
+		// temp.b = mix(lbcontent.b, pcol.b, pmask.b/255.);
+		// temp.a = mix(lbcontent.a, pcol.a, pmask.a/255.);
+		temp.r = mix(lbcontent.r, pcol.r, clamp(sin(tan(gl_GlobalInvocationID.y / 14.)), 0., 1.));
+		temp.g = mix(lbcontent.g, pcol.g, clamp(tan(cos(gl_GlobalInvocationID.x / 16.)), 0., 1.));
+		temp.b = mix(lbcontent.b, pcol.b, clamp(cos(sin(gl_GlobalInvocationID.z / 12.)), 0., 1.));
+		temp.a = mix(lbcontent.a, pcol.a, clamp(tan(sin(gl_GlobalInvocationID.y / 15.)), 0., 1.));
+		// temp.r = smoothstep(lbcontent.r, pcol.r, pmask.r/255.);
+		// temp.g = smoothstep(lbcontent.g, pcol.g, pmask.g/255.);
+		// temp.b = smoothstep(lbcontent.b, pcol.b, pmask.b/255.);
+		// temp.a = smoothstep(lbcontent.a, pcol.a, pmask.a/255.);
+
+		imageStore(current, ivec3(gl_GlobalInvocationID.xyz), temp);  //color takes on previous color
+		// imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), pmask > opmask ? pmask : opmask);  //mask is set to the greater of the two
+		imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), pmask);
 	}
 	else
 	{

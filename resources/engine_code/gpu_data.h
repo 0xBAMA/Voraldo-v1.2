@@ -219,7 +219,7 @@ private:
   GLuint box_blur_compute;
   GLuint gaussian_blur_compute;
   GLuint shift_compute;
-  GLuint copy_loadbuff_compute; // for VAT and load
+  GLuint copy_loadbuff_compute; // done - for VAT and load
   GLuint user_compute;          // from the user script editor
 
   // Lighting

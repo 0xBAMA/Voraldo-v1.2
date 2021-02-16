@@ -323,6 +323,8 @@ void engine::imgui_setup() {
   style.IndentSpacing = 8;
   style.WindowRounding = 3;
   style.ScrollbarSize = 10;
+
+  update_listbox_items(); // populate the list of saves initially
 }
 
 void OrangeText(const char *string) {
@@ -1568,17 +1570,17 @@ void engine::show_voraldo_menu(bool *show) {
 
         if (ImGui::SmallButton(" Load ")) {
           // load that image
-          // GPU_Data.load(directory_strings[listbox_select_index],
-          // respect_mask_on_load);
+          GPU_Data.load(directory_strings[listbox_select_index],
+                        respect_mask_on_load);
         }
 
         ImGui::SameLine();
 
         if (ImGui::SmallButton(" Save ")) {
           if (hasPNG(std::string(str0))) {
-            // GPU_Data.save(std::string(str0));
+            GPU_Data.save(std::string(str0));
           } else {
-            // GPU_Data.save(std::string(str0)+std::string(".png"));
+            GPU_Data.save(std::string(str0) + std::string(".png"));
           }
 
           update_listbox_items();

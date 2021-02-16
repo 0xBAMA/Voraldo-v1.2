@@ -423,7 +423,7 @@ void GLContainer::cube_geometry(glm::vec3 a, glm::vec3 b, glm::vec3 c,
 void GLContainer::load_textures() {
 
   // data arrays
-  std::vector<unsigned char> ucxor, light, zeroes, random;
+  std::vector<unsigned char> ucxor, light, zeroes, random, mask;
 
   std::default_random_engine generator;
   std::uniform_int_distribution<unsigned char> distribution(0, 255);
@@ -446,6 +446,7 @@ void GLContainer::load_textures() {
           //                            p.noise(x * 0.01, y * 0.01, z * 0.01)
           //                           : 255);
         }
+        mask.push_back(255. * p.noise(x * 0.01, y * 0.01, z * 0.01));
       }
     }
   }
@@ -521,15 +522,15 @@ void GLContainer::load_textures() {
   // main block front mask buffer - initially empty
   glActiveTexture(GL_TEXTURE0 + 4);
   glBindTexture(GL_TEXTURE_3D, textures[4]);
-  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, DIM, DIM, DIM, 0, GL_RED,
-               GL_UNSIGNED_BYTE, NULL);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, DIM, DIM, DIM, 0, GL_RED_INTEGER,
+               GL_UNSIGNED_BYTE, &mask[0]);
   glBindImageTexture(4, textures[4], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8UI);
 
   // main block back mask buffer - initially empty
   glActiveTexture(GL_TEXTURE0 + 5);
   glBindTexture(GL_TEXTURE_3D, textures[5]);
-  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, DIM, DIM, DIM, 0, GL_RED,
-               GL_UNSIGNED_BYTE, NULL);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, DIM, DIM, DIM, 0, GL_RED_INTEGER,
+               GL_UNSIGNED_BYTE, &mask[0]);
   glBindImageTexture(5, textures[5], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8UI);
 
   cout << "...........done." << endl;
@@ -717,10 +718,9 @@ void GLContainer::mash() {
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
-// VAT and Load will need a shader, that can copy and respect the mask - save is
-// more trivial, just read out the buffer and save it, same as last time
 void GLContainer::copy_loadbuffer(bool respect_mask) {
   redraw_flag = true;
+  color_mipmap_flag = true;
   swap_blocks();
   glUseProgram(copy_loadbuff_compute);
 
@@ -859,7 +859,8 @@ void GLContainer::save(std::string filename) {
   image_bytes_to_save.resize(4 * DIM * DIM * DIM);
   filename = std::string("saves/") + filename;
 
-  glGetTexImage(textures[2 + tex_offset], 0, GL_RGBA, GL_UNSIGNED_BYTE,
+  glBindTexture(GL_TEXTURE_3D, textures[2 + tex_offset]);
+  glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                 /* 4 * DIM * DIM * DIM, */ &image_bytes_to_save[0]);
 
   unsigned error =
