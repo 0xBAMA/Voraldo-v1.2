@@ -125,6 +125,7 @@ public:
   void mash();
 
   // --
+  std::string compile_user_script(std::string text);
 
   // --
   void copy_loadbuffer(bool respect_mask);

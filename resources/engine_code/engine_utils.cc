@@ -1942,9 +1942,23 @@ void engine::draw_user_editor_tab_contents() {
     ImVector<const char *> Commands;
     ImVector<char *> History;
     int HistoryPos; // -1: new line, 0..History.Size-1 browsing history.
+    engine *parent = NULL;
     ImGuiTextFilter Filter;
     bool AutoScroll;
     bool ScrollToBottom;
+    char origtext[135] =
+        "irec is_inside(){  // check Documentation tab for details \n\n"
+        "   irec temp;\n\n"
+        "   // your SDF definition goes here\n\n"
+        "   return temp;\n\n"
+        "}";
+
+    char text[1 << 13] =
+        "irec is_inside(){  // check Documentation tab for details \n\n"
+        "   irec temp;\n\n"
+        "   // your SDF definition goes here\n\n"
+        "   return temp;\n\n"
+        "}";
 
     consoleclass() {
       ClearLog();
@@ -2040,6 +2054,8 @@ void engine::draw_user_editor_tab_contents() {
       ImGui::Separator();
 
       // Reserve enough left-over height for 1 separator + 1 input text
+      ImGui::PushItemWidth(ImGui::GetWindowWidth());
+
       const float footer_height_to_reserve =
           ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing() +
           8;
@@ -2070,7 +2086,8 @@ void engine::draw_user_editor_tab_contents() {
         }
         if (has_color)
           ImGui::PushStyleColor(ImGuiCol_Text, color);
-        ImGui::TextUnformatted(item);
+        // ImGui::TextUnformatted(item);
+        WrappedText(item);
         if (has_color)
           ImGui::PopStyleColor();
       }
@@ -2093,7 +2110,7 @@ void engine::draw_user_editor_tab_contents() {
           ImGuiInputTextFlags_CallbackCompletion |
           ImGuiInputTextFlags_CallbackHistory;
 
-      ImGui::PushItemWidth(ImGui::GetWindowWidth());
+      // ImGui::PushItemWidth(ImGui::GetWindowWidth());
 
       if (ImGui::InputText(" ", InputBuf, IM_ARRAYSIZE(InputBuf),
                            input_text_flags, &TextEditCallbackStub,
@@ -2158,6 +2175,8 @@ void engine::draw_user_editor_tab_contents() {
         // scripts/whatever.user.cs.glsl
       } else if (Stricmp(command_line, "compile") == 0) {
         // compile what's in the box
+        AddLog("%s\n",
+               parent->GPU_Data.compile_user_script(std::string(text)).c_str());
       } else {
         AddLog("'%s' not found.\n", command_line);
       }
@@ -2271,32 +2290,25 @@ void engine::draw_user_editor_tab_contents() {
 
   static bool draw = true;
   static consoleclass console;
+  if (console.parent == NULL)
+    console.parent = this;
 
   // the first part, the editor -
   // this c style string holds the contents of the program -
   //   need to extend Cshader class to take string instead of file
   //   input
-  char origtext[] =
-      "irec is_inside(){  // check Documentation tab for details \n\n"
-      "   irec temp;\n\n"
-      "   // your SDF definition goes here\n\n"
-      "   return temp;\n\n"
-      "}";
-
-  static char text[1 << 13] =
-      "irec is_inside(){  // check Documentation tab for details \n\n"
-      "   irec temp;\n\n"
-      "   // your SDF definition goes here\n\n"
-      "   return temp;\n\n"
-      "}";
 
   ImGui::InputTextMultiline(
-      "source", text, IM_ARRAYSIZE(text),
+      "source", console.text, IM_ARRAYSIZE(console.text),
       ImVec2(-FLT_MIN, 2 * total_screen_height / 3), // 2/3 of screen height
       // ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 36), // 36 lines
       ImGuiInputTextFlags_AllowTabInput);
   if (ImGui::SmallButton(" Compile and Run ")) {
     // do some compilation
+    console.AddLog(
+        "%s\n",
+        GPU_Data.compile_user_script(std::string(console.text)).c_str());
+
     // report compilation result / errors / timing
     // run the shader for every voxel and report timing
   }
@@ -2304,7 +2316,7 @@ void engine::draw_user_editor_tab_contents() {
   ImGui::SameLine();
 
   if (ImGui::SmallButton(" Clear Editor ")) {
-    strcpy(text, origtext);
+    strcpy(console.text, console.origtext);
   }
 
   console.Draw("ex", &draw);

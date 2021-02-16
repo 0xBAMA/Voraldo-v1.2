@@ -718,6 +718,32 @@ void GLContainer::mash() {
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
+std::string GLContainer::compile_user_script(std::string text) {
+
+  std::ifstream header_file{
+      "resources/engine_code/shaders/user_script_header.h.glsl"};
+  std::ifstream body_file{
+      "resources/engine_code/shaders/user_script_body.h.glsl"};
+
+#define ibitr std::istreambuf_iterator
+
+  std::string header{ibitr<char>(header_file), ibitr<char>()};
+  std::string body{ibitr<char>(body_file), ibitr<char>()};
+
+  // header has primitives + operators
+  // text has user supplied is_inside()
+  // body is the assignment logic that deals with masking
+
+  std::string program_string = header + text + body;
+
+  // assign shader handle to the user_compute
+  auto shader = UShader(program_string);
+  user_compute = shader.Program;
+
+  // report timing, compilation status
+  return std::string(shader.report);
+}
+
 void GLContainer::copy_loadbuffer(bool respect_mask) {
   redraw_flag = true;
   color_mipmap_flag = true;
