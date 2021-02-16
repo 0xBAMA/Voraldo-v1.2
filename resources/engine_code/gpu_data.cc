@@ -204,6 +204,9 @@ void GLContainer::compile_shaders() {
   directional_lighting_compute =
       CShader("resources/engine_code/shaders/directional_light.cs.glsl")
           .Program;
+  ambient_occlusion_compute =
+      CShader("resources/engine_code/shaders/ambient_occlusion.cs.glsl")
+          .Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -679,5 +682,22 @@ void GLContainer::compute_new_directional_lighting(
               6);
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8); // workgroup is 8x8x8
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void GLContainer::compute_ambient_occlusion(int radius) {
+  redraw_flag = true;
+  light_mipmap_flag = true;
+
+  glUseProgram(ambient_occlusion_compute);
+
+  glUniform1i(glGetUniformLocation(ambient_occlusion_compute, "radius"),
+              radius);
+
+  glUniform1i(glGetUniformLocation(ambient_occlusion_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(ambient_occlusion_compute, "lighting"), 6);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }

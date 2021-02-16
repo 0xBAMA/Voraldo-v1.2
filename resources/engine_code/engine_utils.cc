@@ -1830,7 +1830,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderInt("radius", &AO_radius, 0, 5);
 
         if (ImGui::SmallButton("Apply AO")) {
-          // GPU_Data.compute_ambient_occlusion(AO_radius);
+          GPU_Data.compute_ambient_occlusion(AO_radius);
         }
 
         ImGui::Separator();

@@ -117,6 +117,8 @@ public:
                                         glm::vec4 initial_ray_intensity,
                                         float decay_power);
 
+  void compute_ambient_occlusion(int radius);
+
 private:
   enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = LINEAR;
   bool redraw_flag = true;       // need to update render texture
@@ -203,11 +205,11 @@ private:
   GLuint user_compute;          // from the user script editor
 
   // Lighting
-  GLuint lighting_clear_compute;
-  GLuint directional_lighting_compute;
-  GLuint point_lighting_compute;
+  GLuint lighting_clear_compute;       // done
+  GLuint directional_lighting_compute; // done
+  GLuint point_lighting_compute;       // done
   GLuint cone_lighting_compute;
-  GLuint ambient_occlusion_compute;
+  GLuint ambient_occlusion_compute; // done
   GLuint fakeGI_compute;
   GLuint mash_compute;
 };
