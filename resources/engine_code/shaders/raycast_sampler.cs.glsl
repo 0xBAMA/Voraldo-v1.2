@@ -15,8 +15,6 @@ double tmin, tmax; //global scope, set in hit() to tell min and max parameters
 
 // the display texture
 uniform layout(rgba16) image2D current; // we can get the dimensions with imageSize
-// uniform layout(rgba8) image3D block;
-// uniform layout(r8) image3D lighting;
 
 // samplers
 uniform sampler3D block;

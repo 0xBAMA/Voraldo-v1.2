@@ -208,6 +208,10 @@ void GLContainer::compile_shaders() {
       CShader("resources/engine_code/shaders/ambient_occlusion.cs.glsl")
           .Program;
   mash_compute = CShader("resources/engine_code/shaders/mash.cs.glsl").Program;
+
+  // utility functions
+  copy_loadbuff_compute =
+      CShader("resources/engine_code/shaders/copy_loadbuff.cs.glsl").Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -439,8 +443,7 @@ void GLContainer::load_textures() {
           ucxor.push_back(((unsigned char)(x % 256) ^ (unsigned char)(y % 256) ^
                            (unsigned char)(z % 256)));
           // light.push_back(i - 3 % 4 ? (i % 2 ? 64. : 128.) *
-          //                                 p.noise(x * 0.01, y * 0.01, z *
-          //                                 0.01)
+          //                            p.noise(x * 0.01, y * 0.01, z * 0.01)
           //                           : 255);
         }
       }
@@ -518,16 +521,16 @@ void GLContainer::load_textures() {
   // main block front mask buffer - initially empty
   glActiveTexture(GL_TEXTURE0 + 4);
   glBindTexture(GL_TEXTURE_3D, textures[4]);
-  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, DIM, DIM, DIM, 0, GL_RED,
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, DIM, DIM, DIM, 0, GL_RED,
                GL_UNSIGNED_BYTE, NULL);
-  glBindImageTexture(4, textures[4], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+  glBindImageTexture(4, textures[4], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8UI);
 
   // main block back mask buffer - initially empty
   glActiveTexture(GL_TEXTURE0 + 5);
   glBindTexture(GL_TEXTURE_3D, textures[5]);
-  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, DIM, DIM, DIM, 0, GL_RED,
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, DIM, DIM, DIM, 0, GL_RED,
                GL_UNSIGNED_BYTE, NULL);
-  glBindImageTexture(5, textures[5], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+  glBindImageTexture(5, textures[5], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8UI);
 
   cout << "...........done." << endl;
 
@@ -712,4 +715,158 @@ void GLContainer::mash() {
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
 
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// VAT and Load will need a shader, that can copy and respect the mask - save is
+// more trivial, just read out the buffer and save it, same as last time
+void GLContainer::copy_loadbuffer(bool respect_mask) {
+  redraw_flag = true;
+  swap_blocks();
+  glUseProgram(copy_loadbuff_compute);
+
+  glUniform1i(glGetUniformLocation(copy_loadbuff_compute, "respect_mask"),
+              respect_mask);
+
+  glUniform1i(glGetUniformLocation(copy_loadbuff_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(copy_loadbuff_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(copy_loadbuff_compute, "previous"),
+              3 - tex_offset);
+  glUniform1i(glGetUniformLocation(copy_loadbuff_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glUniform1i(glGetUniformLocation(copy_loadbuff_compute, "loadbuff"), 10);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// Brent Werness's Voxel Automata Terrain - set redraw_flag to true
+std::string GLContainer::vat(float flip, std::string rule, int initmode,
+                             glm::vec4 color0, glm::vec4 color1,
+                             glm::vec4 color2, float lambda, float beta,
+                             float mag, bool respect_mask, glm::bvec3 mins,
+                             glm::bvec3 maxs) {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+
+  int dimension;
+
+  // this is the easiest way to handle the dimension I think
+  if (DIM == 32)
+    dimension = 5;
+  else if (DIM == 64)
+    dimension = 6;
+  else if (DIM == 128)
+    dimension = 7;
+  else if (DIM == 256)
+    dimension = 8;
+  else if (DIM == 512)
+    dimension = 9;
+
+  // check for equality with 'r' or 'i' to do random or isingRandom, else
+  // interpret as a shortrule I want to add different init modes, to seed
+  // multiple faces instead of just the one
+  voxel_automata_terrain v(dimension, flip, rule, initmode, lambda, beta, mag,
+                           mins, maxs);
+
+  // pull out the texture data
+  std::vector<unsigned char> loaded_bytes; // used the same way as load(), below
+
+  // triple for-loop to pull the data out
+  for (int x = 0; x < DIM; x++) {
+    for (int y = 0; y < DIM; y++) {
+      for (int z = 0; z < DIM; z++) {
+        // append data with the colors specified as input
+        glm::vec4 color;
+        switch (v.state[x][y][z]) {
+        case 0:
+          color = color0;
+          break; // use color0
+        case 1:
+          color = color1;
+          break; // use color1
+        case 2:
+          color = color2;
+          break; // use color2
+
+        default:
+          color = color0;
+          break; // this shouldn't come up, but the compiler was mad
+        }
+
+        // put it in the vector as bytes
+        loaded_bytes.push_back(static_cast<unsigned char>(color.x * 255));
+        loaded_bytes.push_back(static_cast<unsigned char>(color.y * 255));
+        loaded_bytes.push_back(static_cast<unsigned char>(color.z * 255));
+        loaded_bytes.push_back(static_cast<unsigned char>(color.w * 255));
+
+        // cout << v.state[x][y][z] << " ";
+      }
+      // cout << endl;
+    }
+    // cout << endl;
+  }
+
+  // send it
+  glBindTexture(GL_TEXTURE_3D, textures[10]); // put it in the loadbuffer
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, &loaded_bytes[0]);
+
+  copy_loadbuffer(respect_mask);
+
+  // get the rule out of v
+  return v.getShortRule();
+}
+
+// load - set redraw_flag to true
+void GLContainer::load(std::string filename, bool respect_mask) {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+
+  std::vector<unsigned char> image_loaded_bytes;
+  unsigned width, height;
+
+  unsigned error =
+      lodepng::decode(image_loaded_bytes, width, height, filename.c_str());
+
+  // report any errors
+  if (error)
+    std::cout << "decode error during load(\" " + filename + " \") " << error
+              << ": " << lodepng_error_text(error) << std::endl;
+
+  // put that shit in the front buffer with glTexImage3D()
+  glBindTexture(GL_TEXTURE_3D, textures[10]); // put it in the loadbuffer
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, &image_loaded_bytes[0]);
+
+  copy_loadbuffer(respect_mask);
+
+  cout << "filename on load is: " << filename << std::endl << std::endl;
+}
+
+// save
+void GLContainer::save(std::string filename) {
+  // don't need to redraw
+  std::vector<unsigned char> image_bytes_to_save;
+  unsigned width, height;
+
+  width = DIM;
+  height = DIM * DIM;
+
+  image_bytes_to_save.resize(4 * DIM * DIM * DIM);
+  filename = std::string("saves/") + filename;
+
+  glGetTexImage(textures[2 + tex_offset], 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                /* 4 * DIM * DIM * DIM, */ &image_bytes_to_save[0]);
+
+  unsigned error =
+      lodepng::encode(filename.c_str(), image_bytes_to_save, width, height);
+  if (error)
+    std::cout << "encode error during save(\" " + filename + " \") " << error
+              << ": " << lodepng_error_text(error) << std::endl;
+
+  cout << "filename on save is: " << filename << std::endl << std::endl;
 }

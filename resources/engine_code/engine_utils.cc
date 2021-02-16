@@ -407,7 +407,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // draw the sphere with the selected values
           // GPU_Data.draw_aabb(min, max,
           //                    glm::vec4(aabb_draw_color.x, aabb_draw_color.y,
@@ -516,7 +516,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // GPU_Data.draw_cuboid(a, b, c, d, e, f, g, h,
           //   glm::vec4(cuboid_draw_color.x, cuboid_draw_color.y,
           //   cuboid_draw_color.z, cuboid_draw_color.w), cuboid_draw,
@@ -575,7 +575,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // GPU_Data.draw_cylinder(cylinder_bvec, cylinder_tvec,
           // cylinder_radius, glm::vec4(cylinder_draw_color.x,
           // cylinder_draw_color.y, cylinder_draw_color.z,
@@ -629,7 +629,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // GPU_Data.draw_ellipsoid(center, radius, rotation,
           // glm::vec4(ellipsoid_draw_color.x, ellipsoid_draw_color.y,
           // ellipsoid_draw_color.z, ellipsoid_draw_color.w), ellipsoid_draw,
@@ -679,7 +679,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
 
         ImGui::SetCursorPosX(16);
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // GPU_Data.draw_grid(glm::ivec3(xspacing, yspacing, zspacing),
           // glm::ivec3(xwid, ywid, zwid), glm::ivec3(xoff, yoff, zoff),
           // glm::vec4(grid_draw_color.x, grid_draw_color.y, grid_draw_color.z,
@@ -742,7 +742,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // draw the heightmap with the selected values
           // GPU_Data.draw_heightmap(heightmap_vertical_scale, true,
           // glm::vec4(heightmap_draw_color.x, heightmap_draw_color.y,
@@ -819,7 +819,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // GPU_Data.draw_regular_icosahedron(rotations.x, rotations.y,
           // rotations.z, scale, center_point, glm::vec4(vertex_color.x,
           // vertex_color.y, vertex_color.z, vertex_color.w), vertex_radius,
@@ -856,7 +856,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("  zscale", &perlin_scale_z, 0.01f, 0.5f, "%.3f");
         ImGui::Text(" ");
 
-        if (ImGui::SmallButton("generate")) {
+        if (ImGui::SmallButton(" generate ")) {
           // GPU_Data.generate_perlin_noise(perlin_scale_x, perlin_scale_y,
           // perlin_scale_z);
         }
@@ -889,7 +889,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
 
         ImGui::SetCursorPosX(16);
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // GPU_Data.draw_perlin_noise(perlin_threshold_lo,
           // perlin_threshold_hi, perlin_smooth, glm::vec4(perlin_draw_color.x,
           // perlin_draw_color.y, perlin_draw_color.z, perlin_draw_color.w),
@@ -933,7 +933,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // GPU_Data.draw_sphere(sphere_location, sphere_radius,
           // glm::vec4(sphere_draw_color.x, sphere_draw_color.y,
           // sphere_draw_color.z, sphere_draw_color.w), sphere_draw,
@@ -989,7 +989,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // GPU_Data.draw_tube(tube_bvec, tube_tvec, tube_inner_radius,
           // tube_outer_radius, glm::vec4(tube_draw_color.x, tube_draw_color.y,
           // tube_draw_color.z, tube_draw_color.w), tube_draw, tube_mask);
@@ -1051,7 +1051,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Text(" ");
         ImGui::SetCursorPosX(16);
 
-        if (ImGui::SmallButton("Draw")) {
+        if (ImGui::SmallButton(" Draw ")) {
           // GPU_Data.draw_triangle(point1, point2, point3, thickness,
           // glm::vec4(triangle_draw_color.x, triangle_draw_color.y,
           // triangle_draw_color.z, triangle_draw_color.w), triangle_draw,
@@ -1257,7 +1257,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat(" beta", &beta, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat(" mag", &mag, 0.0f, 1.0f, "%.3f");
 
-        if (ImGui::SmallButton("Compute String")) {
+        if (ImGui::SmallButton(" Compute String ")) {
           // invoke the constructor, etc - return a string from the
           // OpenGL_container::vat(...), and put it in str0
           glm::vec4 col0, col1, col2;
@@ -1265,53 +1265,46 @@ void engine::show_voraldo_menu(bool *show) {
           col1 = glm::vec4(color1.x, color1.y, color1.z, color1.w);
           col2 = glm::vec4(color2.x, color2.y, color2.z, color2.w);
 
-          // std::string temp = GPU_Data.vat(
-          //     flip, std::string(str0), initmode, col0, col1, col2, lambda,
-          //     beta, mag, respect_mask, glm::bvec3(minusx, minusy, minusz),
-          //     glm::bvec3(plusx, plusy, plusz)); // assign with the function
-          //     call
+          std::string temp = GPU_Data.vat(
+              flip, std::string(str0), initmode, col0, col1, col2, lambda, beta,
+              mag, respect_mask, glm::bvec3(minusx, minusy, minusz),
+              glm::bvec3(plusx, plusy, plusz)); // assign with the function call
 
-          // strcpy(str0,
-          //        temp.c_str()); // you get to see how the random rule you
-          //                       // generated, or retain the rule you entered
+          strcpy(str0,
+                 temp.c_str()); // you get to see how the random rule you
+                                // generated, or retain the rule you entered
         }
 
         ImGui::SameLine();
 
-        if (ImGui::SmallButton("Compute Random")) {
+        if (ImGui::SmallButton(" Compute Random ")) {
           glm::vec4 col0, col1, col2;
           col0 = glm::vec4(color0.x, color0.y, color0.z, color0.w);
           col1 = glm::vec4(color1.x, color1.y, color1.z, color1.w);
           col2 = glm::vec4(color2.x, color2.y, color2.z, color2.w);
 
-          // std::string temp = GPU_Data.vat(
-          //     flip, std::string("r"), initmode, col0, col1, col2, lambda,
-          //     beta, mag, respect_mask, glm::bvec3(minusx, minusy, minusz),
-          //     glm::bvec3(plusx, plusy, plusz)); // assign with the function
-          //     call
+          std::string temp = GPU_Data.vat(
+              flip, std::string("r"), initmode, col0, col1, col2, lambda, beta,
+              mag, respect_mask, glm::bvec3(minusx, minusy, minusz),
+              glm::bvec3(plusx, plusy, plusz));
 
-          // strcpy(str0,
-          //        temp.c_str()); // you get to see how the random rule you
-          //                       // generated, or retain the rule you entered
+          strcpy(str0, temp.c_str());
         }
 
         ImGui::SameLine();
 
-        if (ImGui::SmallButton("Compute IRandom")) {
+        if (ImGui::SmallButton(" Compute IRandom ")) {
           glm::vec4 col0, col1, col2;
           col0 = glm::vec4(color0.x, color0.y, color0.z, color0.w);
           col1 = glm::vec4(color1.x, color1.y, color1.z, color1.w);
           col2 = glm::vec4(color2.x, color2.y, color2.z, color2.w);
 
-          // std::string temp = GPU_Data.vat(
-          //     flip, std::string("i"), initmode, col0, col1, col2, lambda,
-          //     beta, mag, respect_mask, glm::bvec3(minusx, minusy, minusz),
-          //     glm::bvec3(plusx, plusy, plusz)); // assign with the function
-          //     call
+          std::string temp = GPU_Data.vat(
+              flip, std::string("i"), initmode, col0, col1, col2, lambda, beta,
+              mag, respect_mask, glm::bvec3(minusx, minusy, minusz),
+              glm::bvec3(plusx, plusy, plusz));
 
-          // strcpy(str0,
-          //        temp.c_str()); // you get to see how the random rule you
-          //                       // generated, or retain the rule you entered
+          strcpy(str0, temp.c_str());
         }
 
         ImGui::EndTabItem();
@@ -1471,7 +1464,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" Limiter ")) {
-        if (ImGui::SmallButton("Limit")) {
+        if (ImGui::SmallButton(" Limit ")) {
           // GPU_Data.limiter();
         }
         ImGui::EndTabItem();
@@ -1685,7 +1678,7 @@ void engine::show_voraldo_menu(bool *show) {
                           ImGuiColorEditFlags_AlphaBar |
                               ImGuiColorEditFlags_AlphaPreviewHalf);
 
-        if (ImGui::SmallButton("Point Light")) {
+        if (ImGui::SmallButton(" Point Light ")) {
           GPU_Data.compute_point_lighting(
               point_light_position,
               glm::vec4(color0.x, color0.y, color0.z, color0.w),
@@ -1806,7 +1799,7 @@ void engine::show_voraldo_menu(bool *show) {
                           ImGuiColorEditFlags_AlphaBar |
                               ImGuiColorEditFlags_AlphaPreviewHalf);
 
-        if (ImGui::SmallButton("Apply GI")) {
+        if (ImGui::SmallButton(" Apply GI ")) {
           // GPU_Data.compute_fake_GI(GI_scale_factor, GI_sky_intensity,
           // GI_alpha_thresh);
         }
@@ -1829,7 +1822,7 @@ void engine::show_voraldo_menu(bool *show) {
         OrangeText("SETTINGS");
         ImGui::SliderInt("radius", &AO_radius, 0, 5);
 
-        if (ImGui::SmallButton("Apply AO")) {
+        if (ImGui::SmallButton(" Apply AO ")) {
           GPU_Data.compute_ambient_occlusion(AO_radius);
         }
 
@@ -1854,7 +1847,7 @@ void engine::show_voraldo_menu(bool *show) {
             "Checking this box prevents feedback from clicking 'mash' again. "
             "With it unchecked, you can continue to scale existing color "
             "values in the RGBA buffer until they clip.");
-        if (ImGui::SmallButton("Mash")) {
+        if (ImGui::SmallButton(" Mash ")) {
           GPU_Data.mash();
           if (clear) {
             GPU_Data.lighting_clear(false, glm::vec4(0.25));

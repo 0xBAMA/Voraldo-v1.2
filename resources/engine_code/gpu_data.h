@@ -25,6 +25,9 @@ public:
       display_orientation_widget();
   }
 
+  // swapping blocks
+  void swap_blocks() { tex_offset = tex_offset == 1 ? 0 : 1; }
+
   // OpenGL clear color
   glm::vec4 clear_color;
 
@@ -107,6 +110,7 @@ public:
   int clickndragy = 0;
 
   // functions as invoked from the menu
+  // --
   void lighting_clear(bool use_cache, glm::vec4 clear_level);
 
   void compute_point_lighting(glm::vec3 light_position, glm::vec4 color,
@@ -119,6 +123,19 @@ public:
 
   void compute_ambient_occlusion(int radius);
   void mash();
+
+  // --
+
+  // --
+  void copy_loadbuffer(bool respect_mask);
+  void load(std::string filename, bool respect_mask);
+  void save(std::string filename);
+  std::string vat(float flip, std::string rule, int initmode, glm::vec4 color0,
+                  glm::vec4 color1, glm::vec4 color2, float lambda, float beta,
+                  float mag, bool respect_mask, glm::bvec3 mins,
+                  glm::bvec3 maxs);
+
+  // --
 
 private:
   enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = LINEAR;
@@ -212,7 +229,7 @@ private:
   GLuint cone_lighting_compute;
   GLuint ambient_occlusion_compute; // done
   GLuint fakeGI_compute;
-  GLuint mash_compute;
+  GLuint mash_compute; // done
 };
 
 #endif
