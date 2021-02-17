@@ -126,6 +126,7 @@ public:
 
   // --
   std::string compile_user_script(std::string text);
+  std::string run_user_script();
 
   // --
   void copy_loadbuffer(bool respect_mask);

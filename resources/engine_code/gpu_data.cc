@@ -423,7 +423,7 @@ void GLContainer::cube_geometry(glm::vec3 a, glm::vec3 b, glm::vec3 c,
 void GLContainer::load_textures() {
 
   // data arrays
-  std::vector<unsigned char> ucxor, light, zeroes, random, mask;
+  std::vector<unsigned char> ucxor, light, zeroes, random;
 
   std::default_random_engine generator;
   std::uniform_int_distribution<unsigned char> distribution(0, 255);
@@ -446,7 +446,6 @@ void GLContainer::load_textures() {
           //                            p.noise(x * 0.01, y * 0.01, z * 0.01)
           //                           : 255);
         }
-        mask.push_back(255. * p.noise(x * 0.01, y * 0.01, z * 0.01));
       }
     }
   }
@@ -523,14 +522,14 @@ void GLContainer::load_textures() {
   glActiveTexture(GL_TEXTURE0 + 4);
   glBindTexture(GL_TEXTURE_3D, textures[4]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, DIM, DIM, DIM, 0, GL_RED_INTEGER,
-               GL_UNSIGNED_BYTE, &mask[0]);
+               GL_UNSIGNED_BYTE, NULL);
   glBindImageTexture(4, textures[4], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8UI);
 
   // main block back mask buffer - initially empty
   glActiveTexture(GL_TEXTURE0 + 5);
   glBindTexture(GL_TEXTURE_3D, textures[5]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, DIM, DIM, DIM, 0, GL_RED_INTEGER,
-               GL_UNSIGNED_BYTE, &mask[0]);
+               GL_UNSIGNED_BYTE, NULL);
   glBindImageTexture(5, textures[5], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8UI);
 
   cout << "...........done." << endl;
@@ -723,7 +722,7 @@ std::string GLContainer::compile_user_script(std::string text) {
   std::ifstream header_file{
       "resources/engine_code/shaders/user_script_header.h.glsl"};
   std::ifstream body_file{
-      "resources/engine_code/shaders/user_script_body.h.glsl"};
+      "resources/engine_code/shaders/user_script_body.cs.glsl"};
 
 #define ibitr std::istreambuf_iterator
 
@@ -740,8 +739,42 @@ std::string GLContainer::compile_user_script(std::string text) {
   auto shader = UShader(program_string);
   user_compute = shader.Program;
 
+  cout << program_string << endl;
+
   // report timing, compilation status
   return std::string(shader.report);
+}
+
+std::string GLContainer::run_user_script() {
+  std::stringstream report;
+  auto t1 = std::chrono::high_resolution_clock::now();
+
+  redraw_flag = true;
+  color_mipmap_flag = true;
+  swap_blocks();
+
+  glUseProgram(user_compute);
+  glUniform1i(glGetUniformLocation(user_compute, "current"), 2 + tex_offset);
+  glUniform1i(glGetUniformLocation(user_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(user_compute, "previous"), 3 - tex_offset);
+  glUniform1i(glGetUniformLocation(user_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glUniform1i(glGetUniformLocation(user_compute, "lighting"), 6);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+  auto t2 = std::chrono::high_resolution_clock::now();
+  float time_microseconds =
+      std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+
+  report << "Shader invocation complete." << std::setw(4) << "  ("
+         << time_microseconds / 1000. << " ms)" << endl;
+
+  return report.str();
 }
 
 void GLContainer::copy_loadbuffer(bool respect_mask) {

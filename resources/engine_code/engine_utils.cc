@@ -1115,9 +1115,9 @@ void engine::show_voraldo_menu(bool *show) {
 
           WrappedText("- An output struct definition exists like this:\n"
                       "  struct irec{\n"
-                      "    bool inside = false;\n"
+                      "    bool draw = false;\n"
                       "    vec4 color = vec4(0);\n"
-                      "    int mask_amount = 0;\n"
+                      "    int mask = 0;\n"
                       "  };\n");
 
           ImGui::EndTabItem();
@@ -1946,18 +1946,24 @@ void engine::draw_user_editor_tab_contents() {
     ImGuiTextFilter Filter;
     bool AutoScroll;
     bool ScrollToBottom;
-    char origtext[135] =
+    char origtext[315] =
         "irec is_inside(){  // check Documentation tab for details \n\n"
-        "   irec temp;\n\n"
-        "   // your SDF definition goes here\n\n"
-        "   return temp;\n\n"
+        " irec temp;\n\n"
+        " temp.draw  = false;   // is this voxel's value going to change?\n"
+        " temp.color = vec4(0); // what should its color be?\n"
+        " temp.mask  = 0;       // how much do you wish to mask?\n\n"
+        " // your SDF definition goes here\n\n"
+        " return temp;\n\n"
         "}";
 
     char text[1 << 13] =
         "irec is_inside(){  // check Documentation tab for details \n\n"
-        "   irec temp;\n\n"
-        "   // your SDF definition goes here\n\n"
-        "   return temp;\n\n"
+        " irec temp;\n\n"
+        " temp.draw  = false;   // is this voxel's value going to change?\n"
+        " temp.color = vec4(0); // what should its color be?\n"
+        " temp.mask  = 0;       // how much do you wish to mask?\n\n"
+        " // your SDF definition goes here\n\n"
+        " return temp;\n\n"
         "}";
 
     consoleclass() {
@@ -2305,12 +2311,13 @@ void engine::draw_user_editor_tab_contents() {
       ImGuiInputTextFlags_AllowTabInput);
   if (ImGui::SmallButton(" Compile and Run ")) {
     // do some compilation
+    // report compilation result / errors / timing
     console.AddLog(
         "%s\n",
         GPU_Data.compile_user_script(std::string(console.text)).c_str());
 
-    // report compilation result / errors / timing
     // run the shader for every voxel and report timing
+    console.AddLog("%s\n", GPU_Data.run_user_script().c_str());
   }
 
   ImGui::SameLine();

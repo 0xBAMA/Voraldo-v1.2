@@ -12,10 +12,25 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in; //3d workgroup
 //   ... ?
 
 // the shader environment
-//  uniform layout(rgba8) image3D current;
-uniform sampler3D current;
+// need current and previous color buffers
+uniform layout(rgba8) image3D current;
+uniform layout(rgba8) image3D previous;
+
+// need current and previous mask buffers
+uniform layout(r8ui) uimage3D current_mask;
+uniform layout(r8ui) uimage3D previous_mask;
+
+// lighting? don't think having access to this has much utility
 uniform layout(rgba8) image3D lighting;
 
-// need current and previous color buffers
-// need current and previous mask buffers
-// lighting? don't think that has much utility
+// position in the cube spanning -1 to 1 on each axis, I guess can use lighting here
+vec3 myloc = (vec3(gl_GlobalInvocationID.xyz) - vec3(imageSize(lighting).x)/2.) / (vec3(imageSize(lighting))/2.);
+
+// the intersection record
+struct irec{
+    bool draw;
+    vec4 color;
+    int mask;
+};
+
+// -- begin user code --
