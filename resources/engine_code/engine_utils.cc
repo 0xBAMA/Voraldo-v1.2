@@ -1974,6 +1974,7 @@ void engine::draw_user_editor_tab_contents() {
       Commands.push_back("help"); // dump command list
       Commands.push_back("man");  // list all function names
       Commands.push_back("compile");
+      Commands.push_back("list"); // list of saves in scripts/
       Commands.push_back("load");
       Commands.push_back("save");
       Commands.push_back("history");
@@ -2185,6 +2186,30 @@ void engine::draw_user_editor_tab_contents() {
         std::ofstream file("scripts/" + std::string(command_line + 5));
         std::string savetext(text);
         file << savetext;
+      } else if (Stricmp(command_line, "list") == 0) {
+        // list out all the files in scripts/
+        struct path_leaf_string {
+          std::string
+          operator()(const std::filesystem::directory_entry &entry) const {
+            return entry.path().string();
+          }
+        };
+
+        std::vector<std::string> directory_strings;
+        directory_strings.clear();
+
+        std::filesystem::path p("scripts/");
+        std::filesystem::directory_iterator start(p);
+        std::filesystem::directory_iterator end;
+
+        std::transform(start, end, std::back_inserter(directory_strings),
+                       path_leaf_string());
+
+        // sort these alphabetically
+        std::sort(directory_strings.begin(), directory_strings.end());
+        for (auto i : directory_strings) {
+          AddLog("  %s\n", i.c_str());
+        }
       } else if (Stricmp(command_line, "compile") == 0) {
         // compile what's in the box
         AddLog("%s\n",
