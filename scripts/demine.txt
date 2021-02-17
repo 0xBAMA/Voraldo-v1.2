@@ -1,0 +1,77 @@
+// distance estimated fractal by discord user Nameless#1608
+const float pi = 3.14159265358;
+
+vec2 rot2(vec2 a, float c){
+float g = c*pi/180.0;
+float l = length(a);
+a = normalize(a);
+float ang = atan(a.y,a.x)+g; 
+return vec2(l*cos(ang),l*sin(ang));
+}
+
+     #define pmod(p,a) mod(p - 0.5*a,a) - 0.5*a
+vec3 cc = vec3(1.);
+
+// simply scale the dual vectors
+
+void sphereFold(inout vec3 z) {
+    float minRadius2 = 0.25;
+    float fixedRadius2 = 2.;
+    float r2 = dot(z,z);
+    if (r2 < minRadius2) {
+        float temp = (fixedRadius2/minRadius2);
+        z*= temp;
+    } else if (r2 < fixedRadius2) {
+        float temp =(fixedRadius2/r2);
+        z*=temp;
+    }
+}
+
+void boxFold(inout vec3 z) {
+float foldingLimit = 2.;
+    z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
+}
+
+
+float DEmine(vec3 p){   
+    float d = 10e5;
+    p.xz = rot2(p.xz,(-1.2 +0.3)*360./3.14159);
+    vec4 q = vec4(p,1);
+    for(float i = 0.; i < 7.; i++){
+        if(q.x < q.z) q.xz = q.zx;
+        if(q.z > q.y) q.zy = q.yz;
+        if(q.x > q.y) q.yx = q.xy;
+        q = abs(q);
+        if( i == 1.)
+            pmod(q.y,12.1);   
+        q *= 3.2;
+        boxFold(q.xyz);
+        sphereFold(q.xyz);
+       // q.xz *= rot2(q.xz,(1.5*pi)*360./3.14159);
+        q.xyz -= vec3(.5,0.,2.5 )*4.;
+    }
+    q.xyz /= q.w;
+    d = length(q.x) - 0.0;
+    return d;
+}
+
+
+irec is_inside(){  // check Documentation tab for details 
+
+ irec temp;
+
+ temp.draw  = true;   // is this voxel's value going to change?
+ temp.color = vec4(0.75,0.35,0.2,0.032); // what should its color be?
+ temp.mask  = 0;       // how much do you wish to mask?
+
+ // your SDF definition goes here
+ float a = DEmine((mod(vec3(0., 0.,-26.)-myloc.xyz,4.)-2.));
+ 
+ if(a < 0.05)
+ {
+  temp.color = vec4(1,1,1,0.75);
+ }
+
+ return temp;
+
+}

@@ -1956,7 +1956,7 @@ void engine::draw_user_editor_tab_contents() {
         " return temp;\n\n"
         "}";
 
-    char text[1 << 13] =
+    char text[1 << 16] =
         "irec is_inside(){  // check Documentation tab for details \n\n"
         " irec temp;\n\n"
         " temp.draw  = false;   // is this voxel's value going to change?\n"

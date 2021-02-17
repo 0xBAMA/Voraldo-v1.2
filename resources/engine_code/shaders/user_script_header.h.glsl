@@ -24,7 +24,7 @@ uniform layout(r8ui) uimage3D previous_mask;
 uniform layout(rgba8) image3D lighting;
 
 // position in the cube spanning -1 to 1 on each axis, I guess can use lighting here
-vec3 myloc = (vec3(gl_GlobalInvocationID.xyz) - vec3(imageSize(lighting).x)/2.) / (vec3(imageSize(lighting))/2.);
+vec3 myloc = (vec3(gl_GlobalInvocationID.xyz) + vec3(0.5) - vec3(imageSize(lighting).x)/2.) / (vec3(imageSize(lighting))/2.);
 
 // the intersection record
 struct irec{

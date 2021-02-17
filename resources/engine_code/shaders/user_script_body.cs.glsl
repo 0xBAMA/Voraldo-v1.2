@@ -25,6 +25,6 @@ void main()
     else
     {
         imageStore(current, ivec3(gl_GlobalInvocationID.xyz), pcol);
-        imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), pmask);
+        imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), uvec4((pmask.r > i.mask) ? pmask.r : i.mask));
     }
 }
