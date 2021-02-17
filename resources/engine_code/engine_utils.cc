@@ -2176,9 +2176,15 @@ void engine::draw_user_editor_tab_contents() {
         }
       } else if (Strnicmp(command_line, "load ", 5) == 0) {
         // try to load the string that follows 'load '
+        std::ifstream file("scripts/" + std::string(command_line + 5));
+        std::string loaded{std::istreambuf_iterator<char>(file),
+                           std::istreambuf_iterator<char>()};
+        strcpy(text, loaded.c_str());
       } else if (Strnicmp(command_line, "save ", 5) == 0) {
         // try to save the string to file
-        // scripts/whatever.user.cs.glsl
+        std::ofstream file("scripts/" + std::string(command_line + 5));
+        std::string savetext(text);
+        file << savetext;
       } else if (Stricmp(command_line, "compile") == 0) {
         // compile what's in the box
         AddLog("%s\n",

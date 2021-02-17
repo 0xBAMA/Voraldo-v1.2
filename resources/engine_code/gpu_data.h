@@ -35,7 +35,7 @@ public:
   unsigned int screen_width, screen_height;
 
   // basis vectors
-  glm::vec3 basisx = glm::vec3(1., 0., 0.), basisy = glm::vec3(0., 1., 0.),
+  glm::vec3 basisx = glm::vec3(-1., 0., 0.), basisy = glm::vec3(0., -1., 0.),
             basisz = glm::vec3(0., 0., 1.);
 
   // apply the rotation to the basis vectors about the x and y axes
