@@ -138,6 +138,9 @@ public:
                   glm::bvec3 maxs);
 
   // --
+  void draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color, bool aabb_draw,
+                 int aabb_mask);
+  // --
 
 private:
   enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = LINEAR;

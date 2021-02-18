@@ -212,6 +212,9 @@ void GLContainer::compile_shaders() {
   // utility functions
   copy_loadbuff_compute =
       CShader("resources/engine_code/shaders/copy_loadbuff.cs.glsl").Program;
+
+  // shape functions
+  aabb_compute = CShader("resources/engine_code/shaders/aabb.cs.glsl").Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -714,6 +717,39 @@ void GLContainer::mash() {
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
 
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// SHAPES
+void GLContainer::draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color,
+                            bool aabb_draw, int aabb_mask) {
+  // need to redraw after any drawing operation is done
+  redraw_flag = true;
+  color_mipmap_flag = true;
+
+  swap_blocks();
+  glUseProgram(aabb_compute);
+
+  // Uniforms
+  glUniform1i(glGetUniformLocation(aabb_compute, "mask"), aabb_mask);
+  glUniform1i(glGetUniformLocation(aabb_compute, "draw"), aabb_draw);
+  glUniform4fv(glGetUniformLocation(aabb_compute, "color"), 1,
+               glm::value_ptr(color));
+
+  glUniform3fv(glGetUniformLocation(aabb_compute, "mins"), 1,
+               glm::value_ptr(min));
+  glUniform3fv(glGetUniformLocation(aabb_compute, "maxs"), 1,
+               glm::value_ptr(max));
+
+  glUniform1i(glGetUniformLocation(aabb_compute, "current"), 2 + tex_offset);
+  glUniform1i(glGetUniformLocation(aabb_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(aabb_compute, "previous"), 3 - tex_offset);
+  glUniform1i(glGetUniformLocation(aabb_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 

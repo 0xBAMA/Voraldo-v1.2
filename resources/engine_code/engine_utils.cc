@@ -369,7 +369,8 @@ void engine::show_voraldo_menu(bool *show) {
       if (ImGui::BeginTabItem(" AABB ")) {
         static glm::vec3 max, min;
         static ImVec4 aabb_draw_color;
-        static bool aabb_draw = true, aabb_mask = false;
+        static bool aabb_draw = true;
+        static int aabb_mask = 0;
 
         WrappedText(" Axis-Aligned Bounding Box (AABB) ");
         ImGui::SameLine();
@@ -398,9 +399,10 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Checkbox("  Draw ", &aabb_draw);
         ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &aabb_mask);
+        ImGui::InputInt(" Mask ", &aabb_mask);
 
-        // add the extra mask stuff here
+        // bounds check
+        aabb_mask = std::clamp(aabb_mask, 0, 255);
 
         ImGui::ColorEdit4("  Color", (float *)&aabb_draw_color,
                           ImGuiColorEditFlags_AlphaBar |
@@ -411,10 +413,10 @@ void engine::show_voraldo_menu(bool *show) {
 
         if (ImGui::SmallButton(" Draw ")) {
           // draw the sphere with the selected values
-          // GPU_Data.draw_aabb(min, max,
-          //                    glm::vec4(aabb_draw_color.x, aabb_draw_color.y,
-          //                              aabb_draw_color.z, aabb_draw_color.w),
-          //                    aabb_draw, aabb_mask);
+          GPU_Data.draw_aabb(min, max,
+                             glm::vec4(aabb_draw_color.x, aabb_draw_color.y,
+                                       aabb_draw_color.z, aabb_draw_color.w),
+                             aabb_draw, aabb_mask);
         }
         ImGui::EndTabItem();
       }
@@ -1946,17 +1948,16 @@ void engine::draw_user_editor_tab_contents() {
     ImGuiTextFilter Filter;
     bool AutoScroll;
     bool ScrollToBottom;
-    char origtext[315] =
+
+    char text[1 << 18];
+    char origtext[265] =
         "irec is_inside(){  // check Documentation tab for details \n\n"
         " irec temp;\n\n"
         " temp.draw  = false;   // is this voxel's value going to change?\n"
         " temp.color = vec4(0); // what should its color be?\n"
         " temp.mask  = 0;       // how much do you wish to mask?\n\n"
-        " // your SDF definition goes here\n\n"
         " return temp;\n\n"
         "}";
-
-    char text[1 << 16];
 
     consoleclass() {
       ClearLog();
@@ -2443,7 +2444,7 @@ void engine::draw_windows() {
   ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
   // show the demo window
-  static bool show_demo_window = false;
+  static bool show_demo_window = true;
   if (show_demo_window)
     ImGui::ShowDemoWindow(&show_demo_window);
 

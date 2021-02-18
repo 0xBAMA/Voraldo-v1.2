@@ -33,4 +33,12 @@ struct irec{
     int mask;
 };
 
+
+
+// point rotation about an arbitrary axis, ax - from gaz
+vec3 erot(vec3 p, vec3 ax, float ro) {
+    return mix(dot(p,ax)*ax,p,cos(ro))+sin(ro)*cross(ax,p);
+}
+
+
 // -- begin user code --

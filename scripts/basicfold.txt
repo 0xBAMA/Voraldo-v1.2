@@ -1,0 +1,43 @@
+// distance estimated fractal by discord user Nameless#1608
+
+#define pmod(p,a) mod(p - 0.5*a,a) - 0.5*a
+
+void sphereFold(inout vec3 z) {
+    float minRadius2 = 0.25;
+    float fixedRadius2 = 2.;
+    float r2 = dot(z,z);
+    if (r2 < minRadius2) {
+        float temp = (fixedRadius2/minRadius2);
+        z*= temp; 
+    } else if (r2 < fixedRadius2) {
+        float temp =(fixedRadius2/r2);
+        z*=temp; 
+    }
+}
+
+// reverse signs for dual vectors when folding
+void boxFold(inout vec3 z) {
+	float foldingLimit = 2.;
+	z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
+}
+
+irec is_inside(){  // check Documentation tab for details 
+
+ irec temp;
+
+sphereFold(myloc);
+ myloc = pmod(myloc, 0.5);
+
+
+ temp.draw  = true;   // is this voxel's value going to change?
+ temp.color = vec4(0.7,0.4,0.1,0.032); // what should its color be?
+ temp.mask  = 0;       // how much do you wish to mask?
+ 
+ if(distance(myloc,vec3(0.1)) < 0.25)
+ {
+   temp.color.a = 0.75;
+ }
+
+ return temp;
+
+}
