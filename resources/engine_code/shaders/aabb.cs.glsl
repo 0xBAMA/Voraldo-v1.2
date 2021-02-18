@@ -33,13 +33,13 @@ void main()
   if(in_shape())
   {
       // color takes on mix of previous color and draw op's color, based on existing mask value
-      imageStore(current, ivec3(gl_GlobalInvocationID.xyz), draw ? mix(color, pcol, float(pmask)/255.) : pcol);
+      imageStore(current, ivec3(gl_GlobalInvocationID.xyz), draw ? mix(color, pcol, float(pmask.r)/255.) : pcol);
+      //mask is set to the greater of the two mask values, between previous and the current operation
+      imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), uvec4((pmask.r > mask) ? pmask.r : mask, 0,0,0));
   }
   else
   {
       imageStore(current, ivec3(gl_GlobalInvocationID.xyz), pcol);
+      imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), uvec4(pmask.r));
   }
-
-  //mask is set to the greater of the two mask values, between previous and the current operation
-  imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), uvec4((pmask.r > mask) ? pmask.r : mask, 0,0,0));
 }
