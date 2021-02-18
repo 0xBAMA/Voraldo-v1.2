@@ -217,6 +217,8 @@ void GLContainer::compile_shaders() {
   aabb_compute = CShader("resources/engine_code/shaders/aabb.cs.glsl").Program;
   cuboid_compute =
       CShader("resources/engine_code/shaders/cuboid.cs.glsl").Program;
+  cylinder_compute =
+      CShader("resources/engine_code/shaders/cylinder.cs.glsl").Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -779,12 +781,44 @@ void GLContainer::draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c,
   glUniform3fv(glGetUniformLocation(cuboid_compute, "g"), 1, glm::value_ptr(g));
   glUniform3fv(glGetUniformLocation(cuboid_compute, "h"), 1, glm::value_ptr(h));
 
-  glUniform1i(glGetUniformLocation(aabb_compute, "current"), 2 + tex_offset);
-  glUniform1i(glGetUniformLocation(aabb_compute, "current_mask"),
+  glUniform1i(glGetUniformLocation(cuboid_compute, "current"), 2 + tex_offset);
+  glUniform1i(glGetUniformLocation(cuboid_compute, "current_mask"),
               4 + tex_offset);
 
-  glUniform1i(glGetUniformLocation(aabb_compute, "previous"), 3 - tex_offset);
-  glUniform1i(glGetUniformLocation(aabb_compute, "previous_mask"),
+  glUniform1i(glGetUniformLocation(cuboid_compute, "previous"), 3 - tex_offset);
+  glUniform1i(glGetUniformLocation(cuboid_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void GLContainer::draw_cylinder(glm::vec3 bvec, glm::vec3 tvec, float radius,
+                                glm::vec4 color, bool draw, int mask) {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+  swap_blocks();
+
+  glUseProgram(cylinder_compute);
+  glUniform1i(glGetUniformLocation(cylinder_compute, "mask"), mask);
+  glUniform1i(glGetUniformLocation(cylinder_compute, "draw"), draw);
+  glUniform4fv(glGetUniformLocation(cylinder_compute, "color"), 1,
+               glm::value_ptr(color));
+
+  glUniform1fv(glGetUniformLocation(cylinder_compute, "radius"), 1, &radius);
+  glUniform3fv(glGetUniformLocation(cylinder_compute, "bvec"), 1,
+               glm::value_ptr(bvec));
+  glUniform3fv(glGetUniformLocation(cylinder_compute, "tvec"), 1,
+               glm::value_ptr(tvec));
+
+  glUniform1i(glGetUniformLocation(cylinder_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(cylinder_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(cylinder_compute, "previous"),
+              3 - tex_offset);
+  glUniform1i(glGetUniformLocation(cylinder_compute, "previous_mask"),
               5 - tex_offset);
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);

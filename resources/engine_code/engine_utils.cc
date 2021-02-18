@@ -536,7 +536,8 @@ void engine::show_voraldo_menu(bool *show) {
       }
       if (ImGui::BeginTabItem(" Cylinder ")) {
         static glm::vec3 cylinder_bvec, cylinder_tvec;
-        static bool cylinder_draw = true, cylinder_mask = false;
+        static bool cylinder_draw = true;
+        static int cylinder_mask = 0;
         static ImVec4 cylinder_draw_color;
         static float cylinder_radius;
 
@@ -575,7 +576,10 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Checkbox("  Draw ", &cylinder_draw);
         ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &cylinder_mask);
+        ImGui::InputInt(" Mask ", &cylinder_mask);
+
+        // bounds check
+        cylinder_mask = std::clamp(cylinder_mask, 0, 255);
 
         ImGui::ColorEdit4("  Color", (float *)&cylinder_draw_color,
                           ImGuiColorEditFlags_AlphaBar |
@@ -585,10 +589,11 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SetCursorPosX(16);
 
         if (ImGui::SmallButton(" Draw ")) {
-          // GPU_Data.draw_cylinder(cylinder_bvec, cylinder_tvec,
-          // cylinder_radius, glm::vec4(cylinder_draw_color.x,
-          // cylinder_draw_color.y, cylinder_draw_color.z,
-          // cylinder_draw_color.w), cylinder_draw, cylinder_mask);
+          GPU_Data.draw_cylinder(
+              cylinder_bvec, cylinder_tvec, cylinder_radius,
+              glm::vec4(cylinder_draw_color.x, cylinder_draw_color.y,
+                        cylinder_draw_color.z, cylinder_draw_color.w),
+              cylinder_draw, cylinder_mask);
         }
 
         ImGui::EndTabItem();

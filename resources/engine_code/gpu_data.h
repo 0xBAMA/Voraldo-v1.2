@@ -140,9 +140,14 @@ public:
   // --
   void draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color, bool aabb_draw,
                  int aabb_mask);
+
   void draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d,
                    glm::vec3 e, glm::vec3 f, glm::vec3 g, glm::vec3 h,
                    glm::vec4 color, bool cuboid_draw, int cuboid_mask);
+
+  void draw_cylinder(glm::vec3 cylinder_bvec, glm::vec3 cylinder_tvec,
+                     float cylinder_radius, glm::vec4 color, bool cylinder_draw,
+                     int cylinder_mask);
   // --
 
 private:
