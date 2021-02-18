@@ -140,6 +140,9 @@ public:
   // --
   void draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color, bool aabb_draw,
                  int aabb_mask);
+  void draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d,
+                   glm::vec3 e, glm::vec3 f, glm::vec3 g, glm::vec3 h,
+                   glm::vec4 color, bool cuboid_draw, int cuboid_mask);
   // --
 
 private:

@@ -432,7 +432,8 @@ void engine::show_voraldo_menu(bool *show) {
         static glm::vec3 g = glm::vec3(230, 230, 20);  // g : +x, +y, -z
         static glm::vec3 h = glm::vec3(230, 20, 20);   // h : +x, -y, -z
 
-        static bool cuboid_draw = true, cuboid_mask = false;
+        static bool cuboid_draw = true;
+        static int cuboid_mask = 0;
         static ImVec4 cuboid_draw_color;
 
         WrappedText(" Cuboid ");
@@ -511,7 +512,10 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Checkbox("  Draw ", &cuboid_draw);
         ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &cuboid_mask);
+        ImGui::InputInt(" Mask ", &cuboid_mask);
+
+        // bounds check
+        cuboid_mask = std::clamp(cuboid_mask, 0, 255);
 
         ImGui::ColorEdit4("  Color", (float *)&cuboid_draw_color,
                           ImGuiColorEditFlags_AlphaBar |
@@ -521,10 +525,11 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SetCursorPosX(16);
 
         if (ImGui::SmallButton(" Draw ")) {
-          // GPU_Data.draw_cuboid(a, b, c, d, e, f, g, h,
-          //   glm::vec4(cuboid_draw_color.x, cuboid_draw_color.y,
-          //   cuboid_draw_color.z, cuboid_draw_color.w), cuboid_draw,
-          //   cuboid_mask);
+          GPU_Data.draw_cuboid(
+              a, b, c, d, e, f, g, h,
+              glm::vec4(cuboid_draw_color.x, cuboid_draw_color.y,
+                        cuboid_draw_color.z, cuboid_draw_color.w),
+              cuboid_draw, cuboid_mask);
         }
 
         ImGui::EndTabItem();
