@@ -1,0 +1,83 @@
+// distance estimated fractal by discord user Nameless#1608
+  #define pmod(p,a) mod(p - 0.5*a,a) - 0.5*a
+vec3 cc = vec3(1.);
+
+// simply scale the dual vectors
+
+void sphereFold(inout vec3 z) {
+    float minRadius2 = 0.25;
+    float fixedRadius2 = 2.;
+    float r2 = dot(z,z);
+    if (r2 < minRadius2) {
+        float temp = (fixedRadius2/minRadius2);
+        z*= temp; 
+    } else if (r2 < fixedRadius2) {
+        float temp =(fixedRadius2/r2);
+        z*=temp; 
+    }
+}
+
+// reverse signs for dual vectors when folding
+void boxFold(inout vec3 z) {
+float foldingLimit = 2.;
+z = clamp(z, -foldingLimit, foldingLimit) * 2.0 - z;
+}
+
+
+float DEmine(vec3 op){   
+    vec4 p = vec4(op, 1.);
+    
+    for(int i = 0; i < 12 ; i++){
+        float fli = float(i);
+       
+        if(i == 4)
+            p.xyz = pmod(p.xyz,10.);
+        
+        if(i == 5)
+            p = abs(p)/dot(p.xyz,p.xyz) - vec4(0,0.,0,0);
+        
+        if(i == 7)
+            p.xyz = pmod(p.xyz,10.);
+        
+        if(i==4)
+            p.xz = p.zx;
+        
+        p = abs(p);
+        if(p.z > p.y) p.zy = p.yz;
+        if(p.z > p.x) p.xz = p.zx;
+        mat3 lol;
+        boxFold(p.xyz);
+        sphereFold(p.xyz);
+        
+        p.x -= 0.4 + sin(fli*4.)*0.1;
+        p.y -= sin(fli)*8.;
+        p *= 1.3;
+     
+    }
+    p.xyz /= p.w;
+     float d = max(abs(p.x),abs(p.z)) ;
+    d = min(d, length(p.yz) - 0.);
+    d -= 0.02;
+  
+    return d;
+}
+
+
+irec is_inside(){  // check Documentation tab for details 
+
+ irec temp;
+
+ temp.draw  = true;   // is this voxel's value going to change?
+ temp.color = vec4(0.75,0.35,0.2,0.032); // what should its color be?
+ temp.mask  = 0;       // how much do you wish to mask?
+ 
+ float a = DEmine((mod(vec3(0., 0.,-26.)-myloc.xyz,8.)-4.));
+
+ if(a < 0.5)
+ {
+  temp.color = vec4(1,1,1,0.75);
+ }
+
+ return temp;
+
+}

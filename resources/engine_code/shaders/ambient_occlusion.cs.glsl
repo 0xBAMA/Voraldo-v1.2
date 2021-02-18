@@ -8,6 +8,11 @@ uniform layout(rgba8) image3D lighting;        //values held in the lighting buf
 
 uniform int radius; //how big a neighborhood should be considered for neighborhood occupancy?
 
+
+// I think this method may be better, revisit this (2/17)
+// https://iquilezles.org/www/articles/voxellines/voxellines.htm
+
+
 void main()
 {
     vec4 prev = imageLoad(lighting, ivec3(gl_GlobalInvocationID.xyz));    //existing color value (what is the color?)

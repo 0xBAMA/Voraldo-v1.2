@@ -1956,20 +1956,14 @@ void engine::draw_user_editor_tab_contents() {
         " return temp;\n\n"
         "}";
 
-    char text[1 << 16] =
-        "irec is_inside(){  // check Documentation tab for details \n\n"
-        " irec temp;\n\n"
-        " temp.draw  = false;   // is this voxel's value going to change?\n"
-        " temp.color = vec4(0); // what should its color be?\n"
-        " temp.mask  = 0;       // how much do you wish to mask?\n\n"
-        " // your SDF definition goes here\n\n"
-        " return temp;\n\n"
-        "}";
+    char text[1 << 16];
 
     consoleclass() {
       ClearLog();
       memset(InputBuf, 0, sizeof(InputBuf));
       HistoryPos = -1;
+
+      strcpy(text, origtext);
 
       Commands.push_back("help"); // dump command list
       Commands.push_back("man");  // list all function names

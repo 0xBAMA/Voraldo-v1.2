@@ -1,0 +1,27 @@
+irec is_inside(){  // check Documentation tab for details 
+
+ irec temp;
+
+ temp.draw  = true;   // is this voxel's value going to change?
+ temp.color = vec4(0); // what should its color be?
+ temp.mask  = 0;       // how much do you wish to mask?
+
+ // your SDF definition goes here
+
+ float count = 0.;
+ vec4 accum = vec4(0);
+ float factor = 1.337/imageSize(lighting).x;
+
+ for(int x = -1; x <= 1; x++){
+ for(int y = -1; y <= 1; y++){
+ for(int z = -1; z <= 1; z++){
+   count+=1;
+   if(distance(myloc+vec3(x,y,z)*factor, vec3(0)) < 0.9)
+	 accum += vec4(1,0,0,1); // else add vec4(0,0,0,0);
+ }}}
+
+ temp.color = accum/float(count);
+
+ return temp;
+
+}
