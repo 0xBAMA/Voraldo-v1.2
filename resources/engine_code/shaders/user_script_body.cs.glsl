@@ -9,17 +9,8 @@ void main()
     // call is_inside()
     irec i = is_inside();
 
-    if(i.draw || (i.mask > 0))
-    {
-        // color takes on mix of previous color and draw op's color, based on mask
-        imageStore(current, ivec3(gl_GlobalInvocationID.xyz), i.draw ? mix(i.color, pcol, pmask.r/255.) : pcol);
-        //mask is set to the greater of the two mask values, between previous and the current operation
-        imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), uvec4((pmask.r > i.mask) ? pmask.r : i.mask));
-    }
-    else
-    {
-        imageStore(current, ivec3(gl_GlobalInvocationID.xyz), pcol);
-        imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), uvec4(pmask.r));
-    }
-
+    // color takes on mix of previous color and draw op's color, based on mask
+    imageStore(current, ivec3(gl_GlobalInvocationID.xyz), i.draw ? mix(i.color, pcol, pmask.r/255.) : pcol);
+    //mask is set to the greater of the two mask values, between previous and the current operation
+    imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), uvec4((pmask.r > i.mask) ? pmask.r : i.mask));
 }
