@@ -7,28 +7,18 @@ uniform layout(r8ui) uimage3D previous_mask;  //now-current values of the mask
 uniform layout(rgba8) image3D current;        //values of the block after the update
 uniform layout(r8ui) uimage3D current_mask;   //values of the mask after the update
 
-uniform sampler2D map;          //heightmap texture
-uniform float vscale;            //vertically scaling the texture
-
-uniform vec4 color;           //what color should it be drawn with?
-uniform bool height_color;      //should the coloring be scaled by the height
+uniform vec3 location;  //where is this sphere centered?
+uniform float radius;   //what is the radius of this sphere?
+uniform vec4 color;     //what color should it be drawn with?
 
 uniform bool draw;      //should this shape be drawn?
 uniform int mask;      //this this shape be masked?
 
-vec4 drawcolor; // set in in_shape(), use in main()
-
 bool in_shape()
 {
-  //code to see if gl_GlobalInvocationID.xyz is inside the shape
-  vec4 mapread = texture(map,vec2(gl_GlobalInvocationID.xz/256.0f));
+  float d = distance(gl_GlobalInvocationID.xyz, location);
 
-  if(height_color)
-      drawcolor = color*texture(map, vec2(gl_GlobalInvocationID.xz/256.0f));
-  else
-      drawcolor = color;
-  
-  if(gl_GlobalInvocationID.y < (mapread.r * 256.0f * vscale))
+  if(d < radius)  //sphere defined as all points within 'radius' of the center point
     return true;
   else
     return false;
@@ -42,7 +32,7 @@ void main()
   if(in_shape())
   {
       // color takes on mix of previous color and draw op's color, based on existing mask value
-      imageStore(current, ivec3(gl_GlobalInvocationID.xyz), draw ? mix(drawcolor, pcol, float(pmask.r)/255.) : pcol);
+      imageStore(current, ivec3(gl_GlobalInvocationID.xyz), draw ? mix(color, pcol, float(pmask.r)/255.) : pcol);
       //mask is set to the greater of the two mask values, between previous and the current operation
       imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), uvec4((pmask.r > mask) ? pmask.r : mask));
   }

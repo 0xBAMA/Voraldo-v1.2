@@ -809,7 +809,7 @@ void engine::show_voraldo_menu(bool *show) {
         static glm::vec3 center_point = glm::vec3(0);
         static glm::vec3 rotations = glm::vec3(0);
         static bool draw = true;
-        static bool mask = false;
+        static int mask = 0;
         static float scale = 20.0;
 
         WrappedText(" Icosahedron ");
@@ -853,90 +853,98 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Checkbox("  Draw ", &draw);
         ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &mask);
-        ImGui::Text(" ");
+        ImGui::InputInt(" Mask ", &mask);
+
+        // bounds check
+        mask = std::clamp(mask, 0, 255);
         ImGui::SetCursorPosX(16);
 
         if (ImGui::SmallButton(" Draw ")) {
-          // GPU_Data.draw_regular_icosahedron(rotations.x, rotations.y,
-          // rotations.z, scale, center_point, glm::vec4(vertex_color.x,
-          // vertex_color.y, vertex_color.z, vertex_color.w), vertex_radius,
-          // glm::vec4(edge_color.x, edge_color.y, edge_color.z, edge_color.w),
-          // edge_radius, glm::vec4(face_color.x, face_color.y, face_color.z,
-          // face_color.w), face_thickness, draw, mask);
+          GPU_Data.draw_regular_icosahedron(
+              rotations.x, rotations.y, rotations.z, scale, center_point,
+              glm::vec4(vertex_color.x, vertex_color.y, vertex_color.z,
+                        vertex_color.w),
+              vertex_radius,
+              glm::vec4(edge_color.x, edge_color.y, edge_color.z, edge_color.w),
+              edge_radius,
+              glm::vec4(face_color.x, face_color.y, face_color.z, face_color.w),
+              face_thickness, draw, mask);
         }
         ImGui::EndTabItem();
       }
-      if (ImGui::BeginTabItem(" Noise ")) {
-        static float perlin_scale_x = 0.014;
-        static float perlin_scale_y = 0.014;
-        static float perlin_scale_z = 0.014;
-        static float perlin_threshold_lo = 0.0f;
-        static float perlin_threshold_hi = 0.0f;
-        static ImVec4 perlin_draw_color;
-        static bool perlin_draw = true;
-        static bool perlin_mask = false;
-        static bool perlin_smooth = false;
+      // if (ImGui::BeginTabItem(" Noise ")) {
+      //   static float perlin_scale_x = 0.014;
+      //   static float perlin_scale_y = 0.014;
+      //   static float perlin_scale_z = 0.014;
+      //   static float perlin_threshold_lo = 0.0f;
+      //   static float perlin_threshold_hi = 0.0f;
+      //   static ImVec4 perlin_draw_color;
+      //   static bool perlin_draw = true;
+      //   static bool perlin_mask = false;
+      //   static bool perlin_smooth = false;
 
-        WrappedText(" WIP FastNoise2 integration ");
-        ImGui::SameLine();
-        HelpMarker(
-            "This is to create a more general and flexible noise tool with "
-            "different algorithms and a node graph. TBD how multiple channels "
-            "will be used, but that seems to have potential. \n\nThe way the "
-            "noise has been used in previous verions, there is a low and high "
-            "threshold set when drawing - noise values are in the range 0-1, "
-            "so the drawing operation will be applied to cells which read a "
-            "noise sample in the defined range between lothresh and hithresh.");
+      //   WrappedText(" WIP FastNoise2 integration ");
+      //   ImGui::SameLine();
+      //   HelpMarker(
+      //       "This is to create a more general and flexible noise tool with "
+      //       "different algorithms and a node graph. TBD how multiple channels
+      //       " "will be used, but that seems to have potential. \n\nThe way
+      //       the " "noise has been used in previous verions, there is a low
+      //       and high " "threshold set when drawing - noise values are in the
+      //       range 0-1, " "so the drawing operation will be applied to cells
+      //       which read a " "noise sample in the defined range between
+      //       lothresh and hithresh.");
 
-        ImGui::SliderFloat("  xscale", &perlin_scale_x, 0.01f, 0.5f, "%.3f");
-        ImGui::SliderFloat("  yscale", &perlin_scale_y, 0.01f, 0.5f, "%.3f");
-        ImGui::SliderFloat("  zscale", &perlin_scale_z, 0.01f, 0.5f, "%.3f");
-        ImGui::Text(" ");
+      //   ImGui::SliderFloat("  xscale", &perlin_scale_x, 0.01f, 0.5f, "%.3f");
+      //   ImGui::SliderFloat("  yscale", &perlin_scale_y, 0.01f, 0.5f, "%.3f");
+      //   ImGui::SliderFloat("  zscale", &perlin_scale_z, 0.01f, 0.5f, "%.3f");
+      //   ImGui::Text(" ");
 
-        if (ImGui::SmallButton(" generate ")) {
-          // GPU_Data.generate_perlin_noise(perlin_scale_x, perlin_scale_y,
-          // perlin_scale_z);
-        }
+      //   if (ImGui::SmallButton(" generate ")) {
+      //     // GPU_Data.generate_perlin_noise(perlin_scale_x, perlin_scale_y,
+      //     // perlin_scale_z);
+      //   }
 
-        ImGui::Separator();
+      //   ImGui::Separator();
 
-        // WrappedText("Perlin noise ranges from 0 to 1. Use hithresh and
-        // lowthresh to tell how much of this perlin texture to color in.",
-        // windowsize.x);
+      //   // WrappedText("Perlin noise ranges from 0 to 1. Use hithresh and
+      //   // lowthresh to tell how much of this perlin texture to color in.",
+      //   // windowsize.x);
 
-        OrangeText("THRESHOLDING");
-        ImGui::SliderFloat(" hithresh", &perlin_threshold_hi, 0.0f, 1.0f,
-                           "%.3f");
-        ImGui::SliderFloat(" lothresh", &perlin_threshold_lo, 0.0f, 1.0f,
-                           "%.3f");
+      //   OrangeText("THRESHOLDING");
+      //   ImGui::SliderFloat(" hithresh", &perlin_threshold_hi, 0.0f, 1.0f,
+      //                      "%.3f");
+      //   ImGui::SliderFloat(" lothresh", &perlin_threshold_lo, 0.0f, 1.0f,
+      //                      "%.3f");
 
-        ImGui::Checkbox(" Smooth Color ", &perlin_smooth);
+      //   ImGui::Checkbox(" Smooth Color ", &perlin_smooth);
 
-        ImGui::Separator();
+      //   ImGui::Separator();
 
-        OrangeText("OPTIONS");
-        ImGui::Checkbox("  Draw ", &perlin_draw);
-        ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &perlin_mask);
+      //   OrangeText("OPTIONS");
+      //   ImGui::Checkbox("  Draw ", &perlin_draw);
+      //   ImGui::SameLine();
+      //   ImGui::Checkbox("  Mask ", &perlin_mask);
 
-        ImGui::ColorEdit4("  Color", (float *)&perlin_draw_color,
-                          ImGuiColorEditFlags_AlphaBar |
-                              ImGuiColorEditFlags_AlphaPreviewHalf);
+      //   ImGui::ColorEdit4("  Color", (float *)&perlin_draw_color,
+      //                     ImGuiColorEditFlags_AlphaBar |
+      //                         ImGuiColorEditFlags_AlphaPreviewHalf);
 
-        ImGui::Text(" ");
+      //   ImGui::Text(" ");
 
-        ImGui::SetCursorPosX(16);
-        if (ImGui::SmallButton(" Draw ")) {
-          // GPU_Data.draw_perlin_noise(perlin_threshold_lo,
-          // perlin_threshold_hi, perlin_smooth, glm::vec4(perlin_draw_color.x,
-          // perlin_draw_color.y, perlin_draw_color.z, perlin_draw_color.w),
-          // perlin_draw, perlin_mask);
-        }
-        ImGui::EndTabItem();
-      }
+      //   ImGui::SetCursorPosX(16);
+      //   if (ImGui::SmallButton(" Draw ")) {
+      //     // GPU_Data.draw_perlin_noise(perlin_threshold_lo,
+      //     // perlin_threshold_hi, perlin_smooth,
+      //     glm::vec4(perlin_draw_color.x,
+      //     // perlin_draw_color.y, perlin_draw_color.z, perlin_draw_color.w),
+      //     // perlin_draw, perlin_mask);
+      //   }
+      //   ImGui::EndTabItem();
+      // }
       if (ImGui::BeginTabItem(" Sphere ")) {
-        static bool sphere_draw = true, sphere_mask = false;
+        static bool sphere_draw = true;
+        static int sphere_mask = 0;
         static float sphere_radius = 0.0;
         static ImVec4 sphere_draw_color;
         static glm::vec3 sphere_location;
@@ -962,7 +970,10 @@ void engine::show_voraldo_menu(bool *show) {
         OrangeText("OPTIONS");
         ImGui::Checkbox("  Draw ", &sphere_draw);
         ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &sphere_mask);
+        ImGui::InputInt(" Mask ", &sphere_mask);
+
+        // bounds check
+        sphere_mask = std::clamp(sphere_mask, 0, 255);
 
         ImGui::ColorEdit4("  Color", (float *)&sphere_draw_color,
                           ImGuiColorEditFlags_AlphaBar |
@@ -972,16 +983,18 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SetCursorPosX(16);
 
         if (ImGui::SmallButton(" Draw ")) {
-          // GPU_Data.draw_sphere(sphere_location, sphere_radius,
-          // glm::vec4(sphere_draw_color.x, sphere_draw_color.y,
-          // sphere_draw_color.z, sphere_draw_color.w), sphere_draw,
-          // sphere_mask);
+          GPU_Data.draw_sphere(
+              sphere_location, sphere_radius,
+              glm::vec4(sphere_draw_color.x, sphere_draw_color.y,
+                        sphere_draw_color.z, sphere_draw_color.w),
+              sphere_draw, sphere_mask);
         }
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" Tube ")) {
         static glm::vec3 tube_bvec, tube_tvec;
-        static bool tube_draw = true, tube_mask = false;
+        static bool tube_draw = true;
+        static int tube_mask = 0;
         static ImVec4 tube_draw_color;
         static float tube_inner_radius, tube_outer_radius;
 
@@ -1018,7 +1031,10 @@ void engine::show_voraldo_menu(bool *show) {
         OrangeText("OPTIONS");
         ImGui::Checkbox("  Draw ", &tube_draw);
         ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &tube_mask);
+        ImGui::InputInt(" Mask ", &tube_mask);
+
+        // bounds check
+        tube_mask = std::clamp(tube_mask, 0, 255);
 
         ImGui::ColorEdit4("  Color", (float *)&tube_draw_color,
                           ImGuiColorEditFlags_AlphaBar |
@@ -1028,9 +1044,11 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SetCursorPosX(16);
 
         if (ImGui::SmallButton(" Draw ")) {
-          // GPU_Data.draw_tube(tube_bvec, tube_tvec, tube_inner_radius,
-          // tube_outer_radius, glm::vec4(tube_draw_color.x, tube_draw_color.y,
-          // tube_draw_color.z, tube_draw_color.w), tube_draw, tube_mask);
+          GPU_Data.draw_tube(tube_bvec, tube_tvec, tube_inner_radius,
+                             tube_outer_radius,
+                             glm::vec4(tube_draw_color.x, tube_draw_color.y,
+                                       tube_draw_color.z, tube_draw_color.w),
+                             tube_draw, tube_mask);
         }
         ImGui::EndTabItem();
       }
@@ -1039,7 +1057,7 @@ void engine::show_voraldo_menu(bool *show) {
         static glm::vec3 point1, point2, point3;
         static ImVec4 triangle_draw_color;
         static bool triangle_draw = true;
-        static bool triangle_mask = false;
+        static int triangle_mask = 0;
 
         WrappedText(" Triangle ");
         ImGui::SameLine();
@@ -1080,7 +1098,10 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Checkbox("  Draw ", &triangle_draw);
         ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &triangle_mask);
+        ImGui::InputInt(" Mask ", &triangle_mask);
+
+        // bounds check
+        triangle_mask = std::clamp(triangle_mask, 0, 255);
 
         ImGui::ColorEdit4("  Color", (float *)&triangle_draw_color,
                           ImGuiColorEditFlags_AlphaBar |
@@ -1090,10 +1111,11 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SetCursorPosX(16);
 
         if (ImGui::SmallButton(" Draw ")) {
-          // GPU_Data.draw_triangle(point1, point2, point3, thickness,
-          // glm::vec4(triangle_draw_color.x, triangle_draw_color.y,
-          // triangle_draw_color.z, triangle_draw_color.w), triangle_draw,
-          // triangle_mask);
+          GPU_Data.draw_triangle(
+              point1, point2, point3, thickness,
+              glm::vec4(triangle_draw_color.x, triangle_draw_color.y,
+                        triangle_draw_color.z, triangle_draw_color.w),
+              triangle_draw, triangle_mask);
         }
         ImGui::EndTabItem();
       }
@@ -2478,7 +2500,7 @@ void engine::draw_windows() {
   ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
   // show the demo window
-  static bool show_demo_window = true;
+  static bool show_demo_window = false;
   if (show_demo_window)
     ImGui::ShowDemoWindow(&show_demo_window);
 

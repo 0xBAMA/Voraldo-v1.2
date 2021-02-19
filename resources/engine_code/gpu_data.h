@@ -161,10 +161,40 @@ public:
   void draw_heightmap(float height_scale, bool height_color, glm::vec4 color,
                       bool mask, int draw);
 
+  void draw_regular_icosahedron(double x_rot, double y_rot, double z_rot,
+                                double scale, glm::vec3 center_point,
+                                glm::vec4 vertex_material,
+                                double verticies_radius,
+                                glm::vec4 edge_material, double edge_thickness,
+                                glm::vec4 face_material, float face_thickness,
+                                bool draw, bool mask);
+
+  void draw_sphere(glm::vec3 location, float radius, glm::vec4 color, bool draw,
+                   int mask);
+
+  void draw_tube(glm::vec3 bvec, glm::vec3 tvec, float inner_radius,
+                 float outer_radius, glm::vec4 color, bool draw, int mask);
+
+  void draw_triangle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
+                     float thickness, glm::vec4 color, bool draw, int mask);
+
+  // --
+  void clear_all(bool respect_mask);
+  void unmask_all();
+  void invert_mask();
+  void mask_by_color(bool r, bool g, bool b, bool a, bool l, glm::vec4 color,
+                     float l_val, float r_var, float g_var, float b_var,
+                     float a_var, float l_var);
+  void box_blur(int radius, bool touch_alpha, bool respect_mask);
+  void gaussian_blur(int radius, bool touch_alpha, bool respect_mask);
+  void limiter();
+  void shift(glm::ivec3 movement, bool loop, int mode);
+
   // --
 
 private:
   enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = LINEAR;
+
   bool redraw_flag = true;       // need to update render texture
   bool color_mipmap_flag = true; // need to recompute mipmap before render
   bool light_mipmap_flag = true; // need to recompute mipmap before render
