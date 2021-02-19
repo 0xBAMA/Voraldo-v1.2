@@ -219,6 +219,11 @@ void GLContainer::compile_shaders() {
       CShader("resources/engine_code/shaders/cuboid.cs.glsl").Program;
   cylinder_compute =
       CShader("resources/engine_code/shaders/cylinder.cs.glsl").Program;
+  ellipsoid_compute =
+      CShader("resources/engine_code/shaders/ellipsoid.cs.glsl").Program;
+  grid_compute = CShader("resources/engine_code/shaders/grid.cs.glsl").Program;
+  heightmap_compute =
+      CShader("resources/engine_code/shaders/heightmap.cs.glsl").Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -614,7 +619,7 @@ void GLContainer::load_textures() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   // 2d texture for representation of a heightmap (greyscale - use some channels
   // to hold more data?) - also, DIM on a side
-  // generate_heightmap_diamond_square();
+  generate_heightmap_diamond_square();
   cout << "........done." << endl;
 
   // sets the texture filtering to linear
@@ -819,6 +824,110 @@ void GLContainer::draw_cylinder(glm::vec3 bvec, glm::vec3 tvec, float radius,
   glUniform1i(glGetUniformLocation(cylinder_compute, "previous"),
               3 - tex_offset);
   glUniform1i(glGetUniformLocation(cylinder_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void GLContainer::draw_ellipsoid(glm::vec3 center, glm::vec3 radii,
+                                 glm::vec3 rotation, glm::vec4 color, bool draw,
+                                 int mask) {
+
+  redraw_flag = true;
+  color_mipmap_flag = true;
+  swap_blocks();
+
+  glUseProgram(ellipsoid_compute);
+
+  glUniform1i(glGetUniformLocation(ellipsoid_compute, "mask"), mask);
+  glUniform1i(glGetUniformLocation(ellipsoid_compute, "draw"), draw);
+  glUniform4fv(glGetUniformLocation(ellipsoid_compute, "color"), 1,
+               glm::value_ptr(color));
+
+  glUniform3fv(glGetUniformLocation(ellipsoid_compute, "radii"), 1,
+               glm::value_ptr(radii));
+  glUniform3fv(glGetUniformLocation(ellipsoid_compute, "rotation"), 1,
+               glm::value_ptr(rotation));
+  glUniform3fv(glGetUniformLocation(ellipsoid_compute, "center"), 1,
+               glm::value_ptr(center));
+
+  glUniform1i(glGetUniformLocation(ellipsoid_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(ellipsoid_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(ellipsoid_compute, "previous"),
+              3 - tex_offset);
+  glUniform1i(glGetUniformLocation(ellipsoid_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void GLContainer::draw_grid(glm::ivec3 spacing, glm::ivec3 width,
+                            glm::ivec3 offsets, glm::vec3 rot, glm::vec4 color,
+                            bool draw, int mask) {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+  swap_blocks();
+
+  glUseProgram(grid_compute);
+
+  glUniform1i(glGetUniformLocation(grid_compute, "mask"), mask);
+  glUniform1i(glGetUniformLocation(grid_compute, "draw"), draw);
+  glUniform4fv(glGetUniformLocation(grid_compute, "color"), 1,
+               glm::value_ptr(color));
+
+  glUniform3i(glGetUniformLocation(grid_compute, "spacing"), spacing.x,
+              spacing.y, spacing.z);
+  glUniform3i(glGetUniformLocation(grid_compute, "offsets"), offsets.x,
+              offsets.y, offsets.z);
+  glUniform3i(glGetUniformLocation(grid_compute, "width"), width.x, width.y,
+              width.z);
+  glUniform3f(glGetUniformLocation(grid_compute, "rotation"), rot.x, rot.y,
+              rot.z);
+
+  glUniform1i(glGetUniformLocation(grid_compute, "current"), 2 + tex_offset);
+  glUniform1i(glGetUniformLocation(grid_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(grid_compute, "previous"), 3 - tex_offset);
+  glUniform1i(glGetUniformLocation(grid_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// heightmap
+void GLContainer::draw_heightmap(float height_scale, bool height_color,
+                                 glm::vec4 color, bool mask, int draw) {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+  swap_blocks();
+
+  glUseProgram(heightmap_compute);
+
+  glUniform1i(glGetUniformLocation(heightmap_compute, "mask"), mask);
+  glUniform1i(glGetUniformLocation(heightmap_compute, "draw"), draw);
+  glUniform4fv(glGetUniformLocation(heightmap_compute, "color"), 1,
+               glm::value_ptr(color));
+
+  glUniform1i(glGetUniformLocation(heightmap_compute, "height_color"),
+              height_color);
+  glUniform1i(glGetUniformLocation(heightmap_compute, "map"), 12);
+  glUniform1f(glGetUniformLocation(heightmap_compute, "vscale"), height_scale);
+
+  glUniform1i(glGetUniformLocation(heightmap_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(heightmap_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(heightmap_compute, "previous"),
+              3 - tex_offset);
+  glUniform1i(glGetUniformLocation(heightmap_compute, "previous_mask"),
               5 - tex_offset);
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
@@ -1037,4 +1146,100 @@ void GLContainer::save(std::string filename) {
               << ": " << lodepng_error_text(error) << std::endl;
 
   cout << "filename on save is: " << filename << std::endl << std::endl;
+}
+
+// functions to generate new heightmaps
+void GLContainer::generate_heightmap_diamond_square() {
+  long unsigned int seed =
+      std::chrono::system_clock::now().time_since_epoch().count();
+
+  std::default_random_engine engine{seed};
+  std::uniform_real_distribution<float> distribution{0, 1};
+
+  constexpr auto size = DIM + 1;
+  constexpr auto edge = size - 1;
+
+  uint8_t map[size][size] = {{0}};
+  map[0][0] = map[edge][0] = map[0][edge] = map[edge][edge] = 128;
+
+  heightfield::diamond_square_no_wrap(
+      size,
+      // random
+      [&engine, &distribution](float range) {
+        return distribution(engine) * range;
+      },
+      // variance
+      [](int level) -> float { return 64.0f * std::pow(0.5f, level); },
+      // at
+      [&map](int x, int y) -> uint8_t & { return map[y][x]; });
+
+  std::vector<unsigned char> data;
+
+  for (int x = 0; x < DIM; x++) {
+    for (int y = 0; y < DIM; y++) {
+      data.push_back(map[x][y]);
+      data.push_back(map[x][y]);
+      data.push_back(map[x][y]);
+      data.push_back(255);
+    }
+  }
+
+  // send it to the GPU
+  glBindTexture(GL_TEXTURE_2D, textures[12]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, &data[0]);
+  glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+void GLContainer::generate_heightmap_perlin() {
+  std::vector<unsigned char> data;
+
+  PerlinNoise p;
+
+  float xscale = 0.014f;
+  float yscale = 0.04f;
+
+  // might add more parameters at some point
+
+  static float offset = 0;
+
+  for (int x = 0; x < DIM; x++) {
+    for (int y = 0; y < DIM; y++) {
+      data.push_back(
+          (unsigned char)(p.noise(x * xscale, y * yscale, offset) * 255));
+      data.push_back(
+          (unsigned char)(p.noise(x * xscale, y * yscale, offset) * 255));
+      data.push_back(
+          (unsigned char)(p.noise(x * xscale, y * yscale, offset) * 255));
+      data.push_back(255);
+    }
+  }
+
+  offset += 0.5;
+
+  glBindTexture(GL_TEXTURE_2D, textures[12]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, &data[0]);
+  glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+void GLContainer::generate_heightmap_XOR() {
+  // create the byte array
+  std::vector<unsigned char> data;
+
+  for (int x = 0; x < DIM; x++) {
+    for (int y = 0; y < DIM; y++) {
+      // cout << " "<< ((unsigned char)(x%256) ^ (unsigned char)(y%256));
+      data.push_back((unsigned char)(x % 256) ^ (unsigned char)(y % 256));
+      data.push_back((unsigned char)(x % 256) ^ (unsigned char)(y % 256));
+      data.push_back((unsigned char)(x % 256) ^ (unsigned char)(y % 256));
+      data.push_back(255);
+    }
+  }
+
+  // send the data to the gpu
+  glBindTexture(GL_TEXTURE_2D, textures[12]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, &data[0]);
+  glGenerateMipmap(GL_TEXTURE_2D);
 }

@@ -148,6 +148,19 @@ public:
   void draw_cylinder(glm::vec3 cylinder_bvec, glm::vec3 cylinder_tvec,
                      float cylinder_radius, glm::vec4 color, bool cylinder_draw,
                      int cylinder_mask);
+
+  void draw_ellipsoid(glm::vec3 center, glm::vec3 radius, glm::vec3 rotation,
+                      glm::vec4 color, bool ellipsoid_draw, int ellipsoid_mask);
+
+  void draw_grid(glm::ivec3 spacing, glm::ivec3 wid, glm::ivec3 off,
+                 glm::vec3 rot, glm::vec4 color, bool draw, int mask);
+
+  void generate_heightmap_XOR();
+  void generate_heightmap_perlin();
+  void generate_heightmap_diamond_square();
+  void draw_heightmap(float height_scale, bool height_color, glm::vec4 color,
+                      bool mask, int draw);
+
   // --
 
 private:

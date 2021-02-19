@@ -600,7 +600,8 @@ void engine::show_voraldo_menu(bool *show) {
       }
       if (ImGui::BeginTabItem(" Ellipsoid ")) {
         static glm::vec3 radius, center, rotation;
-        static bool ellipsoid_draw = true, ellipsoid_mask = false;
+        static bool ellipsoid_draw = true;
+        static int ellipsoid_mask = 0;
         static ImVec4 ellipsoid_draw_color;
 
         WrappedText(" Ellipsoid ");
@@ -634,7 +635,10 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::Checkbox("  Draw ", &ellipsoid_draw);
         ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &ellipsoid_mask);
+        ImGui::InputInt(" Mask ", &ellipsoid_mask);
+
+        // bounds check
+        ellipsoid_mask = std::clamp(ellipsoid_mask, 0, 255);
 
         ImGui::ColorEdit4("  Color", (float *)&ellipsoid_draw_color,
                           ImGuiColorEditFlags_AlphaBar |
@@ -644,10 +648,11 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SetCursorPosX(16);
 
         if (ImGui::SmallButton(" Draw ")) {
-          // GPU_Data.draw_ellipsoid(center, radius, rotation,
-          // glm::vec4(ellipsoid_draw_color.x, ellipsoid_draw_color.y,
-          // ellipsoid_draw_color.z, ellipsoid_draw_color.w), ellipsoid_draw,
-          // ellipsoid_mask);
+          GPU_Data.draw_ellipsoid(
+              center, radius, rotation,
+              glm::vec4(ellipsoid_draw_color.x, ellipsoid_draw_color.y,
+                        ellipsoid_draw_color.z, ellipsoid_draw_color.w),
+              ellipsoid_draw, ellipsoid_mask);
         }
         ImGui::EndTabItem();
       }
@@ -655,9 +660,10 @@ void engine::show_voraldo_menu(bool *show) {
         static int xoff, yoff, zoff;
         static int xspacing, yspacing, zspacing;
         static int xwid, ywid, zwid;
+        static float xrot, yrot, zrot;
         static ImVec4 grid_draw_color;
         static bool grid_draw = true;
-        static bool grid_mask = false;
+        static int grid_mask = 0;
 
         WrappedText(" Grid ");
         ImGui::SameLine();
@@ -667,24 +673,32 @@ void engine::show_voraldo_menu(bool *show) {
                    "each axis, and offset allows the whole grid to be moved.");
 
         OrangeText("SPACING");
-        ImGui::SliderInt(" xs", &xspacing, 0, 15);
-        ImGui::SliderInt(" ys", &yspacing, 0, 15);
-        ImGui::SliderInt(" zs", &zspacing, 0, 15);
+        ImGui::SliderInt(" xs", &xspacing, 0, 100);
+        ImGui::SliderInt(" ys", &yspacing, 0, 100);
+        ImGui::SliderInt(" zs", &zspacing, 0, 100);
 
         OrangeText("WIDTH");
-        ImGui::SliderInt(" xw", &xwid, 0, 15);
-        ImGui::SliderInt(" yw", &ywid, 0, 15);
-        ImGui::SliderInt(" zw", &zwid, 0, 15);
+        ImGui::SliderInt(" xw", &xwid, 0, 25);
+        ImGui::SliderInt(" yw", &ywid, 0, 25);
+        ImGui::SliderInt(" zw", &zwid, 0, 25);
 
         OrangeText("OFFSET");
-        ImGui::SliderInt(" xo", &xoff, 0, 15);
-        ImGui::SliderInt(" yo", &yoff, 0, 15);
-        ImGui::SliderInt(" zo", &zoff, 0, 15);
+        ImGui::SliderInt(" xo", &xoff, 0, 25);
+        ImGui::SliderInt(" yo", &yoff, 0, 25);
+        ImGui::SliderInt(" zo", &zoff, 0, 25);
+
+        OrangeText("ROTATION");
+        ImGui::SliderFloat(" xr", &xrot, -pi, pi);
+        ImGui::SliderFloat(" yr", &yrot, -pi, pi);
+        ImGui::SliderFloat(" zr", &zrot, -pi, pi);
 
         OrangeText("OPTIONS");
         ImGui::Checkbox("  Draw ", &grid_draw);
         ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &grid_mask);
+        ImGui::InputInt(" Mask ", &grid_mask);
+
+        // bounds check
+        grid_mask = std::clamp(grid_mask, 0, 255);
 
         ImGui::ColorEdit4("  Color", (float *)&grid_draw_color,
                           ImGuiColorEditFlags_AlphaBar |
@@ -694,16 +708,21 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::SetCursorPosX(16);
         if (ImGui::SmallButton(" Draw ")) {
-          // GPU_Data.draw_grid(glm::ivec3(xspacing, yspacing, zspacing),
-          // glm::ivec3(xwid, ywid, zwid), glm::ivec3(xoff, yoff, zoff),
-          // glm::vec4(grid_draw_color.x, grid_draw_color.y, grid_draw_color.z,
-          // grid_draw_color.w), grid_draw, grid_mask);
+          GPU_Data.draw_grid(glm::ivec3(xspacing, yspacing, zspacing),
+                             glm::ivec3(xwid, ywid, zwid),
+                             glm::ivec3(xoff, yoff, zoff),
+                             glm::vec3(xrot, yrot, zrot),
+                             glm::vec4(grid_draw_color.x, grid_draw_color.y,
+                                       grid_draw_color.z, grid_draw_color.w),
+                             grid_draw, grid_mask);
         }
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" Heightmap ")) {
         static float heightmap_vertical_scale = 1.0;
-        static bool heightmap_draw = true, heightmap_mask = false;
+        static bool heightmap_draw = true;
+        static int heightmap_mask = 0;
+        static bool height_color = true;
         static ImVec4 heightmap_draw_color;
 
         WrappedText(" Heightmap ");
@@ -722,19 +741,19 @@ void engine::show_voraldo_menu(bool *show) {
         OrangeText("GENERATION ALGORITHMS");
 
         if (ImGui::SmallButton(" Perlin ")) {
-          // GPU_Data.generate_heightmap_perlin();
+          GPU_Data.generate_heightmap_perlin();
         }
 
         ImGui::SameLine();
 
         if (ImGui::SmallButton(" Diamond-Square ")) {
-          // GPU_Data.generate_heightmap_diamond_square();
+          GPU_Data.generate_heightmap_diamond_square();
         }
 
         ImGui::SameLine();
 
         if (ImGui::SmallButton(" XOR ")) {
-          // GPU_Data.generate_heightmap_XOR();
+          GPU_Data.generate_heightmap_XOR();
         }
 
         OrangeText("VERTICAL SCALE");
@@ -745,9 +764,13 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Separator();
 
         OrangeText("OPTIONS");
+        ImGui::Checkbox("  Height Color ", &height_color);
         ImGui::Checkbox("  Draw ", &heightmap_draw);
         ImGui::SameLine();
-        ImGui::Checkbox("  Mask ", &heightmap_mask);
+        ImGui::InputInt(" Mask ", &heightmap_mask);
+
+        // bounds check
+        heightmap_mask = std::clamp(heightmap_mask, 0, 255);
 
         ImGui::ColorEdit4("  Color", (float *)&heightmap_draw_color,
                           ImGuiColorEditFlags_AlphaBar |
@@ -758,10 +781,11 @@ void engine::show_voraldo_menu(bool *show) {
 
         if (ImGui::SmallButton(" Draw ")) {
           // draw the heightmap with the selected values
-          // GPU_Data.draw_heightmap(heightmap_vertical_scale, true,
-          // glm::vec4(heightmap_draw_color.x, heightmap_draw_color.y,
-          // heightmap_draw_color.z, heightmap_draw_color.w), heightmap_mask,
-          // heightmap_draw);
+          GPU_Data.draw_heightmap(
+              heightmap_vertical_scale, height_color,
+              glm::vec4(heightmap_draw_color.x, heightmap_draw_color.y,
+                        heightmap_draw_color.z, heightmap_draw_color.w),
+              heightmap_mask, heightmap_draw);
         }
         ImGui::EndTabItem();
       }
