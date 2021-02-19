@@ -109,35 +109,34 @@ public:
   int clickndragx = 0;
   int clickndragy = 0;
 
-  // functions as invoked from the menu
+  // Functions as invoked from the menu
+
   // --
+  // lighting
+
   void lighting_clear(bool use_cache, glm::vec4 clear_level);
 
   void compute_point_lighting(glm::vec3 light_position, glm::vec4 color,
                               float point_decay_power,
                               float point_distance_power);
 
+  void compute_cone_lighting(glm::vec3 location, float theta, float phi,
+                             float cone_angle, float initial_intensity,
+                             float decay_power, float distance_power);
+
   void compute_new_directional_lighting(float theta, float phi,
                                         glm::vec4 initial_ray_intensity,
                                         float decay_power);
 
+  void compute_fake_GI(float factor, glm::vec4 sky_intensity, float thresh);
+
   void compute_ambient_occlusion(int radius);
+
   void mash();
 
   // --
-  std::string compile_user_script(std::string text);
-  std::string run_user_script();
+  // shapes
 
-  // --
-  void copy_loadbuffer(bool respect_mask);
-  void load(std::string filename, bool respect_mask);
-  void save(std::string filename);
-  std::string vat(float flip, std::string rule, int initmode, glm::vec4 color0,
-                  glm::vec4 color1, glm::vec4 color2, float lambda, float beta,
-                  float mag, bool respect_mask, glm::bvec3 mins,
-                  glm::bvec3 maxs);
-
-  // --
   void draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color, bool aabb_draw,
                  int aabb_mask);
 
@@ -155,11 +154,18 @@ public:
   void draw_grid(glm::ivec3 spacing, glm::ivec3 wid, glm::ivec3 off,
                  glm::vec3 rot, glm::vec4 color, bool draw, int mask);
 
+  // heightmap algorithms
   void generate_heightmap_XOR();
   void generate_heightmap_perlin();
   void generate_heightmap_diamond_square();
   void draw_heightmap(float height_scale, bool height_color, glm::vec4 color,
-                      bool mask, int draw);
+                      bool draw, int mask);
+
+  // noise algorithms
+  //   this is where the FastNoise2 generation goes
+  void generate_perlin_noise(float xscale, float yscale, float zscale);
+  void draw_noise(float low_thresh, float high_thresh, bool smooth,
+                  glm::vec4 color, bool draw, int mask);
 
   void draw_regular_icosahedron(double x_rot, double y_rot, double z_rot,
                                 double scale, glm::vec3 center_point,
@@ -179,16 +185,40 @@ public:
                      float thickness, glm::vec4 color, bool draw, int mask);
 
   // --
+  // utilities
+
   void clear_all(bool respect_mask);
+
   void unmask_all();
   void invert_mask();
   void mask_by_color(bool r, bool g, bool b, bool a, bool l, glm::vec4 color,
                      float l_val, float r_var, float g_var, float b_var,
                      float a_var, float l_var);
+
   void box_blur(int radius, bool touch_alpha, bool respect_mask);
   void gaussian_blur(int radius, bool touch_alpha, bool respect_mask);
+
   void limiter();
+
   void shift(glm::ivec3 movement, bool loop, int mode);
+
+  // --
+
+  std::string compile_user_script(std::string text);
+  std::string run_user_script();
+
+  // --
+
+  void copy_loadbuffer(bool respect_mask);
+
+  void load(std::string filename, bool respect_mask);
+
+  void save(std::string filename);
+
+  std::string vat(float flip, std::string rule, int initmode, glm::vec4 color0,
+                  glm::vec4 color1, glm::vec4 color2, float lambda, float beta,
+                  float mag, bool respect_mask, glm::bvec3 mins,
+                  glm::bvec3 maxs);
 
   // --
 
@@ -262,7 +292,7 @@ private:
   GLuint ellipsoid_compute;
   GLuint grid_compute;
   GLuint heightmap_compute;
-  GLuint perlin_compute;
+  GLuint noise_compute;
   GLuint sphere_compute;
   GLuint tube_compute;
   GLuint triangle_compute;

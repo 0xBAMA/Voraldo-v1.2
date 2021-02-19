@@ -1,0 +1,33 @@
+// distance estimated fractal by discord user Nameless#1608
+float DE(vec3 p0){
+   vec4 p = vec4(p0, 1.);
+   for(int i = 0; i < 20; i++){
+        p*=4.34;
+        p.xyz = mod(p.xyz - 1.5, 3.)-1.5;
+        p/=dot(p.xyz,p.xyz);
+   }
+   return length(p.xyz)/p.w;
+}
+
+
+irec is_inside(){  // check Documentation tab for details 
+
+ irec temp;
+
+ temp.draw  = true;   // is this voxel's value going to change?
+ temp.color = vec4(0.75,0.35,0.2,0.032); // what should its color be?
+ temp.mask  = 0;       // how much do you wish to mask?
+
+	myloc *= 4.;
+
+ // your SDF definition goes here
+ float a = DE((mod(vec3(0., 0.,-26.)-myloc.xzy,12.)-6.)/10.)*10.;
+
+ if(a < 0.05)
+ {
+  temp.color = vec4(1,1,1,0.75);
+ }
+
+ return temp;
+
+}

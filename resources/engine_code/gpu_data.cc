@@ -212,6 +212,13 @@ void GLContainer::compile_shaders() {
   // utility functions
   copy_loadbuff_compute =
       CShader("resources/engine_code/shaders/copy_loadbuff.cs.glsl").Program;
+  // clear_all_compute = ;
+  // unmask_all_compute;
+  // invert_mask_compute;
+  // mask_by_color_compute;
+  // box_blur_compute;
+  // gaussian_blur_compute;
+  // shift_compute;
 
   // shape functions
   aabb_compute = CShader("resources/engine_code/shaders/aabb.cs.glsl").Program;
@@ -224,6 +231,9 @@ void GLContainer::compile_shaders() {
   grid_compute = CShader("resources/engine_code/shaders/grid.cs.glsl").Program;
   heightmap_compute =
       CShader("resources/engine_code/shaders/heightmap.cs.glsl").Program;
+
+  // noise_compute;
+
   sphere_compute =
       CShader("resources/engine_code/shaders/sphere.cs.glsl").Program;
   tube_compute = CShader("resources/engine_code/shaders/tube.cs.glsl").Program;
@@ -678,6 +688,39 @@ void GLContainer::compute_point_lighting(glm::vec3 light_position,
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
+void GLContainer::compute_cone_lighting(glm::vec3 location, float theta,
+                                        float phi, float cone_angle,
+                                        float initial_intensity,
+                                        float decay_power,
+                                        float distance_power) {
+  redraw_flag = true;
+  light_mipmap_flag = true;
+  glUseProgram(cone_lighting_compute);
+
+  glUniform3fv(glGetUniformLocation(cone_lighting_compute, "light_position"), 1,
+               glm::value_ptr(location));
+
+  glUniform1f(glGetUniformLocation(cone_lighting_compute, "theta"), theta);
+  glUniform1f(glGetUniformLocation(cone_lighting_compute, "phi"), phi);
+
+  glUniform1f(glGetUniformLocation(cone_lighting_compute, "cone_angle"),
+              cone_angle);
+  glUniform1f(glGetUniformLocation(cone_lighting_compute, "light_intensity"),
+              initial_intensity);
+  glUniform1f(glGetUniformLocation(cone_lighting_compute, "decay_power"),
+              decay_power);
+  glUniform1f(glGetUniformLocation(cone_lighting_compute, "distance_power"),
+              distance_power);
+
+  glUniform1i(glGetUniformLocation(cone_lighting_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(cone_lighting_compute, "lighting"), 6);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
 void GLContainer::compute_new_directional_lighting(
     float theta, float phi, glm::vec4 initial_ray_intensity,
     float decay_power) {
@@ -704,6 +747,47 @@ void GLContainer::compute_new_directional_lighting(
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8); // workgroup is 8x8x8
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// fake GI
+void GLContainer::compute_fake_GI(float factor, glm::vec4 sky_intensity,
+                                  float thresh) {
+  redraw_flag = true;
+  light_mipmap_flag = true;
+
+  glUseProgram(fakeGI_compute);
+
+  glUniform1i(glGetUniformLocation(fakeGI_compute, "current"), 2 + tex_offset);
+  glUniform1i(glGetUniformLocation(fakeGI_compute, "lighting"), 6);
+
+  glUniform1f(glGetUniformLocation(fakeGI_compute, "scale_factor"), factor);
+  glUniform1f(glGetUniformLocation(fakeGI_compute, "alpha_thresh"), thresh);
+  glUniform4f(glGetUniformLocation(fakeGI_compute, "sky_intensity"),
+              sky_intensity.r, sky_intensity.g, sky_intensity.b,
+              sky_intensity.a);
+
+  // This has a sequential dependence - from the same guy who did the Voxel
+  // Automata Terrain, Brent Werness:
+  //   "Totally faked the GI!  It just casts out 9 rays in upwards facing the
+  //   lattice directions.
+  //    If it escapes it gets light from the sky, otherwise it gets some
+  //    fraction of the light from whatever cell it hits.  Run from top to
+  //    bottom and you are set!"
+
+  // For that reason, I'm doing 2d workgroups, starting from the top, going to
+  // the bottom.
+
+  for (int y = DIM - 1; y >= 0; y--) // iterating through y, from top to bottom
+  {
+    // update y index
+    glUniform1i(glGetUniformLocation(fakeGI_compute, "y_index"), y);
+
+    // send the job, for one xz plane
+    glDispatchCompute(DIM / 8, 1, DIM / 8);
+
+    // wait for all those shader invocations to finish
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  }
 }
 
 void GLContainer::compute_ambient_occlusion(int radius) {
@@ -908,7 +992,7 @@ void GLContainer::draw_grid(glm::ivec3 spacing, glm::ivec3 width,
 
 // heightmap
 void GLContainer::draw_heightmap(float height_scale, bool height_color,
-                                 glm::vec4 color, bool mask, int draw) {
+                                 glm::vec4 color, bool draw, int mask) {
   redraw_flag = true;
   color_mipmap_flag = true;
   swap_blocks();
@@ -1188,6 +1272,206 @@ void GLContainer::draw_triangle(glm::vec3 point1, glm::vec3 point2,
   glUniform1i(glGetUniformLocation(triangle_compute, "previous"),
               3 - tex_offset);
   glUniform1i(glGetUniformLocation(triangle_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// clear all
+void GLContainer::clear_all(bool respect_mask) {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+
+  swap_blocks();
+  glUseProgram(clear_all_compute);
+
+  glUniform1i(glGetUniformLocation(clear_all_compute, "respect_mask"),
+              respect_mask);
+
+  glUniform1i(glGetUniformLocation(clear_all_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(clear_all_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(clear_all_compute, "previous"),
+              3 - tex_offset);
+  glUniform1i(glGetUniformLocation(clear_all_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// unmask all
+void GLContainer::unmask_all() {
+  // don't need to redraw
+  swap_blocks();
+  glUseProgram(unmask_all_compute);
+
+  glUniform1i(glGetUniformLocation(unmask_all_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(unmask_all_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(unmask_all_compute, "previous"),
+              3 - tex_offset);
+  glUniform1i(glGetUniformLocation(unmask_all_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// invert mask
+void GLContainer::invert_mask() {
+  // don't need to redraw
+  swap_blocks();
+  glUseProgram(invert_mask_compute);
+
+  glUniform1i(glGetUniformLocation(invert_mask_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(invert_mask_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(invert_mask_compute, "previous"),
+              3 - tex_offset);
+  glUniform1i(glGetUniformLocation(invert_mask_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// mask by color
+void GLContainer::mask_by_color(bool r, bool g, bool b, bool a, bool l,
+                                glm::vec4 color, float l_val, float r_var,
+                                float g_var, float b_var, float a_var,
+                                float l_var) {
+  // don't need to redraw
+  swap_blocks();
+  glUseProgram(mask_by_color_compute);
+
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "use_r"), r);
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "use_g"), g);
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "use_b"), b);
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "use_a"), a);
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "use_l"), l);
+
+  glUniform4fv(glGetUniformLocation(mask_by_color_compute, "color"), 1,
+               glm::value_ptr(color));
+  glUniform1f(glGetUniformLocation(mask_by_color_compute, "l_val"), l_val);
+
+  glUniform1f(glGetUniformLocation(mask_by_color_compute, "r_var"), r_var);
+  glUniform1f(glGetUniformLocation(mask_by_color_compute, "g_var"), g_var);
+  glUniform1f(glGetUniformLocation(mask_by_color_compute, "b_var"), b_var);
+  glUniform1f(glGetUniformLocation(mask_by_color_compute, "a_var"), a_var);
+  glUniform1f(glGetUniformLocation(mask_by_color_compute, "l_var"), l_var);
+
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "lighting"), 6);
+
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "previous"),
+              3 - tex_offset);
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// box blur
+void GLContainer::box_blur(int radius, bool touch_alpha, bool respect_mask) {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+  swap_blocks();
+  glUseProgram(box_blur_compute);
+
+  glUniform1i(glGetUniformLocation(box_blur_compute, "radius"), radius);
+  glUniform1i(glGetUniformLocation(box_blur_compute, "respect_mask"),
+              respect_mask);
+  glUniform1i(glGetUniformLocation(box_blur_compute, "touch_alpha"),
+              touch_alpha);
+
+  glUniform1i(glGetUniformLocation(box_blur_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(box_blur_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(box_blur_compute, "previous"),
+              3 - tex_offset);
+  glUniform1i(glGetUniformLocation(box_blur_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// gaussian blur
+void GLContainer::gaussian_blur(int radius, bool touch_alpha,
+                                bool respect_mask) {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+
+  // I think I'm going to restrict the range of radii, since I'm not sure about
+  // what the best way to do different sized kernels is
+  swap_blocks();
+  glUseProgram(gaussian_blur_compute);
+
+  glUniform1i(glGetUniformLocation(gaussian_blur_compute, "radius"), radius);
+  glUniform1i(glGetUniformLocation(gaussian_blur_compute, "respect_mask"),
+              respect_mask);
+  glUniform1i(glGetUniformLocation(gaussian_blur_compute, "touch_alpha"),
+              touch_alpha);
+
+  glUniform1i(glGetUniformLocation(gaussian_blur_compute, "current"),
+              2 + tex_offset);
+  glUniform1i(glGetUniformLocation(gaussian_blur_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(gaussian_blur_compute, "previous"),
+              3 - tex_offset);
+  glUniform1i(glGetUniformLocation(gaussian_blur_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+// limiter
+void GLContainer::limiter() {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+
+  // the details of this operation still need to be worked out - there is a
+  // couple of different modes
+}
+
+// shifting
+void GLContainer::shift(glm::ivec3 movement, bool loop, int mode) {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+  swap_blocks();
+
+  glUseProgram(shift_compute);
+
+  glUniform1i(glGetUniformLocation(shift_compute, "loop"), loop);
+  glUniform1i(glGetUniformLocation(shift_compute, "mode"), mode);
+  glUniform3i(glGetUniformLocation(shift_compute, "movement"), movement.x,
+              movement.y, movement.z);
+
+  // glUniform1i(glGetUniformLocation(shift_compute, "lighting"), 6);
+
+  glUniform1i(glGetUniformLocation(shift_compute, "current"), 2 + tex_offset);
+  glUniform1i(glGetUniformLocation(shift_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(shift_compute, "previous"), 3 - tex_offset);
+  glUniform1i(glGetUniformLocation(shift_compute, "previous_mask"),
               5 - tex_offset);
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
@@ -1502,4 +1786,61 @@ void GLContainer::generate_heightmap_XOR() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, &data[0]);
   glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+// function to generate new block of 3d perlin noise
+void GLContainer::generate_perlin_noise(float xscale = 0.014,
+                                        float yscale = 0.04,
+                                        float zscale = 0.014) {
+  PerlinNoise p;
+  std::vector<unsigned char> data;
+
+  for (int x = 0; x < DIM; x++)
+    for (int y = 0; y < DIM; y++)
+      for (int z = 0; z < DIM; z++) {
+        data.push_back(
+            (unsigned char)(p.noise(x * xscale, y * yscale, z * zscale) * 255));
+        data.push_back(
+            (unsigned char)(p.noise(x * xscale, y * yscale, z * zscale) * 255));
+        data.push_back(
+            (unsigned char)(p.noise(x * xscale, y * yscale, z * zscale) * 255));
+        data.push_back(255);
+      }
+
+  glBindTexture(GL_TEXTURE_3D, textures[11]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, &data[0]);
+  glGenerateMipmap(GL_TEXTURE_3D);
+}
+
+void GLContainer::draw_noise(float low_thresh, float high_thresh, bool smooth,
+                             glm::vec4 color, bool draw, int mask) {
+  redraw_flag = true;
+  color_mipmap_flag = true;
+
+  swap_blocks();
+  glUseProgram(noise_compute);
+
+  glUniform1i(glGetUniformLocation(noise_compute, "usmooth"), smooth);
+
+  glUniform1i(glGetUniformLocation(noise_compute, "mask"), mask);
+  glUniform1i(glGetUniformLocation(noise_compute, "draw"), draw);
+  glUniform4fv(glGetUniformLocation(noise_compute, "ucolor"), 1,
+               glm::value_ptr(color));
+
+  glUniform1i(glGetUniformLocation(noise_compute, "tex"), 11);
+
+  glUniform1f(glGetUniformLocation(noise_compute, "low_thresh"), low_thresh);
+  glUniform1f(glGetUniformLocation(noise_compute, "high_thresh"), high_thresh);
+
+  glUniform1i(glGetUniformLocation(noise_compute, "current"), 2 + tex_offset);
+  glUniform1i(glGetUniformLocation(noise_compute, "current_mask"),
+              4 + tex_offset);
+
+  glUniform1i(glGetUniformLocation(noise_compute, "previous"), 3 - tex_offset);
+  glUniform1i(glGetUniformLocation(noise_compute, "previous_mask"),
+              5 - tex_offset);
+
+  glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
+  glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }

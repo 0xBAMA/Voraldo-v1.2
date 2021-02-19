@@ -785,7 +785,7 @@ void engine::show_voraldo_menu(bool *show) {
               heightmap_vertical_scale, height_color,
               glm::vec4(heightmap_draw_color.x, heightmap_draw_color.y,
                         heightmap_draw_color.z, heightmap_draw_color.w),
-              heightmap_mask, heightmap_draw);
+              heightmap_draw, heightmap_mask);
         }
         ImGui::EndTabItem();
       }
@@ -1392,7 +1392,7 @@ void engine::show_voraldo_menu(bool *show) {
         if (ImGui::SmallButton(" Clear ")) {
           // do the clear all operation - note that this respects the mask
           // values
-          // GPU_Data.clear_all(respect_mask);
+          GPU_Data.clear_all(respect_mask);
         }
         ImGui::EndTabItem();
       }
@@ -1402,22 +1402,31 @@ void engine::show_voraldo_menu(bool *show) {
 
         WrappedText(" Masking ");
         ImGui::SameLine();
-        HelpMarker("Masking is a function which allows all or part of the "
-                   "block to be protected from subsequent draw calls. The "
-                   "value of the mask for each voxel tells how subsequent "
-                   "operations will affect its contents.");
+        HelpMarker(
+            "Masking is a function which allows all or part of the "
+            "block to be protected from subsequent draw calls. The "
+            "value of the mask for each voxel tells how subsequent "
+            "operations will affect its contents. A mask value of 0 indicates "
+            "that subsequent draw operations will replace completely, while "
+            "255 indicates that the raster data will be completely retained. "
+            "\n\nUnmask all sets all cells' values to zero, invert sets them "
+            "to 255 minus their current value. Mask by color works the same "
+            "way but now with the addition of an 'amount' slider. Set a base "
+            "value for each color channel or the lighting and a variance from "
+            "that value. Selected channels will be used in the logic in the "
+            "shader to determine cells to mask.");
 
         OrangeText("BASIC OPERATIONS");
         if (ImGui::SmallButton(" Unmask All ")) {
           // unmask all cells
-          // GPU_Data.unmask_all();
+          GPU_Data.unmask_all();
         }
 
         ImGui::SameLine();
 
         if (ImGui::SmallButton(" Invert Mask ")) {
           // do the toggle operation
-          // GPU_Data.invert_mask();
+          GPU_Data.invert_mask();
         }
 
         static bool use_r;
