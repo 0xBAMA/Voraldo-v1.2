@@ -212,7 +212,8 @@ void GLContainer::compile_shaders() {
   // utility functions
   copy_loadbuff_compute =
       CShader("resources/engine_code/shaders/copy_loadbuff.cs.glsl").Program;
-  // clear_all_compute = ;
+  clear_all_compute =
+      CShader("resources/engine_code/shaders/clear_all.cs.glsl").Program;
   // unmask_all_compute;
   // invert_mask_compute;
   // mask_by_color_compute;
