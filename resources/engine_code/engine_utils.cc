@@ -872,76 +872,78 @@ void engine::show_voraldo_menu(bool *show) {
         }
         ImGui::EndTabItem();
       }
-      // if (ImGui::BeginTabItem(" Noise ")) {
-      //   static float perlin_scale_x = 0.014;
-      //   static float perlin_scale_y = 0.014;
-      //   static float perlin_scale_z = 0.014;
-      //   static float perlin_threshold_lo = 0.0f;
-      //   static float perlin_threshold_hi = 0.0f;
-      //   static ImVec4 perlin_draw_color;
-      //   static bool perlin_draw = true;
-      //   static bool perlin_mask = false;
-      //   static bool perlin_smooth = false;
+      if (ImGui::BeginTabItem(" Noise ")) {
+        static float noise_scale_x = 0.014;
+        static float noise_scale_y = 0.014;
+        static float noise_scale_z = 0.014;
+        static float noise_threshold_lo = 0.0f;
+        static float noise_threshold_hi = 0.0f;
+        static ImVec4 noise_draw_color;
+        static bool noise_draw = true;
+        static int noise_mask = 0;
+        static bool noise_smooth = false;
 
-      //   WrappedText(" WIP FastNoise2 integration ");
-      //   ImGui::SameLine();
-      //   HelpMarker(
-      //       "This is to create a more general and flexible noise tool with "
-      //       "different algorithms and a node graph. TBD how multiple channels
-      //       " "will be used, but that seems to have potential. \n\nThe way
-      //       the " "noise has been used in previous verions, there is a low
-      //       and high " "threshold set when drawing - noise values are in the
-      //       range 0-1, " "so the drawing operation will be applied to cells
-      //       which read a " "noise sample in the defined range between
-      //       lothresh and hithresh.");
+        WrappedText(" WIP FastNoise2 integration ");
+        ImGui::SameLine();
+        HelpMarker(
+            "This is to create a more general and flexible noise tool with "
+            "different algorithms and a node graph. TBD how multiple channels "
+            "will be used, but that seems to have potential. \n\nThe way the "
+            "noise has been used in previous verions, there is a low and high "
+            "threshold set when drawing - noise values are in the range 0-1, "
+            "so the drawing operation will be applied to cells which read a "
+            "noise sample in the defined range between lothresh and hithresh.");
 
-      //   ImGui::SliderFloat("  xscale", &perlin_scale_x, 0.01f, 0.5f, "%.3f");
-      //   ImGui::SliderFloat("  yscale", &perlin_scale_y, 0.01f, 0.5f, "%.3f");
-      //   ImGui::SliderFloat("  zscale", &perlin_scale_z, 0.01f, 0.5f, "%.3f");
-      //   ImGui::Text(" ");
+        ImGui::SliderFloat("  xscale", &noise_scale_x, 0.01f, 0.5f, "%.3f");
+        ImGui::SliderFloat("  yscale", &noise_scale_y, 0.01f, 0.5f, "%.3f");
+        ImGui::SliderFloat("  zscale", &noise_scale_z, 0.01f, 0.5f, "%.3f");
+        ImGui::Text(" ");
 
-      //   if (ImGui::SmallButton(" generate ")) {
-      //     // GPU_Data.generate_perlin_noise(perlin_scale_x, perlin_scale_y,
-      //     // perlin_scale_z);
-      //   }
+        if (ImGui::SmallButton(" generate ")) {
+          GPU_Data.generate_perlin_noise(noise_scale_x, noise_scale_y,
+                                         noise_scale_z);
+        }
 
-      //   ImGui::Separator();
+        ImGui::Separator();
 
-      //   // WrappedText("Perlin noise ranges from 0 to 1. Use hithresh and
-      //   // lowthresh to tell how much of this perlin texture to color in.",
-      //   // windowsize.x);
+        WrappedText(
+            "Perlin noise ranges from 0 to 1. Use hithresh and lowthresh to "
+            "tell how much of this perlin texture to color in.");
 
-      //   OrangeText("THRESHOLDING");
-      //   ImGui::SliderFloat(" hithresh", &perlin_threshold_hi, 0.0f, 1.0f,
-      //                      "%.3f");
-      //   ImGui::SliderFloat(" lothresh", &perlin_threshold_lo, 0.0f, 1.0f,
-      //                      "%.3f");
+        OrangeText("THRESHOLDING");
+        ImGui::SliderFloat(" hithresh", &noise_threshold_hi, 0.0f, 1.0f,
+                           "%.3f");
+        ImGui::SliderFloat(" lothresh", &noise_threshold_lo, 0.0f, 1.0f,
+                           "%.3f");
 
-      //   ImGui::Checkbox(" Smooth Color ", &perlin_smooth);
+        ImGui::Checkbox(" Smooth Color ", &noise_smooth);
 
-      //   ImGui::Separator();
+        ImGui::Separator();
 
-      //   OrangeText("OPTIONS");
-      //   ImGui::Checkbox("  Draw ", &perlin_draw);
-      //   ImGui::SameLine();
-      //   ImGui::Checkbox("  Mask ", &perlin_mask);
+        OrangeText("OPTIONS");
+        ImGui::Checkbox("  Draw ", &noise_draw);
+        ImGui::SameLine();
+        ImGui::InputInt(" Mask ", &noise_mask);
 
-      //   ImGui::ColorEdit4("  Color", (float *)&perlin_draw_color,
-      //                     ImGuiColorEditFlags_AlphaBar |
-      //                         ImGuiColorEditFlags_AlphaPreviewHalf);
+        // bounds check
+        noise_mask = std::clamp(noise_mask, 0, 255);
 
-      //   ImGui::Text(" ");
+        ImGui::ColorEdit4("  Color", (float *)&noise_draw_color,
+                          ImGuiColorEditFlags_AlphaBar |
+                              ImGuiColorEditFlags_AlphaPreviewHalf);
 
-      //   ImGui::SetCursorPosX(16);
-      //   if (ImGui::SmallButton(" Draw ")) {
-      //     // GPU_Data.draw_perlin_noise(perlin_threshold_lo,
-      //     // perlin_threshold_hi, perlin_smooth,
-      //     glm::vec4(perlin_draw_color.x,
-      //     // perlin_draw_color.y, perlin_draw_color.z, perlin_draw_color.w),
-      //     // perlin_draw, perlin_mask);
-      //   }
-      //   ImGui::EndTabItem();
-      // }
+        ImGui::Text(" ");
+
+        ImGui::SetCursorPosX(16);
+        if (ImGui::SmallButton(" Draw ")) {
+          GPU_Data.draw_noise(noise_threshold_lo, noise_threshold_hi,
+                              noise_smooth,
+                              glm::vec4(noise_draw_color.x, noise_draw_color.y,
+                                        noise_draw_color.z, noise_draw_color.w),
+                              noise_draw, noise_mask);
+        }
+        ImGui::EndTabItem();
+      }
       if (ImGui::BeginTabItem(" Sphere ")) {
         static bool sphere_draw = true;
         static int sphere_mask = 0;
@@ -1444,6 +1446,8 @@ void engine::show_voraldo_menu(bool *show) {
         static float a_variance = 0.0;
         static float l_variance = 0.0;
 
+        static int amt = 0;
+
         OrangeText("MASK BY COLOR");
         ImGui::SameLine();
         HelpMarker(
@@ -1488,11 +1492,17 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("l value", &light_val, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("l spread", &l_variance, 0.0f, 1.0f, "%.3f");
 
+        ImGui::InputInt(" Amount ", &amt);
+
+        // bounds check
+        amt = std::clamp(amt, 0, 255);
+
         if (ImGui::SmallButton(" Mask by Color")) {
-          // GPU_Data.mask_by_color(use_r, use_g, use_b, use_a, use_l,
-          // glm::vec4(select_color.x, select_color.y, select_color.z,
-          // select_color.w), light_val, r_variance, g_variance, b_variance,
-          // a_variance, l_variance);
+          GPU_Data.mask_by_color(use_r, use_g, use_b, use_a, use_l,
+                                 glm::vec4(select_color.x, select_color.y,
+                                           select_color.z, select_color.w),
+                                 light_val, r_variance, g_variance, b_variance,
+                                 a_variance, l_variance, amt);
         }
         ImGui::EndTabItem();
       }

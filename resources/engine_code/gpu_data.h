@@ -193,7 +193,7 @@ public:
   void invert_mask();
   void mask_by_color(bool r, bool g, bool b, bool a, bool l, glm::vec4 color,
                      float l_val, float r_var, float g_var, float b_var,
-                     float a_var, float l_var);
+                     float a_var, float l_var, int mask);
 
   void box_blur(int radius, bool touch_alpha, bool respect_mask);
   void gaussian_blur(int radius, bool touch_alpha, bool respect_mask);

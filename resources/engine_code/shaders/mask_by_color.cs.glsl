@@ -4,12 +4,12 @@
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;    //specifies the workgroup size
 
 uniform layout(rgba8) image3D previous;       //now-current values of the block
-uniform layout(r8) image3D previous_mask;  //now-current values of the mask
+uniform layout(r8ui) uimage3D previous_mask;  //now-current values of the mask
 
 uniform layout(rgba8) image3D current;        //values of the block after the update
-uniform layout(r8) image3D current_mask;   //values of the mask after the update
+uniform layout(r8ui) uimage3D current_mask;   //values of the mask after the update
 
-uniform layout(r8) image3D lighting; //lighting values
+uniform layout(rgba8) image3D lighting; //lighting values
 
 //these variables express whether or not each channel is being used
 uniform bool use_r;
@@ -29,13 +29,13 @@ uniform float b_var;
 uniform float a_var;
 uniform float l_var;
 
-vec4 mask_true = vec4(1.0,0.0,0.0,0.0);
-vec4 mask_false = vec4(0.0,0.0,0.0,0.0);
+// how much to mask
+uniform int mask;
 
 void main()
 {
   vec4 pcol = imageLoad(previous, ivec3(gl_GlobalInvocationID.xyz));                 //existing color value (what is the previous color?)
-  vec4 pmask = imageLoad(previous_mask, ivec3(gl_GlobalInvocationID.xyz));          // this is the value of the mask before this function was called
+  uvec4 pmask = imageLoad(previous_mask, ivec3(gl_GlobalInvocationID.xyz));          // this is the value of the mask before this function was called
   vec4 light = imageLoad(lighting, ivec3(gl_GlobalInvocationID.xyz));  
 
   bool do_we_mask = false;
@@ -60,7 +60,7 @@ void main()
 
   imageStore(current, ivec3(gl_GlobalInvocationID.xyz), pcol); //color can't change as a result of this operation
   if(do_we_mask)
-    imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), mask_true);
+    imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), uvec4(mask));
   else
-    imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), mask_false);
+    imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), pmask);
 }

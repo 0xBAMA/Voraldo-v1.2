@@ -214,9 +214,12 @@ void GLContainer::compile_shaders() {
       CShader("resources/engine_code/shaders/copy_loadbuff.cs.glsl").Program;
   clear_all_compute =
       CShader("resources/engine_code/shaders/clear_all.cs.glsl").Program;
-  // unmask_all_compute;
-  // invert_mask_compute;
-  // mask_by_color_compute;
+  unmask_all_compute =
+      CShader("resources/engine_code/shaders/unmask_all.cs.glsl").Program;
+  invert_mask_compute =
+      CShader("resources/engine_code/shaders/invert_mask.cs.glsl").Program;
+  mask_by_color_compute =
+      CShader("resources/engine_code/shaders/mask_by_color.cs.glsl").Program;
   // box_blur_compute;
   // gaussian_blur_compute;
   // shift_compute;
@@ -232,9 +235,8 @@ void GLContainer::compile_shaders() {
   grid_compute = CShader("resources/engine_code/shaders/grid.cs.glsl").Program;
   heightmap_compute =
       CShader("resources/engine_code/shaders/heightmap.cs.glsl").Program;
-
-  // noise_compute;
-
+  noise_compute =
+      CShader("resources/engine_code/shaders/noise.cs.glsl").Program;
   sphere_compute =
       CShader("resources/engine_code/shaders/sphere.cs.glsl").Program;
   tube_compute = CShader("resources/engine_code/shaders/tube.cs.glsl").Program;
@@ -1348,7 +1350,7 @@ void GLContainer::invert_mask() {
 void GLContainer::mask_by_color(bool r, bool g, bool b, bool a, bool l,
                                 glm::vec4 color, float l_val, float r_var,
                                 float g_var, float b_var, float a_var,
-                                float l_var) {
+                                float l_var, int amt) {
   // don't need to redraw
   swap_blocks();
   glUseProgram(mask_by_color_compute);
@@ -1358,6 +1360,8 @@ void GLContainer::mask_by_color(bool r, bool g, bool b, bool a, bool l,
   glUniform1i(glGetUniformLocation(mask_by_color_compute, "use_b"), b);
   glUniform1i(glGetUniformLocation(mask_by_color_compute, "use_a"), a);
   glUniform1i(glGetUniformLocation(mask_by_color_compute, "use_l"), l);
+
+  glUniform1i(glGetUniformLocation(mask_by_color_compute, "mask"), amt);
 
   glUniform4fv(glGetUniformLocation(mask_by_color_compute, "color"), 1,
                glm::value_ptr(color));
