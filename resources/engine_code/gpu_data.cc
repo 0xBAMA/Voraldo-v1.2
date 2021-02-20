@@ -204,6 +204,8 @@ void GLContainer::compile_shaders() {
   directional_lighting_compute =
       CShader("resources/engine_code/shaders/directional_light.cs.glsl")
           .Program;
+  fakeGI_compute =
+      CShader("resources/engine_code/shaders/fakeGI.cs.glsl").Program;
   ambient_occlusion_compute =
       CShader("resources/engine_code/shaders/ambient_occlusion.cs.glsl")
           .Program;
@@ -220,8 +222,10 @@ void GLContainer::compile_shaders() {
       CShader("resources/engine_code/shaders/invert_mask.cs.glsl").Program;
   mask_by_color_compute =
       CShader("resources/engine_code/shaders/mask_by_color.cs.glsl").Program;
-  // box_blur_compute;
-  // gaussian_blur_compute;
+  box_blur_compute =
+      CShader("resources/engine_code/shaders/box_blur.cs.glsl").Program;
+  gaussian_blur_compute =
+      CShader("resources/engine_code/shaders/gauss_blur.cs.glsl").Program;
   // shift_compute;
 
   // shape functions

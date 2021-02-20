@@ -1534,11 +1534,11 @@ void engine::show_voraldo_menu(bool *show) {
 
         // do the blur operation with the selected values
         if (ImGui::SmallButton(" Box Blur ")) {
-          // GPU_Data.box_blur(blur_radius, touch_alpha, respect_mask);
+          GPU_Data.box_blur(blur_radius, touch_alpha, respect_mask);
         }
         ImGui::SameLine();
         if (ImGui::SmallButton(" Gaussian Blur ")) {
-          // GPU_Data.gaussian_blur(blur_radius, touch_alpha, respect_mask);
+          GPU_Data.gaussian_blur(blur_radius, touch_alpha, respect_mask);
         }
         ImGui::EndTabItem();
       }
@@ -1879,8 +1879,10 @@ void engine::show_voraldo_menu(bool *show) {
                               ImGuiColorEditFlags_AlphaPreviewHalf);
 
         if (ImGui::SmallButton(" Apply GI ")) {
-          // GPU_Data.compute_fake_GI(GI_scale_factor, GI_sky_intensity,
-          // GI_alpha_thresh);
+          GPU_Data.compute_fake_GI(
+              GI_scale_factor,
+              glm::vec4(color0.x, color0.y, color0.z, color0.w),
+              GI_alpha_thresh);
         }
 
         ImGui::Separator();

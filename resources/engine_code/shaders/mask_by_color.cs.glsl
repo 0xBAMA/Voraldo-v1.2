@@ -38,9 +38,10 @@ void main()
   uvec4 pmask = imageLoad(previous_mask, ivec3(gl_GlobalInvocationID.xyz));          // this is the value of the mask before this function was called
   vec4 light = imageLoad(lighting, ivec3(gl_GlobalInvocationID.xyz));  
 
-  bool do_we_mask = false;
   //the logic is relatively simple - if the color matches the criteria, mask it
+  bool do_we_mask = false;
 
+  // rgba
   if(use_r && abs(color.r - pcol.r) < r_var)
       do_we_mask = true;
 
@@ -53,12 +54,12 @@ void main()
   if(use_a && abs(color.a - pcol.a) < a_var)
       do_we_mask = true;
 
-
+  // light channel
   if(use_l && abs(l_val - light.r) < l_var)
       do_we_mask = true;
 
-
   imageStore(current, ivec3(gl_GlobalInvocationID.xyz), pcol); //color can't change as a result of this operation
+
   if(do_we_mask)
     imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), uvec4(mask));
   else

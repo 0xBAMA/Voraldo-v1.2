@@ -18,7 +18,7 @@ irec is_inside(){  // check Documentation tab for details
  temp.color = vec4(0.75,0.35,0.2,0.032); // what should its color be?
  temp.mask  = 0;       // how much do you wish to mask?
 
-	myloc *= 4.;
+	myloc *= -4.;
 
  // your SDF definition goes here
  float a = DE((mod(vec3(0., 0.,-26.)-myloc.xzy,12.)-6.)/10.)*10.;
