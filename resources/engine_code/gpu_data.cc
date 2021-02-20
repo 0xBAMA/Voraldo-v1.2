@@ -1,6 +1,101 @@
 #include "gpu_data.h"
 #include "includes.h"
 
+void GLContainer::log(std::string text) {
+
+  // cout << " issued \"" < < < < "\" at " <<
+}
+void GLContainer::init_basis() {
+  redraw_flag = true;
+  basisx = glm::vec3(-1., 0., 0.);
+  basisy = glm::vec3(0., -1., 0.);
+  basisz = glm::vec3(0., 0., 1.);
+}
+
+// apply the rotation to the basis vectors about the x and y axes
+void GLContainer::rotate_vertical(float amnt) {
+  basisx = glm::rotate(basisx, amnt, glm::vec3(1, 0, 0));
+  basisy = glm::rotate(basisy, amnt, glm::vec3(1, 0, 0));
+  basisz = glm::rotate(basisz, amnt, glm::vec3(1, 0, 0));
+  redraw_flag = true;
+}
+
+void GLContainer::rotate_horizontal(float amnt) {
+  basisx = glm::rotate(basisx, amnt, glm::vec3(0, 1, 0));
+  basisy = glm::rotate(basisy, amnt, glm::vec3(0, 1, 0));
+  basisz = glm::rotate(basisz, amnt, glm::vec3(0, 1, 0));
+  redraw_flag = true;
+}
+
+void GLContainer::rolltate(float amnt) {
+  basisx = glm::rotate(basisx, amnt, glm::vec3(0, 0, 1));
+  basisy = glm::rotate(basisy, amnt, glm::vec3(0, 0, 1));
+  basisz = glm::rotate(basisz, amnt, glm::vec3(0, 0, 1));
+  redraw_flag = true;
+}
+
+void GLContainer::main_block_image() {
+  rendermode = IMAGE;
+  redraw_flag = true;
+}
+
+void GLContainer::main_block_linear_filter() {
+  rendermode = LINEAR;
+  glBindTexture(GL_TEXTURE_3D, textures[2]); // front color
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glBindTexture(GL_TEXTURE_3D, textures[3]); // back color
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glBindTexture(GL_TEXTURE_3D, textures[6]); // lighting
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  redraw_flag = true;
+}
+
+// set nearest filtering
+void GLContainer::main_block_nearest_filter() {
+  rendermode = NEAREST;
+  glBindTexture(GL_TEXTURE_3D, textures[2]);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindTexture(GL_TEXTURE_3D, textures[3]);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glBindTexture(GL_TEXTURE_3D, textures[6]);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  redraw_flag = true;
+}
+
+void GLContainer::color_mipmap_gen() {
+
+  auto t1 = std::chrono::high_resolution_clock::now();
+  // bind front buffer texture to GL_TEXTURE_3D
+  glBindTexture(GL_TEXTURE_3D, textures[2 + tex_offset]);
+  // compute the mipmap
+  glGenerateMipmap(GL_TEXTURE_3D);
+  cout << "main color block mipmap generated in "
+       << std::chrono::duration_cast<std::chrono::microseconds>(
+              std::chrono::high_resolution_clock::now() - t1)
+              .count()
+       << " microseconds" << endl;
+}
+
+void GLContainer::light_mipmap_gen() {
+  // same for the lighting buffer
+  auto t1 = std::chrono::high_resolution_clock::now();
+  glBindTexture(GL_TEXTURE_3D, textures[6]);
+  glGenerateMipmap(GL_TEXTURE_3D);
+  cout << "light block mipmap generated in "
+       << std::chrono::duration_cast<std::chrono::microseconds>(
+              std::chrono::high_resolution_clock::now() - t1)
+              .count()
+       << " microseconds" << endl;
+}
 void GLContainer::display_block() {
 
   // ------------------------
@@ -679,6 +774,8 @@ void GLContainer::view_down() {
   init_basis();
   rotate_vertical(pi / 2.);
 }
+
+// lighting functions
 void GLContainer::lighting_clear(bool use_cache, glm::vec4 clear_level) {
   glUseProgram(lighting_clear_compute);
   redraw_flag = true;

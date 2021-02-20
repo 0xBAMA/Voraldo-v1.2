@@ -13,8 +13,8 @@ public:
     compile_shaders();
     buffer_geometry();
     load_textures();
-    // main_block_image();
     main_block_linear_filter();
+    init_basis();
   }
 
   // display functions
@@ -35,39 +35,17 @@ public:
   unsigned int screen_width, screen_height;
 
   // basis vectors
-  glm::vec3 basisx = glm::vec3(-1., 0., 0.), basisy = glm::vec3(0., -1., 0.),
-            basisz = glm::vec3(0., 0., 1.);
+  glm::vec3 basisx, basisy, basisz;
 
   // initialize the basis vectors
-  void init_basis() {
-    redraw_flag = true;
-    basisx = glm::vec3(-1., 0., 0.);
-    basisy = glm::vec3(0., -1., 0.);
-    basisz = glm::vec3(0., 0., 1.);
-  }
+  void init_basis();
 
   // apply the rotation to the basis vectors about the x and y axes
-  void rotate_vertical(float amnt) {
-    basisx = glm::rotate(basisx, amnt, glm::vec3(1, 0, 0));
-    basisy = glm::rotate(basisy, amnt, glm::vec3(1, 0, 0));
-    basisz = glm::rotate(basisz, amnt, glm::vec3(1, 0, 0));
-    redraw_flag = true;
-  }
+  void rotate_vertical(float amnt);   // up and down arrows
+  void rotate_horizontal(float amnt); // left and right arrows
+  void rolltate(float amnt); // page up / page down to roll about the z axis
 
-  void rotate_horizontal(float amnt) {
-    basisx = glm::rotate(basisx, amnt, glm::vec3(0, 1, 0));
-    basisy = glm::rotate(basisy, amnt, glm::vec3(0, 1, 0));
-    basisz = glm::rotate(basisz, amnt, glm::vec3(0, 1, 0));
-    redraw_flag = true;
-  }
-
-  void rolltate(float amnt) {
-    basisx = glm::rotate(basisx, amnt, glm::vec3(0, 0, 1));
-    basisy = glm::rotate(basisy, amnt, glm::vec3(0, 0, 1));
-    basisz = glm::rotate(basisz, amnt, glm::vec3(0, 0, 1));
-    redraw_flag = true;
-  }
-
+  // cardinal directions
   void view_front();
   void view_back();
   void view_right();
@@ -75,43 +53,10 @@ public:
   void view_up();
   void view_down();
 
-  // use an image object instead of samplers
-  void main_block_image() {
-    rendermode = IMAGE;
-    redraw_flag = true;
-  }
-
-  // set linear filtering
-  void main_block_linear_filter() {
-    rendermode = LINEAR;
-    glBindTexture(GL_TEXTURE_3D, textures[2]); // front color
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_3D, textures[3]); // back color
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_3D, textures[6]); // lighting
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    redraw_flag = true;
-  }
-  // set nearest filtering
-  void main_block_nearest_filter() {
-    rendermode = NEAREST;
-    glBindTexture(GL_TEXTURE_3D, textures[2]);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_3D, textures[3]);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_3D, textures[6]);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    redraw_flag = true;
-  }
+  // to set type of renderer
+  void main_block_image();
+  void main_block_linear_filter();
+  void main_block_nearest_filter();
 
   // settings variables
   glm::vec3 orientation_widget_offset;
@@ -119,7 +64,7 @@ public:
   int color_temp = 6500;
   int tonemap_mode = 2;
 
-  float scale = 7.;
+  float scale = 5.;
   int clickndragx = 0;
   int clickndragy = 0;
 
@@ -247,30 +192,9 @@ private:
   int tex_offset = 0; // the method by which front/back are toggled
 
   // when mipmap_flag is true, this is used in the display function
-  void color_mipmap_gen() {
-    auto t1 = std::chrono::high_resolution_clock::now();
-    // bind front buffer texture to GL_TEXTURE_3D
-    glBindTexture(GL_TEXTURE_3D, textures[2 + tex_offset]);
-    // compute the mipmap
-    glGenerateMipmap(GL_TEXTURE_3D);
-    cout << "main color block mipmap generated in "
-         << std::chrono::duration_cast<std::chrono::microseconds>(
-                std::chrono::high_resolution_clock::now() - t1)
-                .count()
-         << " microseconds" << endl;
-  }
+  void color_mipmap_gen();
+  void light_mipmap_gen();
 
-  void light_mipmap_gen() {
-    // same for the lighting buffer
-    auto t1 = std::chrono::high_resolution_clock::now();
-    glBindTexture(GL_TEXTURE_3D, textures[6]);
-    glGenerateMipmap(GL_TEXTURE_3D);
-    cout << "light block mipmap generated in "
-         << std::chrono::duration_cast<std::chrono::microseconds>(
-                std::chrono::high_resolution_clock::now() - t1)
-                .count()
-         << " microseconds" << endl;
-  }
   // init helper functions
   void compile_shaders();
   void buffer_geometry();
@@ -285,8 +209,8 @@ private:
   void display_block();
   void display_orientation_widget();
 
-  // log of all operations
-  std::vector<std::string> operations;
+  void log(std::string text);          // for operation logging
+  std::vector<std::string> operations; // log of all operations
 
   // OpenGL Data
   // the two versions of the raycast shader
@@ -322,17 +246,17 @@ private:
   GLuint box_blur_compute;
   GLuint gaussian_blur_compute;
   GLuint shift_compute;
-  GLuint copy_loadbuff_compute; // done - for VAT and load
-  GLuint user_compute;          // from the user script editor
+  GLuint copy_loadbuff_compute; // for VAT and load
+  GLuint user_compute;          // user script editor
 
   // Lighting
-  GLuint lighting_clear_compute;       // done
-  GLuint directional_lighting_compute; // done
-  GLuint point_lighting_compute;       // done
+  GLuint lighting_clear_compute;
+  GLuint directional_lighting_compute;
+  GLuint point_lighting_compute;
   GLuint cone_lighting_compute;
-  GLuint ambient_occlusion_compute; // done
+  GLuint ambient_occlusion_compute;
   GLuint fakeGI_compute;
-  GLuint mash_compute; // done
+  GLuint mash_compute;
 };
 
 #endif

@@ -2091,21 +2091,12 @@ void engine::draw_user_editor_tab_contents() {
       *str_end = 0;
     }
 
-    std::string return_current_time_and_date() {
-      auto now = std::chrono::system_clock::now();
-      auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-      std::stringstream ss;
-      ss << std::put_time(std::localtime(&in_time_t), "[%X]");
-      return ss.str();
-    }
-
     void ClearLog() {
       for (int i = 0; i < Items.Size; i++)
         free(Items[i]);
       Items.clear();
       AddLog(std::string(
-                 return_current_time_and_date() +
+                 current_time_and_date() +
                  std::string("Welcome to the Voraldo v1.2 User Shader Console. "
                              "\n'help' for command list."))
                  .c_str());
@@ -2616,16 +2607,14 @@ void engine::handle_events() {
       GPU_Data.scale -= 0.1f; // make scale larger  (offsets are smaller)
     }
 
-    // snap to cardinal directions
     // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1)
-    //   GPU_Data.;
+    //   // put on screen 1
     // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2)
-    //   GPU_Data.theta = pi / 2.0;
+    //   // put on screen 2
     // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3)
-    //   GPU_Data.theta = pi;
-    // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F4)
-    //   GPU_Data.theta = 3.0 * (pi / 2.0);
+    //   // put on screen 3
 
+    // snap to cardinal directions
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1)
       GPU_Data.view_front();
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_2)
