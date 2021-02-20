@@ -80,7 +80,7 @@ public:
                               float point_distance_power);
 
   void compute_cone_lighting(glm::vec3 location, float theta, float phi,
-                             float cone_angle, float initial_intensity,
+                             float cone_angle, glm::vec4 color,
                              float decay_power, float distance_power);
 
   void compute_new_directional_lighting(float theta, float phi,

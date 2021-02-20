@@ -2,9 +2,10 @@
 #include "includes.h"
 
 void GLContainer::log(std::string text) {
-
-  // cout << " issued \"" < < < < "\" at " <<
+  cout << " issued \"" << text << "\" at " << current_time_and_date() << endl;
+  operations.push_back(text);
 }
+
 void GLContainer::init_basis() {
   redraw_flag = true;
   basisx = glm::vec3(-1., 0., 0.);
@@ -777,6 +778,15 @@ void GLContainer::view_down() {
 
 // lighting functions
 void GLContainer::lighting_clear(bool use_cache, glm::vec4 clear_level) {
+  json j;
+  j["type"] = "lighting_clear";
+  j["clear_level"]["r"] = clear_level.r;
+  j["clear_level"]["g"] = clear_level.g;
+  j["clear_level"]["b"] = clear_level.b;
+  j["clear_level"]["a"] = clear_level.a;
+  j["use_cache"] = use_cache;
+  log(j.dump(2));
+
   glUseProgram(lighting_clear_compute);
   redraw_flag = true;
   light_mipmap_flag = true;
@@ -794,9 +804,21 @@ void GLContainer::lighting_clear(bool use_cache, glm::vec4 clear_level) {
 }
 
 void GLContainer::compute_point_lighting(glm::vec3 light_position,
-                                         glm::vec4 color,
-                                         float point_decay_power,
-                                         float point_distance_power) {
+                                         glm::vec4 color, float decay_power,
+                                         float distance_power) {
+  json j;
+  j["type"] = "point_lighting";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["light_position"]["x"] = light_position.x;
+  j["light_position"]["y"] = light_position.y;
+  j["light_position"]["z"] = light_position.z;
+  j["decay_power"] = decay_power;
+  j["distance_power"] = distance_power;
+  log(j.dump(2));
+
   glUseProgram(point_lighting_compute);
   redraw_flag = true;
   light_mipmap_flag = true;
@@ -809,9 +831,9 @@ void GLContainer::compute_point_lighting(glm::vec3 light_position,
   glUniform3f(glGetUniformLocation(point_lighting_compute, "light_position"),
               light_position.x, light_position.y, light_position.z);
   glUniform1f(glGetUniformLocation(point_lighting_compute, "decay_power"),
-              point_decay_power);
+              decay_power);
   glUniform1f(glGetUniformLocation(point_lighting_compute, "distance_power"),
-              point_distance_power);
+              distance_power);
   glUniform4f(glGetUniformLocation(point_lighting_compute, "light_intensity"),
               color.x, color.y, color.z, color[3]);
 
@@ -821,9 +843,21 @@ void GLContainer::compute_point_lighting(glm::vec3 light_position,
 
 void GLContainer::compute_cone_lighting(glm::vec3 location, float theta,
                                         float phi, float cone_angle,
-                                        float initial_intensity,
-                                        float decay_power,
+                                        glm::vec4 color, float decay_power,
                                         float distance_power) {
+  json j;
+  j["type"] = "cone_lighting";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["location"]["x"] = location.x;
+  j["location"]["y"] = location.y;
+  j["location"]["z"] = location.z;
+  j["decay_power"] = decay_power;
+  j["distance_power"] = distance_power;
+  log(j.dump(2));
+
   redraw_flag = true;
   light_mipmap_flag = true;
   glUseProgram(cone_lighting_compute);
@@ -836,8 +870,8 @@ void GLContainer::compute_cone_lighting(glm::vec3 location, float theta,
 
   glUniform1f(glGetUniformLocation(cone_lighting_compute, "cone_angle"),
               cone_angle);
-  glUniform1f(glGetUniformLocation(cone_lighting_compute, "light_intensity"),
-              initial_intensity);
+  glUniform4f(glGetUniformLocation(cone_lighting_compute, "light_intensity"),
+              color.r, color.g, color.b, color.a);
   glUniform1f(glGetUniformLocation(cone_lighting_compute, "decay_power"),
               decay_power);
   glUniform1f(glGetUniformLocation(cone_lighting_compute, "distance_power"),
@@ -852,9 +886,20 @@ void GLContainer::compute_cone_lighting(glm::vec3 location, float theta,
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
-void GLContainer::compute_new_directional_lighting(
-    float theta, float phi, glm::vec4 initial_ray_intensity,
-    float decay_power) {
+void GLContainer::compute_new_directional_lighting(float theta, float phi,
+                                                   glm::vec4 color,
+                                                   float decay_power) {
+
+  json j;
+  j["type"] = "directional_lighting";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["decay_power"] = decay_power;
+  j["theta"] = theta;
+  j["phi"] = phi;
+  log(j.dump(2));
 
   redraw_flag = true;
   light_mipmap_flag = true;
@@ -866,8 +911,7 @@ void GLContainer::compute_new_directional_lighting(
   glUniform1f(glGetUniformLocation(directional_lighting_compute, "uphi"), phi);
   glUniform4f(
       glGetUniformLocation(directional_lighting_compute, "light_intensity"),
-      initial_ray_intensity.r, initial_ray_intensity.g, initial_ray_intensity.b,
-      initial_ray_intensity.a);
+      color.r, color.g, color.b, color.a);
   glUniform1f(glGetUniformLocation(directional_lighting_compute, "decay_power"),
               decay_power);
 
@@ -881,8 +925,17 @@ void GLContainer::compute_new_directional_lighting(
 }
 
 // fake GI
-void GLContainer::compute_fake_GI(float factor, glm::vec4 sky_intensity,
-                                  float thresh) {
+void GLContainer::compute_fake_GI(float factor, glm::vec4 color, float thresh) {
+  json j;
+  j["type"] = "fake_GI";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["threshold"] = thresh;
+  j["factor"] = factor;
+  log(j.dump(2));
+
   redraw_flag = true;
   light_mipmap_flag = true;
 
@@ -893,9 +946,8 @@ void GLContainer::compute_fake_GI(float factor, glm::vec4 sky_intensity,
 
   glUniform1f(glGetUniformLocation(fakeGI_compute, "scale_factor"), factor);
   glUniform1f(glGetUniformLocation(fakeGI_compute, "alpha_thresh"), thresh);
-  glUniform4f(glGetUniformLocation(fakeGI_compute, "sky_intensity"),
-              sky_intensity.r, sky_intensity.g, sky_intensity.b,
-              sky_intensity.a);
+  glUniform4f(glGetUniformLocation(fakeGI_compute, "sky_intensity"), color.r,
+              color.g, color.b, color.a);
 
   // This has a sequential dependence - from the same guy who did the Voxel
   // Automata Terrain, Brent Werness:
@@ -922,6 +974,11 @@ void GLContainer::compute_fake_GI(float factor, glm::vec4 sky_intensity,
 }
 
 void GLContainer::compute_ambient_occlusion(int radius) {
+  json j;
+  j["type"] = "ambient occlusion";
+  j["radius"] = radius;
+  log(j.dump(2));
+
   redraw_flag = true;
   light_mipmap_flag = true;
 
@@ -939,6 +996,10 @@ void GLContainer::compute_ambient_occlusion(int radius) {
 }
 
 void GLContainer::mash() {
+  json j;
+  j["type"] = "mash";
+  log(j.dump(2));
+
   glUseProgram(mash_compute);
 
   glUniform1i(glGetUniformLocation(mash_compute, "current"), 2 + tex_offset);
@@ -952,6 +1013,22 @@ void GLContainer::mash() {
 // SHAPES
 void GLContainer::draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color,
                             bool aabb_draw, int aabb_mask) {
+  json j;
+  j["type"] = "draw_aabb";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["min"]["x"] = min.x;
+  j["min"]["y"] = min.y;
+  j["min"]["z"] = min.z;
+  j["max"]["x"] = max.x;
+  j["max"]["y"] = max.y;
+  j["max"]["z"] = max.z;
+  j["draw"] = aabb_draw;
+  j["mask"] = aabb_mask;
+  log(j.dump(2));
+
   // need to redraw after any drawing operation is done
   redraw_flag = true;
   color_mipmap_flag = true;
@@ -986,6 +1063,39 @@ void GLContainer::draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c,
                               glm::vec3 d, glm::vec3 e, glm::vec3 f,
                               glm::vec3 g, glm::vec3 h, glm::vec4 color,
                               bool cuboid_draw, int cuboid_mask) {
+  json j;
+  j["type"] = "draw_cuboid";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["a"]["x"] = a.x;
+  j["a"]["y"] = a.y;
+  j["a"]["z"] = a.z;
+  j["b"]["x"] = b.x;
+  j["b"]["y"] = b.y;
+  j["b"]["z"] = b.z;
+  j["c"]["x"] = c.x;
+  j["c"]["y"] = c.y;
+  j["c"]["z"] = c.z;
+  j["d"]["x"] = d.x;
+  j["d"]["y"] = d.y;
+  j["d"]["z"] = d.z;
+  j["e"]["x"] = e.x;
+  j["e"]["y"] = e.y;
+  j["e"]["z"] = e.z;
+  j["f"]["x"] = f.x;
+  j["f"]["y"] = f.y;
+  j["f"]["z"] = f.z;
+  j["g"]["x"] = g.x;
+  j["g"]["y"] = g.y;
+  j["g"]["z"] = g.z;
+  j["h"]["x"] = h.x;
+  j["h"]["y"] = h.y;
+  j["h"]["z"] = h.z;
+  j["draw"] = cuboid_draw;
+  j["mask"] = cuboid_mask;
+  log(j.dump(2));
   redraw_flag = true;
   color_mipmap_flag = true;
   swap_blocks();
@@ -1020,6 +1130,23 @@ void GLContainer::draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c,
 
 void GLContainer::draw_cylinder(glm::vec3 bvec, glm::vec3 tvec, float radius,
                                 glm::vec4 color, bool draw, int mask) {
+  json j;
+  j["type"] = "draw_aabb";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["tvec"]["x"] = tvec.x;
+  j["tvec"]["y"] = tvec.y;
+  j["tvec"]["z"] = tvec.z;
+  j["bvec"]["x"] = bvec.x;
+  j["bvec"]["y"] = bvec.y;
+  j["bvec"]["z"] = bvec.z;
+  j["radius"] = radius;
+  j["draw"] = draw;
+  j["mask"] = mask;
+  log(j.dump(2));
+
   redraw_flag = true;
   color_mipmap_flag = true;
   swap_blocks();
