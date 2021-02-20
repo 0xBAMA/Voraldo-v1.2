@@ -1589,7 +1589,7 @@ void engine::show_voraldo_menu(bool *show) {
         }
 
         if (ImGui::SmallButton(" Shift ")) {
-          // GPU_Data.shift(glm::ivec3(xmove,ymove,zmove), loop, shift_mode);
+          GPU_Data.shift(glm::ivec3(xmove, ymove, zmove), loop, shift_mode);
         }
         ImGui::EndTabItem();
       }

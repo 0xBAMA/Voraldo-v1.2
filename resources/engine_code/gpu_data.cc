@@ -226,7 +226,8 @@ void GLContainer::compile_shaders() {
       CShader("resources/engine_code/shaders/box_blur.cs.glsl").Program;
   gaussian_blur_compute =
       CShader("resources/engine_code/shaders/gauss_blur.cs.glsl").Program;
-  // shift_compute;
+  shift_compute =
+      CShader("resources/engine_code/shaders/shift.cs.glsl").Program;
 
   // shape functions
   aabb_compute = CShader("resources/engine_code/shaders/aabb.cs.glsl").Program;
