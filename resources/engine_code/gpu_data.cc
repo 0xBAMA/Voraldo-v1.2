@@ -653,6 +653,32 @@ void GLContainer::load_textures() {
   light_mipmap_gen();
 }
 
+// view rotation functions
+void GLContainer::view_front() { init_basis(); }
+
+void GLContainer::view_back() {
+  init_basis();
+  rotate_horizontal(pi);
+}
+
+void GLContainer::view_right() {
+  init_basis();
+  rotate_horizontal(pi / 2.);
+}
+
+void GLContainer::view_left() {
+  init_basis();
+  rotate_horizontal(-pi / 2.);
+}
+
+void GLContainer::view_up() {
+  init_basis();
+  rotate_vertical(-pi / 2.);
+}
+void GLContainer::view_down() {
+  init_basis();
+  rotate_vertical(pi / 2.);
+}
 void GLContainer::lighting_clear(bool use_cache, glm::vec4 clear_level) {
   glUseProgram(lighting_clear_compute);
   redraw_flag = true;

@@ -2616,6 +2616,29 @@ void engine::handle_events() {
       GPU_Data.scale -= 0.1f; // make scale larger  (offsets are smaller)
     }
 
+    // snap to cardinal directions
+    // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1)
+    //   GPU_Data.;
+    // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2)
+    //   GPU_Data.theta = pi / 2.0;
+    // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3)
+    //   GPU_Data.theta = pi;
+    // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F4)
+    //   GPU_Data.theta = 3.0 * (pi / 2.0);
+
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1)
+      GPU_Data.view_front();
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_2)
+      GPU_Data.view_right();
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_3)
+      GPU_Data.view_back();
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_4)
+      GPU_Data.view_left();
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_5)
+      GPU_Data.view_up();
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_6)
+      GPU_Data.view_down();
+
     // till I come up with a good way to maintain state for the mouse click and
     // drag, this is how that offset is controlled
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_h) {

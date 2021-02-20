@@ -38,8 +38,15 @@ public:
   glm::vec3 basisx = glm::vec3(-1., 0., 0.), basisy = glm::vec3(0., -1., 0.),
             basisz = glm::vec3(0., 0., 1.);
 
-  // apply the rotation to the basis vectors about the x and y axes
+  // initialize the basis vectors
+  void init_basis() {
+    redraw_flag = true;
+    basisx = glm::vec3(-1., 0., 0.);
+    basisy = glm::vec3(0., -1., 0.);
+    basisz = glm::vec3(0., 0., 1.);
+  }
 
+  // apply the rotation to the basis vectors about the x and y axes
   void rotate_vertical(float amnt) {
     basisx = glm::rotate(basisx, amnt, glm::vec3(1, 0, 0));
     basisy = glm::rotate(basisy, amnt, glm::vec3(1, 0, 0));
@@ -60,6 +67,13 @@ public:
     basisz = glm::rotate(basisz, amnt, glm::vec3(0, 0, 1));
     redraw_flag = true;
   }
+
+  void view_front();
+  void view_back();
+  void view_right();
+  void view_left();
+  void view_up();
+  void view_down();
 
   // use an image object instead of samplers
   void main_block_image() {
@@ -270,6 +284,9 @@ private:
   // display helper functions
   void display_block();
   void display_orientation_widget();
+
+  // log of all operations
+  std::vector<std::string> operations;
 
   // OpenGL Data
   // the two versions of the raycast shader
