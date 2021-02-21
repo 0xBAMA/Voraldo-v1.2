@@ -785,7 +785,7 @@ void GLContainer::lighting_clear(bool use_cache, glm::vec4 clear_level) {
   j["clear_level"]["b"] = clear_level.b;
   j["clear_level"]["a"] = clear_level.a;
   j["use_cache"] = use_cache;
-  log(j.dump(2));
+  log(j.dump());
 
   glUseProgram(lighting_clear_compute);
   redraw_flag = true;
@@ -817,7 +817,7 @@ void GLContainer::compute_point_lighting(glm::vec3 light_position,
   j["light_position"]["z"] = light_position.z;
   j["decay_power"] = decay_power;
   j["distance_power"] = distance_power;
-  log(j.dump(2));
+  log(j.dump());
 
   glUseProgram(point_lighting_compute);
   redraw_flag = true;
@@ -856,7 +856,7 @@ void GLContainer::compute_cone_lighting(glm::vec3 location, float theta,
   j["location"]["z"] = location.z;
   j["decay_power"] = decay_power;
   j["distance_power"] = distance_power;
-  log(j.dump(2));
+  log(j.dump());
 
   redraw_flag = true;
   light_mipmap_flag = true;
@@ -899,7 +899,7 @@ void GLContainer::compute_new_directional_lighting(float theta, float phi,
   j["decay_power"] = decay_power;
   j["theta"] = theta;
   j["phi"] = phi;
-  log(j.dump(2));
+  log(j.dump());
 
   redraw_flag = true;
   light_mipmap_flag = true;
@@ -934,7 +934,7 @@ void GLContainer::compute_fake_GI(float factor, glm::vec4 color, float thresh) {
   j["color"]["a"] = color.a;
   j["threshold"] = thresh;
   j["factor"] = factor;
-  log(j.dump(2));
+  log(j.dump());
 
   redraw_flag = true;
   light_mipmap_flag = true;
@@ -977,7 +977,7 @@ void GLContainer::compute_ambient_occlusion(int radius) {
   json j;
   j["type"] = "ambient occlusion";
   j["radius"] = radius;
-  log(j.dump(2));
+  log(j.dump());
 
   redraw_flag = true;
   light_mipmap_flag = true;
@@ -998,7 +998,7 @@ void GLContainer::compute_ambient_occlusion(int radius) {
 void GLContainer::mash() {
   json j;
   j["type"] = "mash";
-  log(j.dump(2));
+  log(j.dump());
 
   glUseProgram(mash_compute);
 
@@ -1027,7 +1027,7 @@ void GLContainer::draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color,
   j["max"]["z"] = max.z;
   j["draw"] = aabb_draw;
   j["mask"] = aabb_mask;
-  log(j.dump(2));
+  log(j.dump());
 
   // need to redraw after any drawing operation is done
   redraw_flag = true;
@@ -1095,7 +1095,8 @@ void GLContainer::draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c,
   j["h"]["z"] = h.z;
   j["draw"] = cuboid_draw;
   j["mask"] = cuboid_mask;
-  log(j.dump(2));
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
   swap_blocks();
@@ -1131,7 +1132,7 @@ void GLContainer::draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c,
 void GLContainer::draw_cylinder(glm::vec3 bvec, glm::vec3 tvec, float radius,
                                 glm::vec4 color, bool draw, int mask) {
   json j;
-  j["type"] = "draw_aabb";
+  j["type"] = "draw_cylinder";
   j["color"]["r"] = color.r;
   j["color"]["g"] = color.g;
   j["color"]["b"] = color.b;
@@ -1145,7 +1146,7 @@ void GLContainer::draw_cylinder(glm::vec3 bvec, glm::vec3 tvec, float radius,
   j["radius"] = radius;
   j["draw"] = draw;
   j["mask"] = mask;
-  log(j.dump(2));
+  log(j.dump());
 
   redraw_flag = true;
   color_mipmap_flag = true;
@@ -1180,6 +1181,25 @@ void GLContainer::draw_cylinder(glm::vec3 bvec, glm::vec3 tvec, float radius,
 void GLContainer::draw_ellipsoid(glm::vec3 center, glm::vec3 radii,
                                  glm::vec3 rotation, glm::vec4 color, bool draw,
                                  int mask) {
+
+  json j;
+  j["type"] = "draw_ellipsoid";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["center"]["x"] = center.x;
+  j["center"]["y"] = center.y;
+  j["center"]["z"] = center.z;
+  j["radii"]["x"] = radii.x;
+  j["radii"]["y"] = radii.y;
+  j["radii"]["z"] = radii.z;
+  j["rotation"]["x"] = radii.x;
+  j["rotation"]["y"] = radii.y;
+  j["rotation"]["z"] = radii.z;
+  j["draw"] = draw;
+  j["mask"] = mask;
+  log(j.dump());
 
   redraw_flag = true;
   color_mipmap_flag = true;
@@ -1216,6 +1236,28 @@ void GLContainer::draw_ellipsoid(glm::vec3 center, glm::vec3 radii,
 void GLContainer::draw_grid(glm::ivec3 spacing, glm::ivec3 width,
                             glm::ivec3 offsets, glm::vec3 rot, glm::vec4 color,
                             bool draw, int mask) {
+  json j;
+  j["type"] = "draw_grid";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["spacing"]["x"] = spacing.x;
+  j["spacing"]["y"] = spacing.y;
+  j["spacing"]["z"] = spacing.z;
+  j["width"]["x"] = width.x;
+  j["width"]["y"] = width.y;
+  j["width"]["z"] = width.z;
+  j["rotation"]["x"] = rot.x;
+  j["rotation"]["y"] = rot.y;
+  j["rotation"]["z"] = rot.z;
+  j["offsets"]["x"] = offsets.x;
+  j["offsets"]["y"] = offsets.y;
+  j["offsets"]["z"] = offsets.z;
+  j["draw"] = draw;
+  j["mask"] = mask;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
   swap_blocks();
@@ -1251,6 +1293,18 @@ void GLContainer::draw_grid(glm::ivec3 spacing, glm::ivec3 width,
 // heightmap
 void GLContainer::draw_heightmap(float height_scale, bool height_color,
                                  glm::vec4 color, bool draw, int mask) {
+  json j;
+  j["type"] = "draw_heightmap";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["height_scale"] = height_scale;
+  j["height_color"] = height_color;
+  j["draw"] = draw;
+  j["mask"] = mask;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
   swap_blocks();
@@ -1286,6 +1340,35 @@ void GLContainer::draw_regular_icosahedron(
     glm::vec3 center_point, glm::vec4 vertex_material, double verticies_radius,
     glm::vec4 edge_material, double edge_thickness, glm::vec4 face_material,
     float face_thickness, bool draw, bool mask) {
+
+  { // scoped to prevent issues with below
+    json j;
+    j["type"] = "draw_icosahedron";
+    j["vertex_color"]["r"] = vertex_material.r;
+    j["vertex_color"]["g"] = vertex_material.g;
+    j["vertex_color"]["b"] = vertex_material.b;
+    j["vertex_color"]["a"] = vertex_material.a;
+    j["vertex_radius"] = verticies_radius;
+    j["edge_color"]["r"] = edge_material.r;
+    j["edge_color"]["g"] = edge_material.g;
+    j["edge_color"]["b"] = edge_material.b;
+    j["edge_color"]["a"] = edge_material.a;
+    j["edge_thickness"] = edge_thickness;
+    j["face_color"]["r"] = face_material.r;
+    j["face_color"]["g"] = face_material.g;
+    j["face_color"]["b"] = face_material.b;
+    j["face_color"]["a"] = face_material.a;
+    j["face_thickness"] = face_thickness;
+    j["center_point"]["x"] = center_point.x;
+    j["center_point"]["y"] = center_point.y;
+    j["center_point"]["z"] = center_point.z;
+    j["x_rot"]["x"] = x_rot;
+    j["y_rot"]["y"] = y_rot;
+    j["z_rot"]["z"] = z_rot;
+    j["draw"] = draw;
+    j["mask"] = mask;
+    log(j.dump());
+  }
 
   double phi = (1 + std::sqrt(5.0)) / 2.0;
 
@@ -1438,6 +1521,20 @@ void GLContainer::draw_regular_icosahedron(
 // sphere
 void GLContainer::draw_sphere(glm::vec3 location, float radius, glm::vec4 color,
                               bool draw, int mask) {
+  json j;
+  j["type"] = "draw_sphere";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["location"]["x"] = location.x;
+  j["location"]["y"] = location.y;
+  j["location"]["z"] = location.z;
+  j["radius"] = radius;
+  j["draw"] = draw;
+  j["mask"] = mask;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
 
@@ -1469,6 +1566,24 @@ void GLContainer::draw_sphere(glm::vec3 location, float radius, glm::vec4 color,
 void GLContainer::draw_tube(glm::vec3 bvec, glm::vec3 tvec, float inner_radius,
                             float outer_radius, glm::vec4 color, bool draw,
                             int mask) {
+  json j;
+  j["type"] = "draw_tube";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["bvec"]["x"] = bvec.x;
+  j["bvec"]["y"] = bvec.y;
+  j["bvec"]["z"] = bvec.z;
+  j["tvec"]["x"] = tvec.x;
+  j["tvec"]["y"] = tvec.y;
+  j["tvec"]["z"] = tvec.z;
+  j["inner_radius"] = inner_radius;
+  j["outer_radius"] = outer_radius;
+  j["draw"] = draw;
+  j["mask"] = mask;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
 
@@ -1502,6 +1617,26 @@ void GLContainer::draw_tube(glm::vec3 bvec, glm::vec3 tvec, float inner_radius,
 void GLContainer::draw_triangle(glm::vec3 point1, glm::vec3 point2,
                                 glm::vec3 point3, float thickness,
                                 glm::vec4 color, bool draw, int mask) {
+  json j;
+  j["type"] = "draw_triangle";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["point1"]["x"] = point1.x;
+  j["point1"]["y"] = point1.y;
+  j["point1"]["z"] = point1.z;
+  j["point2"]["x"] = point2.x;
+  j["point2"]["y"] = point2.y;
+  j["point2"]["z"] = point2.z;
+  j["point3"]["x"] = point3.x;
+  j["point3"]["y"] = point3.y;
+  j["point3"]["z"] = point3.z;
+  j["thickness"] = thickness;
+  j["draw"] = draw;
+  j["mask"] = mask;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
 
@@ -1538,6 +1673,11 @@ void GLContainer::draw_triangle(glm::vec3 point1, glm::vec3 point2,
 
 // clear all
 void GLContainer::clear_all(bool respect_mask) {
+  json j;
+  j["type"] = "clear_all";
+  j["respect_mask"] = respect_mask;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
 
@@ -1563,6 +1703,10 @@ void GLContainer::clear_all(bool respect_mask) {
 
 // unmask all
 void GLContainer::unmask_all() {
+  json j;
+  j["type"] = "unmask_all";
+  log(j.dump());
+
   // don't need to redraw
   swap_blocks();
   glUseProgram(unmask_all_compute);
@@ -1583,6 +1727,10 @@ void GLContainer::unmask_all() {
 
 // invert mask
 void GLContainer::invert_mask() {
+  json j;
+  j["type"] = "invert_mask";
+  log(j.dump());
+
   // don't need to redraw
   swap_blocks();
   glUseProgram(invert_mask_compute);
@@ -1606,6 +1754,26 @@ void GLContainer::mask_by_color(bool r, bool g, bool b, bool a, bool l,
                                 glm::vec4 color, float l_val, float r_var,
                                 float g_var, float b_var, float a_var,
                                 float l_var, int amt) {
+
+  json j;
+  j["type"] = "mask_by_color";
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["r"] = r;
+  j["g"] = g;
+  j["b"] = b;
+  j["a"] = a;
+  j["l"] = l;
+  j["l_val"] = l_val;
+  j["l_var"] = l_var;
+  j["r_var"] = r_var;
+  j["g_var"] = g_var;
+  j["b_var"] = b_var;
+  j["a_var"] = a_var;
+  log(j.dump());
+
   // don't need to redraw
   swap_blocks();
   glUseProgram(mask_by_color_compute);
@@ -1646,6 +1814,13 @@ void GLContainer::mask_by_color(bool r, bool g, bool b, bool a, bool l,
 
 // box blur
 void GLContainer::box_blur(int radius, bool touch_alpha, bool respect_mask) {
+  json j;
+  j["type"] = "box_blur";
+  j["radius"] = radius;
+  j["touch_alpha"] = touch_alpha;
+  j["respect_mask"] = respect_mask;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
   swap_blocks();
@@ -1674,6 +1849,13 @@ void GLContainer::box_blur(int radius, bool touch_alpha, bool respect_mask) {
 // gaussian blur
 void GLContainer::gaussian_blur(int radius, bool touch_alpha,
                                 bool respect_mask) {
+  json j;
+  j["type"] = "gaussian_blur";
+  j["radius"] = radius;
+  j["touch_alpha"] = touch_alpha;
+  j["respect_mask"] = respect_mask;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
 
@@ -1713,6 +1895,15 @@ void GLContainer::limiter() {
 
 // shifting
 void GLContainer::shift(glm::ivec3 movement, bool loop, int mode) {
+  json j;
+  j["type"] = "shift";
+  j["loop"] = loop;
+  j["mode"] = mode;
+  j["movement"]["x"] = movement.x;
+  j["movement"]["y"] = movement.y;
+  j["movement"]["z"] = movement.z;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
   swap_blocks();
@@ -1739,6 +1930,10 @@ void GLContainer::shift(glm::ivec3 movement, bool loop, int mode) {
 }
 
 std::string GLContainer::compile_user_script(std::string text) {
+  json j;
+  j["type"] = "compile_user_script";
+  j["text"] = text;
+  log(j.dump());
 
   std::ifstream header_file{
       "resources/engine_code/shaders/user_script_header.h.glsl"};
@@ -1767,6 +1962,10 @@ std::string GLContainer::compile_user_script(std::string text) {
 }
 
 std::string GLContainer::run_user_script() {
+  json j;
+  j["type"] = "run_user_script";
+  log(j.dump());
+
   std::stringstream report;
   auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -1799,6 +1998,10 @@ std::string GLContainer::run_user_script() {
 }
 
 void GLContainer::copy_loadbuffer(bool respect_mask) {
+
+  // doesn't make sense to make this available to the JSON thing because it is
+  // only available through the load and VAT
+
   redraw_flag = true;
   color_mipmap_flag = true;
   swap_blocks();
@@ -1829,6 +2032,34 @@ std::string GLContainer::vat(float flip, std::string rule, int initmode,
                              glm::vec4 color2, float lambda, float beta,
                              float mag, bool respect_mask, glm::bvec3 mins,
                              glm::bvec3 maxs) {
+  json j;
+  j["type"] = "vat";
+  j["color0"]["r"] = color0.r;
+  j["color0"]["g"] = color0.g;
+  j["color0"]["b"] = color0.b;
+  j["color0"]["a"] = color0.a;
+  j["color1"]["r"] = color1.r;
+  j["color1"]["g"] = color1.g;
+  j["color1"]["b"] = color1.b;
+  j["color1"]["a"] = color1.a;
+  j["color2"]["r"] = color2.r;
+  j["color2"]["g"] = color2.g;
+  j["color2"]["b"] = color2.b;
+  j["color2"]["a"] = color2.a;
+  j["lambda"] = lambda;
+  j["beta"] = beta;
+  j["mag"] = mag;
+  j["rule"] = rule;
+  j["init_mode"] = initmode;
+  j["respect_mask"] = respect_mask;
+  j["mins"]["x"] = mins.x;
+  j["mins"]["y"] = mins.y;
+  j["mins"]["z"] = mins.z;
+  j["maxs"]["x"] = maxs.x;
+  j["maxs"]["y"] = maxs.y;
+  j["maxs"]["z"] = maxs.z;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
 
@@ -1903,6 +2134,11 @@ std::string GLContainer::vat(float flip, std::string rule, int initmode,
 
 // load - set redraw_flag to true
 void GLContainer::load(std::string filename, bool respect_mask) {
+  json j;
+  j["type"] = "load";
+  j["filename"] = filename;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
 
@@ -1929,6 +2165,11 @@ void GLContainer::load(std::string filename, bool respect_mask) {
 
 // save
 void GLContainer::save(std::string filename) {
+  json j;
+  j["type"] = "save";
+  j["filename"] = filename;
+  log(j.dump());
+
   // don't need to redraw
   std::vector<unsigned char> image_bytes_to_save;
   unsigned width, height;
@@ -1954,6 +2195,10 @@ void GLContainer::save(std::string filename) {
 
 // functions to generate new heightmaps
 void GLContainer::generate_heightmap_diamond_square() {
+  json j;
+  j["type"] = "generate_heightmap_diamond_square";
+  log(j.dump());
+
   long unsigned int seed =
       std::chrono::system_clock::now().time_since_epoch().count();
 
@@ -1996,6 +2241,10 @@ void GLContainer::generate_heightmap_diamond_square() {
 }
 
 void GLContainer::generate_heightmap_perlin() {
+  json j;
+  j["type"] = "generate_heightmap_perlin";
+  log(j.dump());
+
   std::vector<unsigned char> data;
 
   PerlinNoise p;
@@ -2028,6 +2277,10 @@ void GLContainer::generate_heightmap_perlin() {
 }
 
 void GLContainer::generate_heightmap_XOR() {
+  json j;
+  j["type"] = "generate_heightmap_xor";
+  log(j.dump());
+
   // create the byte array
   std::vector<unsigned char> data;
 
@@ -2052,6 +2305,13 @@ void GLContainer::generate_heightmap_XOR() {
 void GLContainer::generate_perlin_noise(float xscale = 0.014,
                                         float yscale = 0.04,
                                         float zscale = 0.014) {
+  json j;
+  j["type"] = "generate_perlin_noise";
+  j["xscale"] = xscale;
+  j["yscale"] = yscale;
+  j["zscale"] = zscale;
+  log(j.dump());
+
   PerlinNoise p;
   std::vector<unsigned char> data;
 
@@ -2075,6 +2335,19 @@ void GLContainer::generate_perlin_noise(float xscale = 0.014,
 
 void GLContainer::draw_noise(float low_thresh, float high_thresh, bool smooth,
                              glm::vec4 color, bool draw, int mask) {
+  json j;
+  j["type"] = "draw_noise";
+  j["low_thresh"] = low_thresh;
+  j["high_thresh"] = high_thresh;
+  j["smooth"] = smooth;
+  j["color"]["r"] = color.r;
+  j["color"]["g"] = color.g;
+  j["color"]["b"] = color.b;
+  j["color"]["a"] = color.a;
+  j["draw"] = draw;
+  j["mask"] = mask;
+  log(j.dump());
+
   redraw_flag = true;
   color_mipmap_flag = true;
 
