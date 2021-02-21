@@ -210,6 +210,8 @@ private:
   void display_orientation_widget();
 
   void log(std::string text);          // for operation logging
+  void clear_log();                    // clear the log
+  void save_log(std::string filename); // save the current log
   std::vector<std::string> operations; // log of all operations
 
   // OpenGL Data

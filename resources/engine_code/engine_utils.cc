@@ -1628,7 +1628,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         OrangeText("FILES IN SAVES FOLDER");
         static int listbox_select_index = 1;
-        ImGui::ListBox(" ", &listbox_select_index, listbox_items, i, 10);
+        ImGui::ListBox(" ", &listbox_select_index, listbox_items, i, 18);
 
         OrangeText("ENTER FILENAME TO SAVE");
         ImGui::InputTextWithHint(".png", "", str0, IM_ARRAYSIZE(str0));
@@ -1664,6 +1664,16 @@ void engine::show_voraldo_menu(bool *show) {
         }
         ImGui::EndTabItem();
       }
+      if (ImGui::BeginTabItem(" Log ")) {
+
+        // show the log
+        // button to clear the log
+        // button to save log to file
+        // button to load a log from file
+
+        ImGui::EndTabItem();
+      }
+
       ImGui::EndTabBar();
       ImGui::EndTabItem();
     }

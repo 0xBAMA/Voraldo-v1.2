@@ -6,6 +6,20 @@ void GLContainer::log(std::string text) {
   operations.push_back(text);
 }
 
+void GLContainer::clear_log() { operations.clear(); }
+
+void GLContainer::save_log(std::string filename) {
+  json j;
+
+  j["num_operations"] = operations.size();
+  for (unsigned int i = 0; i < operations.size(); i++) {
+    j[std::to_string(i)] = operations[i];
+  }
+  // open the file and dump it
+  std::ofstream file("logs/" + filename);
+  file << j.dump();
+}
+
 void GLContainer::init_basis() {
   redraw_flag = true;
   basisx = glm::vec3(-1., 0., 0.);
@@ -126,7 +140,7 @@ void GLContainer::display_block() {
 
     auto t1 = std::chrono::high_resolution_clock::now();
 
-    // regen mipmap if needed
+    // regen mipmaps if needed
     if (color_mipmap_flag) {
       // regnerate the color mipmap
       color_mipmap_gen();
