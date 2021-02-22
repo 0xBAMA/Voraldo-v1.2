@@ -1593,6 +1593,29 @@ void engine::show_voraldo_menu(bool *show) {
         }
         ImGui::EndTabItem();
       }
+      if (ImGui::BeginTabItem(" Log ")) {
+
+        // show the log
+
+        // button to clear the log
+        if (ImGui::SmallButton(" Clear Log ")) {
+          GPU_Data.clear_log();
+        }
+
+        // button to save log to file
+        // > add text entry for filename
+        if (ImGui::SmallButton(" Save Log ")) {
+          GPU_Data.save_log("logs/log.txt");
+        }
+
+        // button to load a log from file
+        // > add text entry for filename
+        // if (ImGui::SmallButton()) {
+        // GPU_Data.load()
+        // }
+
+        ImGui::EndTabItem();
+      }
       if (ImGui::BeginTabItem(" Copy/Paste ")) {
         ImGui::EndTabItem();
       }
@@ -1662,15 +1685,6 @@ void engine::show_voraldo_menu(bool *show) {
 
           update_listbox_items();
         }
-        ImGui::EndTabItem();
-      }
-      if (ImGui::BeginTabItem(" Log ")) {
-
-        // show the log
-        // button to clear the log
-        // button to save log to file
-        // button to load a log from file
-
         ImGui::EndTabItem();
       }
 
@@ -2005,6 +2019,14 @@ void engine::show_voraldo_menu(bool *show) {
       if (ImGui::SmallButton(" Texture (Linear) ")) {
         GPU_Data.main_block_linear_filter();
       }
+      if (ImGui::SmallButton(" Swap Blocks ")) {
+        GPU_Data.swap_blocks();
+        GPU_Data.set_redraw_flag();
+      }
+      ImGui::SameLine();
+      HelpMarker("Swapping blocks will undo when used once, and redo when used "
+                 "again. It toggles front and back buffers, so it can't do "
+                 "more than one step of undo.");
 
       OrangeText("ORIENTATION WIDGET");
       // x and y adjustment

@@ -20,6 +20,16 @@ void GLContainer::save_log(std::string filename) {
   file << j.dump();
 }
 
+// void GLContainer::load_log(std::string filename) { // load and execute log
+// load the file as a string
+// make json out of string
+// pass to the animation worker class
+// }
+
+// void GLContainer::run_list(json j) {
+// j contains a list of operations to execute
+// }
+
 void GLContainer::init_basis() {
   redraw_flag = true;
   basisx = glm::vec3(-1., 0., 0.);
@@ -573,7 +583,6 @@ void GLContainer::load_textures() {
   std::default_random_engine generator;
   std::uniform_int_distribution<unsigned char> distribution(0, 255);
 
-  random.resize(8 * screen_height * screen_width * SSFACTOR * SSFACTOR, 64);
   light.resize(4 * DIM * DIM * DIM, 64); // fill the array with '64'
   zeroes.resize(4 * DIM * DIM * DIM, 0); // fill the array with zeroes
 
@@ -587,9 +596,6 @@ void GLContainer::load_textures() {
         {
           ucxor.push_back(((unsigned char)(x % 256) ^ (unsigned char)(y % 256) ^
                            (unsigned char)(z % 256)));
-          // light.push_back(i - 3 % 4 ? (i % 2 ? 64. : 128.) *
-          //                            p.noise(x * 0.01, y * 0.01, z * 0.01)
-          //                           : 255);
         }
       }
     }
@@ -619,8 +625,7 @@ void GLContainer::load_textures() {
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_RECTANGLE, textures[0]);
   glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA16, screen_width * SSFACTOR,
-               screen_height * SSFACTOR, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-               &random[0]);
+               screen_height * SSFACTOR, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glBindImageTexture(
       0, textures[0], 0, GL_TRUE, 0, GL_READ_WRITE,
       GL_RGBA16); // 16 bits, hopefully higher precision is helpful

@@ -15,6 +15,7 @@ public:
     load_textures();
     main_block_linear_filter();
     init_basis();
+    animation_worker.set_parent(this);
   }
 
   // display functions
@@ -27,6 +28,7 @@ public:
 
   // swapping blocks
   void swap_blocks() { tex_offset = tex_offset == 1 ? 0 : 1; }
+  void set_redraw_flag() { redraw_flag = true; }
 
   // OpenGL clear color
   glm::vec4 clear_color;
@@ -62,7 +64,7 @@ public:
   glm::vec3 orientation_widget_offset;
   float alpha_correction_power = 2.0;
   int color_temp = 6500;
-  int tonemap_mode = 2;
+  int tonemap_mode = 1;
 
   float scale = 5.;
   int clickndragx = 0;
@@ -180,6 +182,23 @@ public:
                   glm::bvec3 maxs);
 
   // --
+  // the worker class closely integrates here
+  class worker {
+  public:
+    GLContainer *parent;
+    void set_parent(GLContainer *my_parent) { parent = my_parent; }
+
+    bool pop(); // do an operation, report if oplist is empty
+    std::vector<json> oplist;
+  } animation_worker;
+
+  void log(std::string text);          // for operation logging
+  void clear_log();                    // clear the log
+  void save_log(std::string filename); // save the current log
+  void
+  load_log(std::string filename); // load log and add to animation worker's list
+  // void run_list(json j);               // list of operations in json
+  std::vector<std::string> operations; // log of all operations
 
 private:
   enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = LINEAR;
@@ -208,11 +227,6 @@ private:
   // display helper functions
   void display_block();
   void display_orientation_widget();
-
-  void log(std::string text);          // for operation logging
-  void clear_log();                    // clear the log
-  void save_log(std::string filename); // save the current log
-  std::vector<std::string> operations; // log of all operations
 
   // OpenGL Data
   // the two versions of the raycast shader
