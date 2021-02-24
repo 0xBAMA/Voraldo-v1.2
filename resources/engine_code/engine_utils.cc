@@ -316,10 +316,12 @@ void engine::imgui_setup() {
 
   ImGuiStyle &style = ImGui::GetStyle();
 
+  style.TabRounding = 2;
   style.FrameRounding = 2;
-  style.WindowPadding.x = 2;
-  style.WindowPadding.y = 2;
-  style.FramePadding.x = 6;
+  style.WindowPadding.x = 0;
+  style.WindowPadding.y = 0;
+  style.FramePadding.x = 1;
+  style.FramePadding.y = 0;
   style.IndentSpacing = 8;
   style.WindowRounding = 3;
   style.ScrollbarSize = 10;
@@ -1605,7 +1607,7 @@ void engine::show_voraldo_menu(bool *show) {
         // button to save log to file
         // > add text entry for filename
         if (ImGui::SmallButton(" Save Log ")) {
-          GPU_Data.save_log("logs/log.txt");
+          GPU_Data.save_log("log.txt");
         }
 
         // button to load a log from file
@@ -1748,7 +1750,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::EndTabItem();
       }
 
-      if (ImGui::BeginTabItem(" Point ")) {
+      if (ImGui::BeginTabItem(" Direct ")) {
 
         WrappedText(" Point Light ");
         ImGui::SameLine();
@@ -1763,36 +1765,37 @@ void engine::show_voraldo_menu(bool *show) {
             "approximate inverse square at the default value of 2.0). ");
 
         OrangeText("POSITION");
-        ImGui::SliderFloat("loc x", &point_light_position.x, -100, DIM + 100,
+        ImGui::SliderFloat("x", &point_light_position.x, -100, DIM + 100,
                            "%.3f");
-        ImGui::SliderFloat("loc y", &point_light_position.y, -100, DIM + 100,
+        ImGui::SliderFloat("y", &point_light_position.y, -100, DIM + 100,
                            "%.3f");
-        ImGui::SliderFloat("loc z", &point_light_position.z, -100, DIM + 100,
+        ImGui::SliderFloat("z", &point_light_position.z, -100, DIM + 100,
                            "%.3f");
         OrangeText("PARAMETERS");
         // ImGui::SliderFloat("value", &point_intensity, 0, 1.0, "%.3f");
-        ImGui::SliderFloat("decay", &point_decay_power, 0, 3.0, "%.3f");
+        ImGui::SliderFloat("decay  ", &point_decay_power, 0, 3.0, "%.3f");
         ImGui::SliderFloat("dist power", &point_distance_power, 0, 3.0f,
                            "%.3f");
 
         OrangeText("COLOR");
-        static ImVec4 color0;
-        ImGui::ColorEdit4(" ", (float *)&color0,
+
+        static ImVec4 colorp;
+        ImGui::ColorEdit4(" ", (float *)&colorp,
                           ImGuiColorEditFlags_AlphaBar |
                               ImGuiColorEditFlags_AlphaPreviewHalf);
 
         if (ImGui::SmallButton(" Point Light ")) {
           GPU_Data.compute_point_lighting(
               point_light_position,
-              glm::vec4(color0.x, color0.y, color0.z, color0.w),
+              glm::vec4(colorp.x, colorp.y, colorp.z, colorp.w),
               point_decay_power, point_distance_power);
         }
 
         ImGui::Separator();
-        ImGui::EndTabItem();
-      }
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
 
-      if (ImGui::BeginTabItem(" Cone ")) {
         WrappedText(" Cone Lights ");
         ImGui::SameLine();
         HelpMarker("Cone lights are similar to point lights, but constrained "
@@ -1800,15 +1803,15 @@ void engine::show_voraldo_menu(bool *show) {
                    "can also be controlled, to soften the edges of the cone.");
 
         OrangeText("SOURCE LOCATION");
-        ImGui::SliderFloat("loc x", &cone_light_position.x, -100, DIM + 100,
+        ImGui::SliderFloat("x ", &cone_light_position.x, -100, DIM + 100,
                            "%.3f");
-        ImGui::SliderFloat("loc y", &cone_light_position.y, -100, DIM + 100,
+        ImGui::SliderFloat("y ", &cone_light_position.y, -100, DIM + 100,
                            "%.3f");
-        ImGui::SliderFloat("loc z", &cone_light_position.z, -100, DIM + 100,
+        ImGui::SliderFloat("z ", &cone_light_position.z, -100, DIM + 100,
                            "%.3f");
         OrangeText("CONE ROTATION");
-        ImGui::SliderFloat("theta", &cone_theta, -3.14f, 3.14f, "%.3f");
-        ImGui::SliderFloat("phi", &cone_phi, -3.14f, 3.14f, "%.3f");
+        ImGui::SliderFloat("theta ", &cone_theta, -3.14f, 3.14f, "%.3f");
+        ImGui::SliderFloat("phi ", &cone_phi, -3.14f, 3.14f, "%.3f");
 
         OrangeText("PARAMETERS");
         ImGui::SameLine();
@@ -1822,23 +1825,25 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("cone angle", &cone_angle, -3.14f, 3.14f, "%.3f");
         // something about falloff (sharp vs gradual)
         // ImGui::SliderFloat("value", &cone_intensity, 0, 1.0, "%.3f");
-        ImGui::SliderFloat("decay", &cone_decay_power, 0, 3.0, "%.3f");
-        ImGui::SliderFloat("dist power", &cone_distance_power, 0, 3.0f, "%.3f");
+        ImGui::SliderFloat("decay ", &cone_decay_power, 0, 3.0, "%.3f");
+        ImGui::SliderFloat("dist power ", &cone_distance_power, 0, 3.0f,
+                           "%.3f");
 
         OrangeText("COLOR");
-        static ImVec4 color0;
-        ImGui::ColorEdit4(" ", (float *)&color0,
+
+        static ImVec4 colorc;
+        ImGui::ColorEdit4("  ", (float *)&colorc,
                           ImGuiColorEditFlags_AlphaBar |
                               ImGuiColorEditFlags_AlphaPreviewHalf);
 
         if (ImGui::SmallButton(" Cone Light ")) {
+          // the call to the cone light function
         }
 
         ImGui::Separator();
-        ImGui::EndTabItem();
-      }
-
-      if (ImGui::BeginTabItem(" Directional ")) {
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
 
         WrappedText(" Directional Lights ");
         ImGui::SameLine();
@@ -1858,17 +1863,18 @@ void engine::show_voraldo_menu(bool *show) {
         OrangeText("PARAMETERS");
         ImGui::SliderFloat("decay", &decay_power, 0.0f, 3.0f, "%.3f");
         OrangeText("COLOR");
-        static ImVec4 color0;
-        ImGui::ColorEdit4(" ", (float *)&color0,
+        static ImVec4 colord;
+        ImGui::ColorEdit4("    ", (float *)&colord,
                           ImGuiColorEditFlags_AlphaBar |
                               ImGuiColorEditFlags_AlphaPreviewHalf);
 
         if (ImGui::SmallButton(" Directional ")) {
           GPU_Data.compute_new_directional_lighting(
               directional_theta, directional_phi,
-              glm::vec4(color0.x, color0.y, color0.z, color0.w), decay_power);
+              glm::vec4(colord.x, colord.y, colord.z, colord.w), decay_power);
         }
 
+        ImGui::Separator();
         ImGui::Separator();
         ImGui::EndTabItem();
       }
@@ -1908,7 +1914,6 @@ void engine::show_voraldo_menu(bool *show) {
               glm::vec4(color0.x, color0.y, color0.z, color0.w),
               GI_alpha_thresh);
         }
-
         ImGui::Separator();
         ImGui::EndTabItem();
       }
@@ -2544,7 +2549,7 @@ void engine::draw_windows() {
   ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
   // show the demo window
-  static bool show_demo_window = false;
+  static bool show_demo_window = true;
   if (show_demo_window)
     ImGui::ShowDemoWindow(&show_demo_window);
 

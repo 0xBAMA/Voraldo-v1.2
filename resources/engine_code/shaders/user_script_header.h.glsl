@@ -34,11 +34,60 @@ struct irec{
 };
 
 
-
-// point rotation about an arbitrary axis, ax - from gaz
+// point rotation about an arbitrary axis, ax - from gaziya5
 vec3 erot(vec3 p, vec3 ax, float ro) {
     return mix(dot(p,ax)*ax,p,cos(ro))+sin(ro)*cross(ax,p);
 }
+
+// smooth minimum
+float smin(float a, float b, float k) {
+    float h = max(0.,k-abs(b-a))/k;
+    return min(a,b)-h*h*h*k/6.;
+}
+
+// from michael0884's marble marcher community edition
+void planeFold(inout vec3 z, vec3 n, float d) {
+    z.xyz -= 2.0 * min(0.0, dot(z.xyz, n) - d) * n;
+}
+
+void sierpinskiFold(inout vec3 z) {
+    z.xy -= min(z.x + z.y, 0.0);
+    z.xz -= min(z.x + z.z, 0.0);
+    z.yz -= min(z.y + z.z, 0.0);
+}
+
+void mengerFold(inout vec3 z)
+{
+    z.xy += min(z.x - z.y, 0.0)*vec2(-1.,1.);
+    z.xz += min(z.x - z.z, 0.0)*vec2(-1.,1.);
+    z.yz += min(z.y - z.z, 0.0)*vec2(-1.,1.);
+}
+
+void boxFold(inout vec3 z, vec3 r) {
+    z.xyz = clamp(z.xyz, -r, r) * 2.0 - z.xyz;
+}
+
+
+
+// from a distance estimated fractal by discord user Nameless#1608
+// array repetition
+#define pmod(p,a) mod(p - 0.5*a,a) - 0.5*a
+
+// another fold
+void sphereFold(inout vec3 z) {
+    float minRadius2 = 0.25;
+    float fixedRadius2 = 2.;
+    float r2 = dot(z,z);
+    if (r2 < minRadius2) {
+        float temp = (fixedRadius2/minRadius2);
+        z*= temp;
+    } else if (r2 < fixedRadius2) {
+        float temp =(fixedRadius2/r2);
+        z*=temp;
+    }
+}
+
+
 
 
 // -- begin user code --
