@@ -16,6 +16,8 @@ public:
     main_block_linear_filter();
     init_basis();
     animation_worker.set_parent(this);
+
+    gen_noise(0, 0);
   }
 
   // display functions

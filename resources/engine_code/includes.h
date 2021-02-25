@@ -64,7 +64,7 @@ using std::flush;
 #include "../perlin/perlin.h"
 
 // more general noise solution
-// #include "../FastNoise2/FastNoise/FastNoise.h"
+#include "../FastNoise2/include/FastNoise/FastNoise.h"
 
 // diamond square heightmap generation
 #include "../mafford_diamond_square/diamond_square.h"

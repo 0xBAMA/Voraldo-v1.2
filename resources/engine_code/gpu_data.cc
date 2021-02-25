@@ -2353,14 +2353,15 @@ void GLContainer::generate_perlin_noise(float xscale = 0.014,
 }
 
 void GLContainer::gen_noise(int preset, int seed) {
-  // FastNoise::SmartNode<> fnGenerator =
-  //     FastNoise::NewFromEncodedNodeTree("DQAFAAAAAAAAQAgAAAAAAD8AAAAAAA==");
+  FastNoise::SmartNode<> fnGenerator =
+      FastNoise::NewFromEncodedNodeTree("DQAFAAAAAAAAQAgAAAAAAD8AAAAAAA==");
+
   // Create an array of floats to store the noise output in
   std::vector<float> noiseOutput(16 * 16 * 16);
 
   // Generate a 16 x 16 x 16 area of noise
-  // fnGenerator->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, 16, 16, 16,
-  // 0.2f, 1337);
+  fnGenerator->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, 16, 16, 16, 0.2f,
+                                1337);
   int index = 0;
 
   for (int z = 0; z < 16; z++) {

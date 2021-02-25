@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_FLAGS "-std=c++17 -lstdc++fs")
 set(CMAKE_REQUIRED_FLAGS -lstdc++fs)
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/resources/FastNoise2)
+
 # this makes SDL2 work
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -67,4 +69,4 @@ add_executable(exe
   resources/perlin/perlin.cc
   resources/lodev_lodePNG/lodepng.cc)
 
-target_link_libraries(exe PUBLIC imgui BigInt opengl sdl2 stdc++fs CompilerFlags)
+target_link_libraries(exe PUBLIC FastNoise imgui BigInt opengl sdl2 stdc++fs CompilerFlags)
