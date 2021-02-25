@@ -8,9 +8,15 @@ Make sure to recurse submodules for FastNoise2's Noise Tool's dependencies, as w
 
 More recent:
 
-<img src="readme_gifs/out0.png" width = 830>
-<img src="readme_gifs/out1.png" width = 415/><img src="readme_gifs/out2.png" width = 415/>
-<img src="readme_gifs/out3.png" width = 830>
-<img src="readme_gifs/out4.png" width = 415/><img src="readme_gifs/out5.png" width = 415/>
-<img src="readme_gifs/out6.png" width = 830>
-<img src="readme_gifs/out7.png" width = 415/><img src="readme_gifs/out8.png" width = 415/>
+<img src="readme_gifs/out0.png" width = 800>
+<p float="left">
+<img src="readme_gifs/out1.png" width = 400/><img src="readme_gifs/out2.png" width = 400/>
+</p>
+<img src="readme_gifs/out3.png" width = 800>
+<p float="left">
+<img src="readme_gifs/out4.png" width = 400/><img src="readme_gifs/out5.png" width = 400/>
+</p>
+<img src="readme_gifs/out6.png" width = 800>
+<p float="left">
+<img src="readme_gifs/out7.png" width = 400/><img src="readme_gifs/out8.png" width = 400/>
+</p>
