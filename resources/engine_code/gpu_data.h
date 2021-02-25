@@ -124,7 +124,9 @@ public:
 
   // noise algorithms
   //   this is where the FastNoise2 generation goes
-  void generate_perlin_noise(float xscale, float yscale, float zscale);
+  void generate_perlin_noise(float xscale, float yscale, float zscale,
+                             int seed);
+  void gen_noise(int preset, int seed);
   void draw_noise(float low_thresh, float high_thresh, bool smooth,
                   glm::vec4 color, bool draw, int mask);
 

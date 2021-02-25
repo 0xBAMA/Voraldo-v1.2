@@ -878,8 +878,10 @@ void engine::show_voraldo_menu(bool *show) {
         static float noise_scale_x = 0.014;
         static float noise_scale_y = 0.014;
         static float noise_scale_z = 0.014;
+
         static float noise_threshold_lo = 0.0f;
         static float noise_threshold_hi = 0.0f;
+
         static ImVec4 noise_draw_color;
         static bool noise_draw = true;
         static int noise_mask = 0;
@@ -903,7 +905,7 @@ void engine::show_voraldo_menu(bool *show) {
 
         if (ImGui::SmallButton(" generate ")) {
           GPU_Data.generate_perlin_noise(noise_scale_x, noise_scale_y,
-                                         noise_scale_z);
+                                         noise_scale_z, 0);
         }
 
         ImGui::Separator();

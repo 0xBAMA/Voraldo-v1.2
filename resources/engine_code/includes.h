@@ -63,6 +63,9 @@ using std::flush;
 // up to 3d perlin noise generation
 #include "../perlin/perlin.h"
 
+// more general noise solution
+// #include "../FastNoise2/FastNoise/FastNoise.h"
+
 // diamond square heightmap generation
 #include "../mafford_diamond_square/diamond_square.h"
 
@@ -72,6 +75,8 @@ using std::flush;
 // Niels Lohmann - JSON for Modern C++
 #include "../nlohmann_JSON/json.hpp"
 using json = nlohmann::json;
+
+// noise utility
 
 // contains the OpenGL wrapper class
 #include "gpu_data.h"

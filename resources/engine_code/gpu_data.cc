@@ -2323,7 +2323,7 @@ void GLContainer::generate_heightmap_XOR() {
 // function to generate new block of 3d perlin noise
 void GLContainer::generate_perlin_noise(float xscale = 0.014,
                                         float yscale = 0.04,
-                                        float zscale = 0.014) {
+                                        float zscale = 0.014, int seed = 0) {
   json j;
   j["type"] = "generate_perlin_noise";
   j["xscale"] = xscale;
@@ -2350,6 +2350,29 @@ void GLContainer::generate_perlin_noise(float xscale = 0.014,
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, &data[0]);
   glGenerateMipmap(GL_TEXTURE_3D);
+}
+
+void GLContainer::gen_noise(int preset, int seed) {
+  // FastNoise::SmartNode<> fnGenerator =
+  //     FastNoise::NewFromEncodedNodeTree("DQAFAAAAAAAAQAgAAAAAAD8AAAAAAA==");
+  // Create an array of floats to store the noise output in
+  std::vector<float> noiseOutput(16 * 16 * 16);
+
+  // Generate a 16 x 16 x 16 area of noise
+  // fnGenerator->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, 16, 16, 16,
+  // 0.2f, 1337);
+  int index = 0;
+
+  for (int z = 0; z < 16; z++) {
+    for (int y = 0; y < 16; y++) {
+      for (int x = 0; x < 16; x++) {
+        // ProcessVoxelData(x, y, z, noiseOutput[index++]);
+        cout << noiseOutput[index++] << " ";
+      }
+      cout << endl;
+    }
+    cout << endl;
+  }
 }
 
 void GLContainer::draw_noise(float low_thresh, float high_thresh, bool smooth,
