@@ -30,41 +30,57 @@ void GLContainer::save_log(std::string filename) {
 // j contains a list of operations to execute
 // }
 
-void GLContainer::init_basis() {
+float GLContainer::init_basis() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   redraw_flag = true;
   basisx = glm::vec3(-1., 0., 0.);
   basisy = glm::vec3(0., -1., 0.);
   basisz = glm::vec3(0., 0., 1.);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // apply the rotation to the basis vectors about the x and y axes
-void GLContainer::rotate_vertical(float amnt) {
+float GLContainer::rotate_vertical(float amnt) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   basisx = glm::rotate(basisx, amnt, glm::vec3(1, 0, 0));
   basisy = glm::rotate(basisy, amnt, glm::vec3(1, 0, 0));
   basisz = glm::rotate(basisz, amnt, glm::vec3(1, 0, 0));
   redraw_flag = true;
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::rotate_horizontal(float amnt) {
+float GLContainer::rotate_horizontal(float amnt) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   basisx = glm::rotate(basisx, amnt, glm::vec3(0, 1, 0));
   basisy = glm::rotate(basisy, amnt, glm::vec3(0, 1, 0));
   basisz = glm::rotate(basisz, amnt, glm::vec3(0, 1, 0));
   redraw_flag = true;
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::rolltate(float amnt) {
+float GLContainer::rolltate(float amnt) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   basisx = glm::rotate(basisx, amnt, glm::vec3(0, 0, 1));
   basisy = glm::rotate(basisy, amnt, glm::vec3(0, 0, 1));
   basisz = glm::rotate(basisz, amnt, glm::vec3(0, 0, 1));
   redraw_flag = true;
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::main_block_image() {
+float GLContainer::main_block_image() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   rendermode = IMAGE;
   redraw_flag = true;
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::main_block_linear_filter() {
+float GLContainer::main_block_linear_filter() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   rendermode = LINEAR;
   glBindTexture(GL_TEXTURE_3D, textures[2]); // front color
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
@@ -79,10 +95,13 @@ void GLContainer::main_block_linear_filter() {
                   GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   redraw_flag = true;
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // set nearest filtering
-void GLContainer::main_block_nearest_filter() {
+float GLContainer::main_block_nearest_filter() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   rendermode = NEAREST;
   glBindTexture(GL_TEXTURE_3D, textures[2]);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -94,6 +113,8 @@ void GLContainer::main_block_nearest_filter() {
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   redraw_flag = true;
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 void GLContainer::color_mipmap_gen() {
@@ -625,7 +646,7 @@ void GLContainer::load_textures() {
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_RECTANGLE, textures[0]);
   glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA16, screen_width * SSFACTOR,
-               screen_height * SSFACTOR, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+               screen_height * SSFACTOR, 0, GL_RGBA, GL_UNSIGNED_BYTE, &zeroes[0]);
   glBindImageTexture(
       0, textures[0], 0, GL_TRUE, 0, GL_READ_WRITE,
       GL_RGBA16); // 16 bits, hopefully higher precision is helpful
@@ -657,7 +678,7 @@ void GLContainer::load_textures() {
   glActiveTexture(GL_TEXTURE0 + 3);
   glBindTexture(GL_TEXTURE_3D, textures[3]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, NULL);
+               GL_UNSIGNED_BYTE, &zeroes[0]);
   glBindImageTexture(3, textures[3], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
@@ -672,7 +693,7 @@ void GLContainer::load_textures() {
   glActiveTexture(GL_TEXTURE0 + 4);
   glBindTexture(GL_TEXTURE_3D, textures[4]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, DIM, DIM, DIM, 0, GL_RED_INTEGER,
-               GL_UNSIGNED_BYTE, NULL);
+               GL_UNSIGNED_BYTE, &zeroes[0]);
   glBindImageTexture(4, textures[4], 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8UI);
 
   // main block back mask buffer - initially empty
@@ -715,35 +736,35 @@ void GLContainer::load_textures() {
   glActiveTexture(GL_TEXTURE0 + 8);
   glBindTexture(GL_TEXTURE_3D, textures[8]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, NULL);
+               GL_UNSIGNED_BYTE, &zeroes[0]);
   glBindImageTexture(8, textures[8], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 
   // copy/paste back buffer - initially empty
   glActiveTexture(GL_TEXTURE0 + 9);
   glBindTexture(GL_TEXTURE_3D, textures[9]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, NULL);
+               GL_UNSIGNED_BYTE, &zeroes[0]);
   glBindImageTexture(9, textures[9], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 
   // load buffer - initially empty
   glActiveTexture(GL_TEXTURE0 + 10);
   glBindTexture(GL_TEXTURE_3D, textures[10]);
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, NULL);
+               GL_UNSIGNED_BYTE, &zeroes[0]);
   glBindImageTexture(10, textures[10], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 
   // noise - initialize with noise at some default scaling
   glActiveTexture(GL_TEXTURE0 + 11);
   glBindTexture(GL_TEXTURE_3D, textures[11]);
 
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
   // 3d texture for noise - DIM on a side
   // generate_perlin_noise(0.014, 0.04, 0.014);
+  gen_noise(0,0);
 
   cout << "heightmap............";
   // heightmap - initialize with a generated diamond square heightmap
@@ -769,34 +790,56 @@ void GLContainer::load_textures() {
 }
 
 // view rotation functions
-void GLContainer::view_front() { init_basis(); }
+float GLContainer::view_front() {
+  auto t1 = std::chrono::high_resolution_clock::now();
+  init_basis();
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+}
 
-void GLContainer::view_back() {
+float GLContainer::view_back() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   init_basis();
   rotate_horizontal(pi);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::view_right() {
+float GLContainer::view_right() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   init_basis();
   rotate_horizontal(pi / 2.);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::view_left() {
+float GLContainer::view_left() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   init_basis();
   rotate_horizontal(-pi / 2.);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::view_up() {
+float GLContainer::view_up() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   init_basis();
   rotate_vertical(-pi / 2.);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
-void GLContainer::view_down() {
+
+float GLContainer::view_down() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   init_basis();
   rotate_vertical(pi / 2.);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // lighting functions
-void GLContainer::lighting_clear(bool use_cache, glm::vec4 clear_level) {
+float GLContainer::lighting_clear(bool use_cache, glm::vec4 clear_level) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "lighting_clear";
   j["clear_level"]["r"] = clear_level.r;
@@ -820,11 +863,15 @@ void GLContainer::lighting_clear(bool use_cache, glm::vec4 clear_level) {
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::compute_point_lighting(glm::vec3 light_position,
+float GLContainer::compute_point_lighting(glm::vec3 light_position,
                                          glm::vec4 color, float decay_power,
                                          float distance_power) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "point_lighting";
   j["color"]["r"] = color.r;
@@ -858,12 +905,16 @@ void GLContainer::compute_point_lighting(glm::vec3 light_position,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::compute_cone_lighting(glm::vec3 location, float theta,
+float GLContainer::compute_cone_lighting(glm::vec3 location, float theta,
                                         float phi, float cone_angle,
                                         glm::vec4 color, float decay_power,
                                         float distance_power) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "cone_lighting";
   j["color"]["r"] = color.r;
@@ -903,12 +954,15 @@ void GLContainer::compute_cone_lighting(glm::vec3 location, float theta,
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
 
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::compute_new_directional_lighting(float theta, float phi,
+float GLContainer::compute_new_directional_lighting(float theta, float phi,
                                                    glm::vec4 color,
                                                    float decay_power) {
 
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "directional_lighting";
   j["color"]["r"] = color.r;
@@ -941,10 +995,13 @@ void GLContainer::compute_new_directional_lighting(float theta, float phi,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8); // workgroup is 8x8x8
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // fake GI
-void GLContainer::compute_fake_GI(float factor, glm::vec4 color, float thresh) {
+float GLContainer::compute_fake_GI(float factor, glm::vec4 color, float thresh) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "fake_GI";
   j["color"]["r"] = color.r;
@@ -990,9 +1047,12 @@ void GLContainer::compute_fake_GI(float factor, glm::vec4 color, float thresh) {
     // wait for all those shader invocations to finish
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
   }
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::compute_ambient_occlusion(int radius) {
+float GLContainer::compute_ambient_occlusion(int radius) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "ambient occlusion";
   j["radius"] = radius;
@@ -1012,9 +1072,13 @@ void GLContainer::compute_ambient_occlusion(int radius) {
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::mash() {
+float GLContainer::mash() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "mash";
   log(j.dump());
@@ -1027,11 +1091,14 @@ void GLContainer::mash() {
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
 
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // SHAPES
-void GLContainer::draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color,
+float GLContainer::draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color,
                             bool aabb_draw, int aabb_mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "draw_aabb";
   j["color"]["r"] = color.r;
@@ -1076,12 +1143,15 @@ void GLContainer::draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c,
+float GLContainer::draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c,
                               glm::vec3 d, glm::vec3 e, glm::vec3 f,
                               glm::vec3 g, glm::vec3 h, glm::vec4 color,
                               bool cuboid_draw, int cuboid_mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "draw_cuboid";
   j["color"]["r"] = color.r;
@@ -1146,10 +1216,14 @@ void GLContainer::draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::draw_cylinder(glm::vec3 bvec, glm::vec3 tvec, float radius,
+float GLContainer::draw_cylinder(glm::vec3 bvec, glm::vec3 tvec, float radius,
                                 glm::vec4 color, bool draw, int mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "draw_cylinder";
   j["color"]["r"] = color.r;
@@ -1195,12 +1269,15 @@ void GLContainer::draw_cylinder(glm::vec3 bvec, glm::vec3 tvec, float radius,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::draw_ellipsoid(glm::vec3 center, glm::vec3 radii,
+float GLContainer::draw_ellipsoid(glm::vec3 center, glm::vec3 radii,
                                  glm::vec3 rotation, glm::vec4 color, bool draw,
                                  int mask) {
 
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "draw_ellipsoid";
   j["color"]["r"] = color.r;
@@ -1250,11 +1327,14 @@ void GLContainer::draw_ellipsoid(glm::vec3 center, glm::vec3 radii,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::draw_grid(glm::ivec3 spacing, glm::ivec3 width,
+float GLContainer::draw_grid(glm::ivec3 spacing, glm::ivec3 width,
                             glm::ivec3 offsets, glm::vec3 rot, glm::vec4 color,
                             bool draw, int mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "draw_grid";
   j["color"]["r"] = color.r;
@@ -1307,11 +1387,14 @@ void GLContainer::draw_grid(glm::ivec3 spacing, glm::ivec3 width,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // heightmap
-void GLContainer::draw_heightmap(float height_scale, bool height_color,
+float GLContainer::draw_heightmap(float height_scale, bool height_color,
                                  glm::vec4 color, bool draw, int mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "draw_heightmap";
   j["color"]["r"] = color.r;
@@ -1352,13 +1435,16 @@ void GLContainer::draw_heightmap(float height_scale, bool height_color,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::draw_regular_icosahedron(
+float GLContainer::draw_regular_icosahedron(
     double x_rot, double y_rot, double z_rot, double scale,
     glm::vec3 center_point, glm::vec4 vertex_material, double verticies_radius,
     glm::vec4 edge_material, double edge_thickness, glm::vec4 face_material,
     float face_thickness, bool draw, bool mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
 
   { // scoped to prevent issues with below
     json j;
@@ -1535,11 +1621,14 @@ void GLContainer::draw_regular_icosahedron(
     draw_sphere(k, verticies_radius, vertex_material, draw, mask);
     draw_sphere(l, verticies_radius, vertex_material, draw, mask);
   }
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // sphere
-void GLContainer::draw_sphere(glm::vec3 location, float radius, glm::vec4 color,
+float GLContainer::draw_sphere(glm::vec3 location, float radius, glm::vec4 color,
                               bool draw, int mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "draw_sphere";
   j["color"]["r"] = color.r;
@@ -1579,12 +1668,15 @@ void GLContainer::draw_sphere(glm::vec3 location, float radius, glm::vec4 color,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // tube
-void GLContainer::draw_tube(glm::vec3 bvec, glm::vec3 tvec, float inner_radius,
+float GLContainer::draw_tube(glm::vec3 bvec, glm::vec3 tvec, float inner_radius,
                             float outer_radius, glm::vec4 color, bool draw,
                             int mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "draw_tube";
   j["color"]["r"] = color.r;
@@ -1630,12 +1722,15 @@ void GLContainer::draw_tube(glm::vec3 bvec, glm::vec3 tvec, float inner_radius,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // triangle
-void GLContainer::draw_triangle(glm::vec3 point1, glm::vec3 point2,
+float GLContainer::draw_triangle(glm::vec3 point1, glm::vec3 point2,
                                 glm::vec3 point3, float thickness,
                                 glm::vec4 color, bool draw, int mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "draw_triangle";
   j["color"]["r"] = color.r;
@@ -1688,10 +1783,13 @@ void GLContainer::draw_triangle(glm::vec3 point1, glm::vec3 point2,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // clear all
-void GLContainer::clear_all(bool respect_mask) {
+float GLContainer::clear_all(bool respect_mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "clear_all";
   j["respect_mask"] = respect_mask;
@@ -1718,10 +1816,13 @@ void GLContainer::clear_all(bool respect_mask) {
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // unmask all
-void GLContainer::unmask_all() {
+float GLContainer::unmask_all() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "unmask_all";
   log(j.dump());
@@ -1742,10 +1843,13 @@ void GLContainer::unmask_all() {
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // invert mask
-void GLContainer::invert_mask() {
+float GLContainer::invert_mask() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "invert_mask";
   log(j.dump());
@@ -1766,14 +1870,17 @@ void GLContainer::invert_mask() {
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // mask by color
-void GLContainer::mask_by_color(bool r, bool g, bool b, bool a, bool l,
+float GLContainer::mask_by_color(bool r, bool g, bool b, bool a, bool l,
                                 glm::vec4 color, float l_val, float r_var,
                                 float g_var, float b_var, float a_var,
                                 float l_var, int amt) {
 
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "mask_by_color";
   j["color"]["r"] = color.r;
@@ -1829,10 +1936,13 @@ void GLContainer::mask_by_color(bool r, bool g, bool b, bool a, bool l,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // box blur
-void GLContainer::box_blur(int radius, bool touch_alpha, bool respect_mask) {
+float GLContainer::box_blur(int radius, bool touch_alpha, bool respect_mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "box_blur";
   j["radius"] = radius;
@@ -1863,11 +1973,14 @@ void GLContainer::box_blur(int radius, bool touch_alpha, bool respect_mask) {
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // gaussian blur
-void GLContainer::gaussian_blur(int radius, bool touch_alpha,
+float GLContainer::gaussian_blur(int radius, bool touch_alpha,
                                 bool respect_mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "gaussian_blur";
   j["radius"] = radius;
@@ -1901,19 +2014,25 @@ void GLContainer::gaussian_blur(int radius, bool touch_alpha,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // limiter
-void GLContainer::limiter() {
+float GLContainer::limiter() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   redraw_flag = true;
   color_mipmap_flag = true;
 
   // the details of this operation still need to be worked out - there is a
   // couple of different modes
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // shifting
-void GLContainer::shift(glm::ivec3 movement, bool loop, int mode) {
+float GLContainer::shift(glm::ivec3 movement, bool loop, int mode) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "shift";
   j["loop"] = loop;
@@ -1946,6 +2065,9 @@ void GLContainer::shift(glm::ivec3 movement, bool loop, int mode) {
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 std::string GLContainer::compile_user_script(std::string text) {
@@ -2016,7 +2138,8 @@ std::string GLContainer::run_user_script() {
   return report.str();
 }
 
-void GLContainer::copy_loadbuffer(bool respect_mask) {
+float GLContainer::copy_loadbuffer(bool respect_mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
 
   // doesn't make sense to make this available to the JSON thing because it is
   // only available through the load and VAT
@@ -2043,6 +2166,8 @@ void GLContainer::copy_loadbuffer(bool respect_mask) {
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // Brent Werness's Voxel Automata Terrain - set redraw_flag to true
@@ -2152,7 +2277,8 @@ std::string GLContainer::vat(float flip, std::string rule, int initmode,
 }
 
 // load - set redraw_flag to true
-void GLContainer::load(std::string filename, bool respect_mask) {
+float GLContainer::load(std::string filename, bool respect_mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "load";
   j["filename"] = filename;
@@ -2180,10 +2306,13 @@ void GLContainer::load(std::string filename, bool respect_mask) {
   copy_loadbuffer(respect_mask);
 
   cout << "filename on load is: " << filename << std::endl << std::endl;
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // save
-void GLContainer::save(std::string filename) {
+float GLContainer::save(std::string filename) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "save";
   j["filename"] = filename;
@@ -2210,10 +2339,13 @@ void GLContainer::save(std::string filename) {
               << ": " << lodepng_error_text(error) << std::endl;
 
   cout << "filename on save is: " << filename << std::endl << std::endl;
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // functions to generate new heightmaps
-void GLContainer::generate_heightmap_diamond_square() {
+float GLContainer::generate_heightmap_diamond_square() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "generate_heightmap_diamond_square";
   log(j.dump());
@@ -2257,9 +2389,12 @@ void GLContainer::generate_heightmap_diamond_square() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, &data[0]);
   glGenerateMipmap(GL_TEXTURE_2D);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::generate_heightmap_perlin() {
+float GLContainer::generate_heightmap_perlin() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "generate_heightmap_perlin";
   log(j.dump());
@@ -2293,9 +2428,12 @@ void GLContainer::generate_heightmap_perlin() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, &data[0]);
   glGenerateMipmap(GL_TEXTURE_2D);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::generate_heightmap_XOR() {
+float GLContainer::generate_heightmap_XOR() {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "generate_heightmap_xor";
   log(j.dump());
@@ -2318,12 +2456,15 @@ void GLContainer::generate_heightmap_XOR() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, &data[0]);
   glGenerateMipmap(GL_TEXTURE_2D);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 // function to generate new block of 3d perlin noise
-void GLContainer::generate_perlin_noise(float xscale = 0.014,
+float GLContainer::generate_perlin_noise(float xscale = 0.014,
                                         float yscale = 0.04,
                                         float zscale = 0.014, int seed = 0) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "generate_perlin_noise";
   j["xscale"] = xscale;
@@ -2350,17 +2491,28 @@ void GLContainer::generate_perlin_noise(float xscale = 0.014,
   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, &data[0]);
   glGenerateMipmap(GL_TEXTURE_3D);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::gen_noise(int preset, int seed) {
-  FastNoise::SmartNode<> fnGenerator =
-      FastNoise::NewFromEncodedNodeTree("DQAFAAAAAAAAQAgAAAAAAD8AAAAAAA==");
+float GLContainer::gen_noise(int preset, int seed) {
+  auto t1 = std::chrono::high_resolution_clock::now();
+  // FastNoise::SmartNode<> fnGenerator =
+      // FastNoise::NewFromEncodedNodeTree("DQAFAAAAAAAAQAgAAAAAAD8AAAAAAA==");
+      
+  auto fnSimplex = FastNoise::New<FastNoise::Simplex>();
+  auto fnFractal = FastNoise::New<FastNoise::FractalFBm>();
+  
+  fnFractal->SetSource( fnSimplex );
+  fnFractal->SetOctaveCount( 5 ); 
 
   // Create an array of floats to store the noise output in
   std::vector<float> noiseOutput(16 * 16 * 16);
 
   // Generate a 16 x 16 x 16 area of noise
-  fnGenerator->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, 16, 16, 16, 0.2f,
+  // fnGenerator->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, 16, 16, 16, 0.2f,
+  //                               1337);
+  fnFractal->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, 16, 16, 16, 0.2f,
                                 1337);
   int index = 0;
 
@@ -2374,10 +2526,13 @@ void GLContainer::gen_noise(int preset, int seed) {
     }
     cout << endl;
   }
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-void GLContainer::draw_noise(float low_thresh, float high_thresh, bool smooth,
+float GLContainer::draw_noise(float low_thresh, float high_thresh, bool smooth,
                              glm::vec4 color, bool draw, int mask) {
+  auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "draw_noise";
   j["low_thresh"] = low_thresh;
@@ -2419,4 +2574,6 @@ void GLContainer::draw_noise(float low_thresh, float high_thresh, bool smooth,
 
   glDispatchCompute(DIM / 8, DIM / 8, DIM / 8);
   glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }

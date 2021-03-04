@@ -16,8 +16,6 @@ public:
     main_block_linear_filter();
     init_basis();
     animation_worker.set_parent(this);
-
-    gen_noise(0, 0);
   }
 
   // display functions
@@ -42,25 +40,25 @@ public:
   glm::vec3 basisx, basisy, basisz;
 
   // initialize the basis vectors
-  void init_basis();
+  float init_basis();
 
   // apply the rotation to the basis vectors about the x and y axes
-  void rotate_vertical(float amnt);   // up and down arrows
-  void rotate_horizontal(float amnt); // left and right arrows
-  void rolltate(float amnt); // page up / page down to roll about the z axis
+  float rotate_vertical(float amnt);   // up and down arrows
+  float rotate_horizontal(float amnt); // left and right arrows
+  float rolltate(float amnt); // page up / page down to roll about the z axis
 
   // cardinal directions
-  void view_front();
-  void view_back();
-  void view_right();
-  void view_left();
-  void view_up();
-  void view_down();
+  float view_front();
+  float view_back();
+  float view_right();
+  float view_left();
+  float view_up();
+  float view_down();
 
   // to set type of renderer
-  void main_block_image();
-  void main_block_linear_filter();
-  void main_block_nearest_filter();
+  float main_block_image();
+  float main_block_linear_filter();
+  float main_block_nearest_filter();
 
   // settings variables
   glm::vec3 orientation_widget_offset;
@@ -77,62 +75,62 @@ public:
   // --
   // lighting
 
-  void lighting_clear(bool use_cache, glm::vec4 clear_level);
+  float lighting_clear(bool use_cache, glm::vec4 clear_level);
 
-  void compute_point_lighting(glm::vec3 light_position, glm::vec4 color,
+  float compute_point_lighting(glm::vec3 light_position, glm::vec4 color,
                               float point_decay_power,
                               float point_distance_power);
 
-  void compute_cone_lighting(glm::vec3 location, float theta, float phi,
+  float compute_cone_lighting(glm::vec3 location, float theta, float phi,
                              float cone_angle, glm::vec4 color,
                              float decay_power, float distance_power);
 
-  void compute_new_directional_lighting(float theta, float phi,
+  float compute_new_directional_lighting(float theta, float phi,
                                         glm::vec4 initial_ray_intensity,
                                         float decay_power);
 
-  void compute_fake_GI(float factor, glm::vec4 sky_intensity, float thresh);
+  float compute_fake_GI(float factor, glm::vec4 sky_intensity, float thresh);
 
-  void compute_ambient_occlusion(int radius);
+  float compute_ambient_occlusion(int radius);
 
-  void mash();
+  float mash();
 
   // --
   // shapes
 
-  void draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color, bool aabb_draw,
+  float draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color, bool aabb_draw,
                  int aabb_mask);
 
-  void draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d,
+  float draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d,
                    glm::vec3 e, glm::vec3 f, glm::vec3 g, glm::vec3 h,
                    glm::vec4 color, bool cuboid_draw, int cuboid_mask);
 
-  void draw_cylinder(glm::vec3 cylinder_bvec, glm::vec3 cylinder_tvec,
+  float draw_cylinder(glm::vec3 cylinder_bvec, glm::vec3 cylinder_tvec,
                      float cylinder_radius, glm::vec4 color, bool cylinder_draw,
                      int cylinder_mask);
 
-  void draw_ellipsoid(glm::vec3 center, glm::vec3 radius, glm::vec3 rotation,
+  float draw_ellipsoid(glm::vec3 center, glm::vec3 radius, glm::vec3 rotation,
                       glm::vec4 color, bool ellipsoid_draw, int ellipsoid_mask);
 
-  void draw_grid(glm::ivec3 spacing, glm::ivec3 wid, glm::ivec3 off,
+  float draw_grid(glm::ivec3 spacing, glm::ivec3 wid, glm::ivec3 off,
                  glm::vec3 rot, glm::vec4 color, bool draw, int mask);
 
   // heightmap algorithms
-  void generate_heightmap_XOR();
-  void generate_heightmap_perlin();
-  void generate_heightmap_diamond_square();
-  void draw_heightmap(float height_scale, bool height_color, glm::vec4 color,
+  float generate_heightmap_XOR();
+  float generate_heightmap_perlin();
+  float generate_heightmap_diamond_square();
+  float draw_heightmap(float height_scale, bool height_color, glm::vec4 color,
                       bool draw, int mask);
 
   // noise algorithms
   //   this is where the FastNoise2 generation goes
-  void generate_perlin_noise(float xscale, float yscale, float zscale,
+  float generate_perlin_noise(float xscale, float yscale, float zscale,
                              int seed);
-  void gen_noise(int preset, int seed);
-  void draw_noise(float low_thresh, float high_thresh, bool smooth,
+  float gen_noise(int preset, int seed);
+  float draw_noise(float low_thresh, float high_thresh, bool smooth,
                   glm::vec4 color, bool draw, int mask);
 
-  void draw_regular_icosahedron(double x_rot, double y_rot, double z_rot,
+  float draw_regular_icosahedron(double x_rot, double y_rot, double z_rot,
                                 double scale, glm::vec3 center_point,
                                 glm::vec4 vertex_material,
                                 double verticies_radius,
@@ -140,32 +138,32 @@ public:
                                 glm::vec4 face_material, float face_thickness,
                                 bool draw, bool mask);
 
-  void draw_sphere(glm::vec3 location, float radius, glm::vec4 color, bool draw,
+  float draw_sphere(glm::vec3 location, float radius, glm::vec4 color, bool draw,
                    int mask);
 
-  void draw_tube(glm::vec3 bvec, glm::vec3 tvec, float inner_radius,
+  float draw_tube(glm::vec3 bvec, glm::vec3 tvec, float inner_radius,
                  float outer_radius, glm::vec4 color, bool draw, int mask);
 
-  void draw_triangle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
+  float draw_triangle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
                      float thickness, glm::vec4 color, bool draw, int mask);
 
   // --
   // utilities
 
-  void clear_all(bool respect_mask);
+  float clear_all(bool respect_mask);
 
-  void unmask_all();
-  void invert_mask();
-  void mask_by_color(bool r, bool g, bool b, bool a, bool l, glm::vec4 color,
+  float unmask_all();
+  float invert_mask();
+  float mask_by_color(bool r, bool g, bool b, bool a, bool l, glm::vec4 color,
                      float l_val, float r_var, float g_var, float b_var,
                      float a_var, float l_var, int mask);
 
-  void box_blur(int radius, bool touch_alpha, bool respect_mask);
-  void gaussian_blur(int radius, bool touch_alpha, bool respect_mask);
+  float box_blur(int radius, bool touch_alpha, bool respect_mask);
+  float gaussian_blur(int radius, bool touch_alpha, bool respect_mask);
 
-  void limiter();
+  float limiter();
 
-  void shift(glm::ivec3 movement, bool loop, int mode);
+  float shift(glm::ivec3 movement, bool loop, int mode);
 
   // --
 
@@ -174,11 +172,11 @@ public:
 
   // --
 
-  void copy_loadbuffer(bool respect_mask);
+  float copy_loadbuffer(bool respect_mask);
 
-  void load(std::string filename, bool respect_mask);
+  float load(std::string filename, bool respect_mask);
 
-  void save(std::string filename);
+  float save(std::string filename);
 
   std::string vat(float flip, std::string rule, int initmode, glm::vec4 color0,
                   glm::vec4 color1, glm::vec4 color2, float lambda, float beta,
