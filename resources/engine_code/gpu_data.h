@@ -15,7 +15,7 @@ public:
     load_textures();
     main_block_linear_filter();
     init_basis();
-    animation_worker.set_parent(this);
+    // animation_worker.set_parent(this);
   }
 
   // display functions
@@ -30,6 +30,13 @@ public:
   void swap_blocks() { tex_offset = tex_offset == 1 ? 0 : 1; }
   void set_redraw_flag() { redraw_flag = true; }
 
+  // screenshot, animation
+  void screenshot(std::string filename);
+  void animation(std::string filename);
+
+  // used by the animation code, returns execution time in us
+  float parse_and_execute_JSON_op(json j);
+    
   // OpenGL clear color
   glm::vec4 clear_color;
 
@@ -183,16 +190,16 @@ public:
                   float mag, bool respect_mask, glm::bvec3 mins,
                   glm::bvec3 maxs);
 
-  // --
-  // the worker class closely integrates here
-  class worker {
-  public:
-    GLContainer *parent;
-    void set_parent(GLContainer *my_parent) { parent = my_parent; }
+  // // --
+  // // the worker class closely integrates here
+  // class worker {
+  // public:
+  //   GLContainer *parent;
+  //   void set_parent(GLContainer *my_parent) { parent = my_parent; }
 
-    bool pop(); // do an operation, report if oplist is empty
-    std::vector<json> oplist;
-  } animation_worker;
+  //   bool pop(); // do an operation, report if oplist is empty
+  //   std::vector<json> oplist;
+  // } animation_worker;
 
   void log(std::string text);          // for operation logging
   void clear_log();                    // clear the log

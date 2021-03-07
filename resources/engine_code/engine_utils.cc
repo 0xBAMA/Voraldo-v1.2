@@ -1708,7 +1708,7 @@ void engine::show_voraldo_menu(bool *show) {
       static int AO_radius = 0;
 
       static float GI_scale_factor = 0.028;
-      static float GI_alpha_thresh = 0.05;
+      static float GI_alpha_thresh = 0.105;
 
       static glm::vec3 point_light_position = glm::vec3(0, 0, 0);
       static float point_decay_power = 2.1;

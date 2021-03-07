@@ -30,6 +30,116 @@ void GLContainer::save_log(std::string filename) {
 // j contains a list of operations to execute
 // }
 
+
+float GLContainer::parse_and_execute_JSON_op(json j)
+{
+  auto t1 = std::chrono::high_resolution_clock::now();
+
+  if(j["type"] == std::string("rotate_vertical"))
+  {
+    rotate_vertical(j["amount"]);
+  }else if(j["type"] == std::string("rotate_horizontal")){
+    rotate_horizontal(j["amount"]); 
+  }else if(j["type"] == std::string("rollate")){
+    rolltate(j["amount"]);
+  }else if(j["type"] == std::string("init_basis")){
+    init_basis();
+  }else if(j["type"] == std::string("view_front")){
+    view_front();
+  }else if(j["type"] == std::string("view_back")){
+    view_back();
+  }else if(j["type"] == std::string("view_right")){
+    view_right();
+  }else if(j["type"] == std::string("view_left")){
+    view_left();
+  }else if(j["type"] == std::string("view_up")){
+    view_up();
+  }else if(j["type"] == std::string("view_down")){
+    view_down();
+  }else if(j["type"] == std::string("lighting_clear")){
+    lighting_clear(j["use_cache"],  glm::vec4(j["clear_level"]["r"], j["clear_level"]["g"], j["clear_level"]["b"], j["clear_level"]["a"]));
+  }else if(j["type"] == std::string("compute_point_lighting")){
+    compute_point_lighting(glm::vec3(j["light_position"]["x"], j["light_position"]["y"], j["light_position"]["z"]), glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["decay_power"], j["distance_power"]);
+  }else if(j["type"] == std::string("compute_cone_lighting")){
+    compute_cone_lighting(glm::vec3(j["location"]["x"], j["location"]["y"], j["location"]["z"]), j["theta"], j["phi"], j["cone_angle"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["decay_power"], j["distance_power"]);
+  }else if(j["type"] == std::string("compute_new_directional_lighting")){
+    compute_new_directional_lighting(j["theta"], j["phi"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["decay_power"]);
+  }else if(j["type"] == std::string("compute_fake_GI")){
+    compute_fake_GI(j["factor"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["threshold"]);
+  }else if(j["type"] == std::string("compute_ambient_occlusion")){
+    compute_ambient_occlusion(j["radius"]);
+  }else if(j["type"] == std::string("mash")){
+    mash();
+  }else if(j["type"] == std::string("draw_aabb")){
+    draw_aabb(glm::vec3(j["min"]["x"], j["min"]["y"], j["min"]["z"]), glm::vec3(j["max"]["x"], j["max"]["y"], j["max"]["z"]), glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
+  }else if(j["type"] == std::string("draw_cuboid")){
+    draw_cuboid(glm::vec3(j["a"]["x"], j["a"]["y"], j["a"]["z"]), glm::vec3(j["b"]["x"], j["b"]["y"], j["b"]["z"]), glm::vec3(j["c"]["x"], j["c"]["y"], j["c"]["z"]), glm::vec3(j["d"]["x"], j["d"]["y"], j["d"]["z"]), glm::vec3(j["e"]["x"], j["e"]["y"], j["e"]["z"]), glm::vec3(j["f"]["x"], j["f"]["y"], j["f"]["z"]), glm::vec3(j["g"]["x"], j["g"]["y"], j["g"]["z"]), glm::vec3(j["h"]["x"], j["h"]["y"], j["h"]["z"]), glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
+  }else if(j["type"] == std::string("draw_cylinder")){
+    draw_cylinder(glm::vec3(j["tvec"]["x"], j["tvec"]["y"], j["tvec"]["z"]), glm::vec3(j["bvec"]["x"], j["bvec"]["y"], j["bvec"]["z"]), j["radius"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
+  }else if(j["type"] == std::string("draw_ellipsoid")){
+    draw_ellipsoid(glm::vec3(j["center"]["x"], j["center"]["y"], j["center"]["z"]), glm::vec3(j["radii"]["x"], j["radii"]["y"], j["radii"]["z"]), glm::vec3(j["rotation"]["x"], j["rotation"]["y"], j["rotation"]["z"]), glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
+  }else if(j["type"] == std::string("draw_grid")){
+    draw_grid(glm::ivec3(j["spacing"]["x"], j["spacing"]["y"], j["spacing"]["z"]), glm::ivec3(j["width"]["x"], j["width"]["y"], j["width"]["z"]), glm::ivec3(j["offsets"]["x"], j["offsets"]["y"], j["offsets"]["z"]), glm::vec3(j["rotation"]["x"], j["rotation"]["y"], j["rotation"]["z"]), glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
+  }else if(j["type"] == std::string("generate_heightmap_xor")){
+    generate_heightmap_XOR();
+  }else if(j["type"] == std::string("generate_heightmap_perlin")){
+    generate_heightmap_perlin();
+  }else if(j["type"] == std::string("generate_heightmap_diamond_square")){
+    generate_heightmap_diamond_square();
+  }else if(j["type"] == std::string("draw_heightmap")){
+    draw_heightmap(j["height_scale"], j["height_color"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
+  }else if(j["type"] == std::string("generate_perlin_noise")){
+    generate_perlin_noise(j["xscale"], j["yscale"], j["zscale"], j["seed"]);
+  }else if(j["type"] == std::string("gen_noise")){
+    gen_noise(j["preset"], j["seed"]);
+  }else if(j["type"] == std::string("draw_noise")){
+    draw_noise(j["low_thresh"], j["high_thresh"], j["smooth"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
+  }else if(j["type"] == std::string("draw_regular_icosahedron")){
+    draw_regular_icosahedron(j["x_rot"]["x"], j["y_rot"]["y"], j["z_rot"]["z"], j["scale"], glm::vec3(j["center_point"]["x"], j["center_point"]["y"], j["center_point"]["z"]), glm::vec4(j["vertex_color"]["r"], j["vertex_color"]["g"], j["vertex_color"]["b"], j["vertex_color"]["a"]), j["vertex_radius"], glm::vec4(j["edge_color"]["r"], j["edge_color"]["g"], j["edge_color"]["b"], j["edge_color"]["a"]), j["edge_thickness"], glm::vec4(j["face_color"]["r"], j["face_color"]["g"], j["face_color"]["b"], j["face_color"]["a"]), j["face_thickness"], j["draw"], j["mask"]);
+  }else if(j["type"] == std::string("draw_sphere")){
+    draw_sphere(glm::vec3(j["location"]["x"], j["location"]["y"], j["location"]["z"]), j["radius"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
+  }else if(j["type"] == std::string("draw_tube")){
+      draw_tube(glm::vec3(j["bvec"]["x"], j["bvec"]["y"], j["bvec"]["z"]), glm::vec3(j["tvec"]["x"], j["tvec"]["y"], j["tvec"]["z"]), j["inner_radius"], j["outer_radius"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
+  }else if(j["type"] == std::string("draw_triangle")){
+      draw_triangle(glm::vec3(j["point1"]["x"], j["point1"]["y"], j["point1"]["z"]), glm::vec3(j["point2"]["x"], j["point2"]["y"], j["point2"]["z"]), glm::vec3(j["point3"]["x"], j["point3"]["y"], j["point3"]["z"]), j["thickness"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]); 
+  }else if(j["type"] == std::string("invert_mask")){
+    invert_mask();
+  }else if(j["type"] == std::string("mask_by_color")){
+      mask_by_color(j["r"], j["g"], j["b"], j["a"], j["l"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["l_val"], j["r_var"], j["g_var"], j["b_var"], j["a_var"], j["l_var"], j["amount"]);
+  }else if(j["type"] == std::string("box_blur")){
+      box_blur(j["radius"], j["touch_alpha"], j["respect_mask"]);
+  }else if(j["type"] == std::string("gaussian_blur")){
+    gaussian_blur(j["radius"], j["touch_alpha"], j["respect_mask"]);
+  }else if(j["type"] == std::string("limiter")){
+    // float limiter();
+  }else if(j["type"] == std::string("shift")){
+    shift(glm::ivec3(j["movement"]["x"], j["movement"]["y"], j["movement"]["z"]), j["loop"], j["mode"]);
+  }else if(j["type"] == std::string("compile_user_script")){
+    compile_user_script(j["text"]);
+  }else if(j["type"] == std::string("run_user_script")){
+    run_user_script();
+  }else if(j["type"] == std::string("load")){
+    load(j["filename"], j["respect_mask"]);
+  }else if(j["type"] == std::string("save")){
+    save(j["filename"]);
+  }else if(j["type"] == std::string("vat")){
+    vat(j["flip"], j["rule"], j["init_mode"], glm::vec4(j["color0"]["r"], j["color0"]["g"], j["color0"]["b"], j["color0"]["a"]), glm::vec4(j["color1"]["r"], j["color1"]["g"], j["color1"]["b"], j["color1"]["a"]), glm::vec4(j["color2"]["r"], j["color2"]["g"], j["color2"]["b"], j["color2"]["a"]), j["lambda"], j["beta"], j["mag"], j["respect_mask"], glm::bvec3(j["mins"]["x"], j["mins"]["y"], j["mins"]["z"]), glm::bvec3(j["maxs"]["x"], j["maxs"]["y"], j["maxs"]["z"]));
+  }
+
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+}
+
+void GLContainer::screenshot(std::string filename)
+{
+  
+}
+
+void GLContainer::animation(std::string filename)
+{
+  
+}
+
 float GLContainer::init_basis() {
   auto t1 = std::chrono::high_resolution_clock::now();
   redraw_flag = true;
@@ -757,14 +867,14 @@ void GLContainer::load_textures() {
   glActiveTexture(GL_TEXTURE0 + 11);
   glBindTexture(GL_TEXTURE_3D, textures[11]);
 
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
   // 3d texture for noise - DIM on a side
-  // generate_perlin_noise(0.014, 0.04, 0.014);
-  gen_noise(0,0);
+  generate_perlin_noise(0.014, 0.04, 0.014, 0);
+  // gen_noise(0,0);
 
   cout << "heightmap............";
   // heightmap - initialize with a generated diamond square heightmap
@@ -921,6 +1031,9 @@ float GLContainer::compute_cone_lighting(glm::vec3 location, float theta,
   j["color"]["g"] = color.g;
   j["color"]["b"] = color.b;
   j["color"]["a"] = color.a;
+  j["theta"] = theta;
+  j["phi"] = phi;
+  j["cone_angle"] = cone_angle;
   j["location"]["x"] = location.x;
   j["location"]["y"] = location.y;
   j["location"]["z"] = location.z;
@@ -1448,7 +1561,8 @@ float GLContainer::draw_regular_icosahedron(
 
   { // scoped to prevent issues with below
     json j;
-    j["type"] = "draw_icosahedron";
+    j["type"] = "draw_regular_icosahedron";
+    j["scale"] = scale;
     j["vertex_color"]["r"] = vertex_material.r;
     j["vertex_color"]["g"] = vertex_material.g;
     j["vertex_color"]["b"] = vertex_material.b;
@@ -1898,6 +2012,7 @@ float GLContainer::mask_by_color(bool r, bool g, bool b, bool a, bool l,
   j["g_var"] = g_var;
   j["b_var"] = b_var;
   j["a_var"] = a_var;
+  j["amount"] = amt;
   log(j.dump());
 
   // don't need to redraw
@@ -2192,6 +2307,7 @@ std::string GLContainer::vat(float flip, std::string rule, int initmode,
   j["color2"]["a"] = color2.a;
   j["lambda"] = lambda;
   j["beta"] = beta;
+  j["flip"] = flip;
   j["mag"] = mag;
   j["rule"] = rule;
   j["init_mode"] = initmode;
@@ -2282,6 +2398,7 @@ float GLContainer::load(std::string filename, bool respect_mask) {
   json j;
   j["type"] = "load";
   j["filename"] = filename;
+  j["respect_mask"] = respect_mask;
   log(j.dump());
 
   redraw_flag = true;
@@ -2470,6 +2587,7 @@ float GLContainer::generate_perlin_noise(float xscale = 0.014,
   j["xscale"] = xscale;
   j["yscale"] = yscale;
   j["zscale"] = zscale;
+  j["seed"] = seed;
   log(j.dump());
 
   PerlinNoise p;
@@ -2497,35 +2615,46 @@ float GLContainer::generate_perlin_noise(float xscale = 0.014,
 
 float GLContainer::gen_noise(int preset, int seed) {
   auto t1 = std::chrono::high_resolution_clock::now();
+  json j;
+  j["preset"] = preset;
+  j["seed"] = seed;
+  log(j.dump());
+  
   // FastNoise::SmartNode<> fnGenerator =
       // FastNoise::NewFromEncodedNodeTree("DQAFAAAAAAAAQAgAAAAAAD8AAAAAAA==");
       
   auto fnSimplex = FastNoise::New<FastNoise::Simplex>();
-  auto fnFractal = FastNoise::New<FastNoise::FractalFBm>();
+  auto fnGenerator = FastNoise::New<FastNoise::FractalFBm>();
   
-  fnFractal->SetSource( fnSimplex );
-  fnFractal->SetOctaveCount( 5 ); 
+  fnGenerator->SetSource( fnSimplex );
+  fnGenerator->SetOctaveCount( 3 ); 
 
   // Create an array of floats to store the noise output in
-  std::vector<float> noiseOutput(16 * 16 * 16);
+  std::vector<float> noiseOutput(DIM * DIM * DIM);
 
   // Generate a 16 x 16 x 16 area of noise
-  // fnGenerator->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, 16, 16, 16, 0.2f,
-  //                               1337);
-  fnFractal->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, 16, 16, 16, 0.2f,
+  fnGenerator->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, DIM, DIM, DIM, 0.02f,
                                 1337);
-  int index = 0;
+  // int index = 0;
 
-  for (int z = 0; z < 16; z++) {
-    for (int y = 0; y < 16; y++) {
-      for (int x = 0; x < 16; x++) {
+  // for (int z = 0; z < DIM; z++) {
+    // for (int y = 0; y < DIM; y++) {
+      // for (int x = 0; x < DIM; x++) {
         // ProcessVoxelData(x, y, z, noiseOutput[index++]);
-        cout << noiseOutput[index++] << " ";
-      }
-      cout << endl;
-    }
-    cout << endl;
-  }
+        // cout << noiseOutput[index++] << " ";
+      // }
+      // cout << endl;
+    // }
+    // cout << endl;
+  // }
+   
+  // send noiseOutput to the GPU
+  glBindTexture(GL_TEXTURE_3D, textures[11]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, &noiseOutput[0]);
+  glGenerateMipmap(GL_TEXTURE_3D);
+
+
   auto t2 = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
