@@ -17,7 +17,7 @@ void GLContainer::save_log(std::string filename) {
   }
   // open the file and dump it
   std::ofstream file("logs/" + filename);
-  file << j.dump();
+  file << j.dump(1);
 }
 
 // void GLContainer::load_log(std::string filename) { // load and execute log
@@ -56,6 +56,15 @@ float GLContainer::parse_and_execute_JSON_op(json j)
     view_up();
   }else if(j["type"] == std::string("view_down")){
     view_down();
+  }else if(j["type"] == std::string("clickndrag_adjust")){
+    clickndragx += float(j["x"]);
+    clickndragy += float(j["y"]);
+  }else if(j["type"] == std::string("scale_adjust")){
+    scale += float(j["amount"]);
+  }else if(j["type"] == std::string("nearest_filter")){
+    main_block_nearest_filter();
+  }else if(j["type"] == std::string("linear_filter")){
+    main_block_linear_filter();
   }else if(j["type"] == std::string("lighting_clear")){
     lighting_clear(j["use_cache"],  glm::vec4(j["clear_level"]["r"], j["clear_level"]["g"], j["clear_level"]["b"], j["clear_level"]["a"]));
   }else if(j["type"] == std::string("compute_point_lighting")){
@@ -132,11 +141,79 @@ float GLContainer::parse_and_execute_JSON_op(json j)
 
 void GLContainer::screenshot(std::string filename)
 {
+  // already accounts for TRIPLE_MONITOR
+    unsigned width = screen_width;
+    
+    // height is the same either way
+    unsigned height = screen_height;
+    
+    // declare buffer and allocate
+    std::vector<unsigned char> image_bytes_to_save, temp;
+    image_bytes_to_save.resize( width * height * 3 );
+
+    //glReadnPixels(...) - this is supposed to be slow, note that this needs to consider TRIPLE_MONITOR define to output a wide image
+    // using the version with the n so you can use a user-provided buffer and saving that directly to keep from having to copy
+    // glReadnPixels( 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, width * height * 3, &image_bytes_to_save[0]);
+    glReadPixels( 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, &image_bytes_to_save[0]);
+
+    temp.assign(image_bytes_to_save.begin(), image_bytes_to_save.end());
+
+    //reorder flipped image content
+    for(int x = 0; x < (int)width; x++)
+        for(int y = 0; y < (int)height; y++)
+        {
+            int input_base = 3 * ((height - y - 1) * width + x); 
+            int output_base = 3 * ( y * width + x );
+            image_bytes_to_save[output_base+0] = temp[input_base+0];
+            image_bytes_to_save[output_base+1] = temp[input_base+1];
+            image_bytes_to_save[output_base+2] = temp[input_base+2];
+        }
+    
+    //save the resulting image - using the same buffer makes it so you don't have to copy it 
+    unsigned error = lodepng::encode( filename.c_str( ), image_bytes_to_save, width, height, LCT_RGB, 8 );
+
+    if(error) 
+    {
+       std::cout << "encode error during save(\" "+ filename +" \") " << error << ": " << lodepng_error_text(error) << std::endl; 
+    }
+}
+
+void GLContainer::single_screenshot()
+{
+  //formatted date and time
+  auto now = std::chrono::system_clock::now( );
+  auto in_time_t = std::chrono::system_clock::to_time_t( now );
   
+  std::stringstream ss;
+  ss << std::put_time( std::localtime( &in_time_t ), "Voraldo1_2Screenshot-%Y-%m-%d %X" ) << ".png";
+  screenshot(ss.str());  
 }
 
 void GLContainer::animation(std::string filename)
 {
+  //load the json
+  std::ifstream fin(filename);
+  json j;
+  fin >> j;
+  
+  //get number of frames, number of setup operations
+  int num_frames = j["num_frames"];
+  int num_setup_ops = j["setup"]["num_ops"]; 
+  
+  //run all the setup operations
+  for (int i = 0; i < num_setup_ops; i++) {
+    parse_and_execute_JSON_op(json(j["setup"]["op"+std::to_string(i)]));   
+  }
+  
+  //for all frames n
+  for(int n = 0; n < num_frames; n++)
+  {
+    std::stringstream ss;
+    ss << "frames/step" << std::setfill('0') << std::setw(5) << n << ".png";
+    //  run the frame n operations
+    //  display the block
+    //  save the screenshot for frame n
+  }
   
 }
 
@@ -329,9 +406,9 @@ void GLContainer::display_block() {
     glUniform1f(glGetUniformLocation(display_compute_shader, "scale"), scale);
 
     // click and drag
-    glUniform1i(glGetUniformLocation(display_compute_shader, "clickndragx"),
+    glUniform1f(glGetUniformLocation(display_compute_shader, "clickndragx"),
                 clickndragx);
-    glUniform1i(glGetUniformLocation(display_compute_shader, "clickndragy"),
+    glUniform1f(glGetUniformLocation(display_compute_shader, "clickndragy"),
                 clickndragy);
 
     // clear color

@@ -1793,11 +1793,15 @@ void engine::show_voraldo_menu(bool *show) {
               point_decay_power, point_distance_power);
         }
 
+        ImGui::Text("");
+        ImGui::Text("");
         ImGui::Separator();
         ImGui::Separator();
         ImGui::Separator();
         ImGui::Separator();
-
+        ImGui::Text("");
+        ImGui::Text("");
+        
         WrappedText(" Cone Lights ");
         ImGui::SameLine();
         HelpMarker("Cone lights are similar to point lights, but constrained "
@@ -1842,10 +1846,14 @@ void engine::show_voraldo_menu(bool *show) {
           // the call to the cone light function
         }
 
+        ImGui::Text("");
+        ImGui::Text("");
         ImGui::Separator();
         ImGui::Separator();
         ImGui::Separator();
         ImGui::Separator();
+        ImGui::Text("");
+        ImGui::Text("");
 
         WrappedText(" Directional Lights ");
         ImGui::SameLine();
@@ -1905,7 +1913,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("sfactor", &GI_scale_factor, 0.0f, 1.0f);
         ImGui::SliderFloat("alpha threshold", &GI_alpha_thresh, 0.0f, 1.0f);
         // ImGui::SliderFloat("sky intensity", &GI_sky_intensity, 0.0f, 1.0f);
-        static ImVec4 color0;
+        static ImVec4 color0 = ImVec4(10./255.,10./255.,10./255.,0.);
         ImGui::ColorEdit4("sky color", (float *)&color0,
                           ImGuiColorEditFlags_AlphaBar |
                               ImGuiColorEditFlags_AlphaPreviewHalf);
@@ -2683,6 +2691,17 @@ void engine::handle_events() {
       GPU_Data.clickndragy -= SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
     }
 
+    std::string animation_file_location = std::string("animation.json");
+
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s)
+    {
+      if(SDL_GetModState() & KMOD_SHIFT){
+        GPU_Data.animation(animation_file_location);
+      }else{
+        GPU_Data.single_screenshot();
+      }
+    }
+      
     if (event.type == SDL_MOUSEWHEEL) {
       // allow scroll to do the same thing as +/-
       if (event.wheel.y > 0) // scroll up

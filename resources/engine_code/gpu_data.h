@@ -31,6 +31,7 @@ public:
   void set_redraw_flag() { redraw_flag = true; }
 
   // screenshot, animation
+  void single_screenshot();
   void screenshot(std::string filename);
   void animation(std::string filename);
 
@@ -74,8 +75,8 @@ public:
   int tonemap_mode = 1;
 
   float scale = 5.;
-  int clickndragx = 0;
-  int clickndragy = 0;
+  float clickndragx = 0;
+  float clickndragy = 0;
 
   // Functions as invoked from the menu
 

@@ -84,7 +84,7 @@ using json = nlohmann::json;
 // pi definition
 constexpr double pi = 3.14159265358979323846;
 
-#define TRIPLE_MONITOR // enable to span all three monitors
+// #define TRIPLE_MONITOR // enable to span all three monitors
 
 // voxel dimension
 // #define DIM 256
@@ -102,11 +102,6 @@ constexpr double pi = 3.14159265358979323846;
 
 // for the tile based rendering - needs to be a multiple of 32
 #define TILESIZE 64
-
-#define NUM_ROTATION_STEPS 1000
-
-// #define WIDTH 640
-// #define HEIGHT 480
 
 // Function to get color temperature from shadertoy user BeRo
 // from the author:
