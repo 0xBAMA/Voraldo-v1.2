@@ -2559,7 +2559,7 @@ void engine::draw_windows() {
   ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
   // show the demo window
-  static bool show_demo_window = true;
+  static bool show_demo_window = false;
   if (show_demo_window)
     ImGui::ShowDemoWindow(&show_demo_window);
 

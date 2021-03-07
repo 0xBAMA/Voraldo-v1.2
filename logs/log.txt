@@ -1,1 +1,8 @@
-{"0":"{\"seed\":0,\"type\":\"generate_perlin_noise\",\"xscale\":0.014000000432133675,\"yscale\":0.03999999910593033,\"zscale\":0.014000000432133675}","1":"{\"type\":\"generate_heightmap_diamond_square\"}","num_operations":2}
+{
+ "0": "{\"seed\":0,\"type\":\"generate_perlin_noise\",\"xscale\":0.014000000432133675,\"yscale\":0.03999999910593033,\"zscale\":0.014000000432133675}",
+ "1": "{\"type\":\"generate_heightmap_diamond_square\"}",
+ "2": "{\"clear_level\":{\"a\":0.0,\"b\":0.0,\"g\":0.0470588244497776,\"r\":0.10588235408067703},\"type\":\"lighting_clear\",\"use_cache\":false}",
+ "3": "{\"radius\":1,\"type\":\"ambient occlusion\"}",
+ "4": "{\"color\":{\"a\":0.0,\"b\":0.1568627506494522,\"g\":0.125490203499794,\"r\":0.0},\"decay_power\":0.8460000157356262,\"phi\":-0.7319999933242798,\"theta\":1.8650000095367432,\"type\":\"directional_lighting\"}",
+ "num_operations": 5
+}

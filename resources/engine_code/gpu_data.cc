@@ -35,8 +35,7 @@ float GLContainer::parse_and_execute_JSON_op(json j)
 {
   auto t1 = std::chrono::high_resolution_clock::now();
 
-  if(j["type"] == std::string("rotate_vertical"))
-  {
+  if(j["type"] == std::string("rotate_vertical")){
     rotate_vertical(j["amount"]);
   }else if(j["type"] == std::string("rotate_horizontal")){
     rotate_horizontal(j["amount"]); 
@@ -67,15 +66,15 @@ float GLContainer::parse_and_execute_JSON_op(json j)
     main_block_linear_filter();
   }else if(j["type"] == std::string("lighting_clear")){
     lighting_clear(j["use_cache"],  glm::vec4(j["clear_level"]["r"], j["clear_level"]["g"], j["clear_level"]["b"], j["clear_level"]["a"]));
-  }else if(j["type"] == std::string("compute_point_lighting")){
+  }else if(j["type"] == std::string("point_lighting")){
     compute_point_lighting(glm::vec3(j["light_position"]["x"], j["light_position"]["y"], j["light_position"]["z"]), glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["decay_power"], j["distance_power"]);
-  }else if(j["type"] == std::string("compute_cone_lighting")){
+  }else if(j["type"] == std::string("cone_lighting")){
     compute_cone_lighting(glm::vec3(j["location"]["x"], j["location"]["y"], j["location"]["z"]), j["theta"], j["phi"], j["cone_angle"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["decay_power"], j["distance_power"]);
-  }else if(j["type"] == std::string("compute_new_directional_lighting")){
+  }else if(j["type"] == std::string("directional_lighting")){
     compute_new_directional_lighting(j["theta"], j["phi"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["decay_power"]);
-  }else if(j["type"] == std::string("compute_fake_GI")){
+  }else if(j["type"] == std::string("fake_GI")){
     compute_fake_GI(j["factor"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["threshold"]);
-  }else if(j["type"] == std::string("compute_ambient_occlusion")){
+  }else if(j["type"] == std::string("ambient_occlusion")){
     compute_ambient_occlusion(j["radius"]);
   }else if(j["type"] == std::string("mash")){
     mash();
@@ -185,7 +184,7 @@ void GLContainer::single_screenshot()
   auto in_time_t = std::chrono::system_clock::to_time_t( now );
   
   std::stringstream ss;
-  ss << std::put_time( std::localtime( &in_time_t ), "Voraldo1_2Screenshot-%Y-%m-%d %X" ) << ".png";
+  ss << std::put_time( std::localtime( &in_time_t ), "Voraldo_1_2_Screenshot-%Y-%m-%d %X" ) << ".png";
   screenshot(ss.str());  
 }
 
@@ -208,11 +207,18 @@ void GLContainer::animation(std::string filename)
   //for all frames n
   for(int n = 0; n < num_frames; n++)
   {
+    //  run the frame n operations
+    for (int i = 0; i < j["frame"+std::to_string(n)]["num_ops"]; i++) {
+      parse_and_execute_JSON_op(json(j["frame"+std::to_string(n)]["op"+std::to_string(i)]));   
+    }
+
+    //  display the block
+    display_block();
+    
+    //  save the screenshot for frame n
     std::stringstream ss;
     ss << "frames/step" << std::setfill('0') << std::setw(5) << n << ".png";
-    //  run the frame n operations
-    //  display the block
-    //  save the screenshot for frame n
+    screenshot(ss.str());
   }
   
 }
@@ -1244,7 +1250,7 @@ float GLContainer::compute_fake_GI(float factor, glm::vec4 color, float thresh) 
 float GLContainer::compute_ambient_occlusion(int radius) {
   auto t1 = std::chrono::high_resolution_clock::now();
   json j;
-  j["type"] = "ambient occlusion";
+  j["type"] = "ambient_occlusion";
   j["radius"] = radius;
   log(j.dump());
 
