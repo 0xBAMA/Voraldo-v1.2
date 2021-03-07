@@ -112,6 +112,8 @@ float GLContainer::parse_and_execute_JSON_op(json j)
       draw_triangle(glm::vec3(j["point1"]["x"], j["point1"]["y"], j["point1"]["z"]), glm::vec3(j["point2"]["x"], j["point2"]["y"], j["point2"]["z"]), glm::vec3(j["point3"]["x"], j["point3"]["y"], j["point3"]["z"]), j["thickness"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]); 
   }else if(j["type"] == std::string("invert_mask")){
     invert_mask();
+  }else if(j["type"] == std::string("unmask_all")){
+    unmask_all();
   }else if(j["type"] == std::string("mask_by_color")){
       mask_by_color(j["r"], j["g"], j["b"], j["a"], j["l"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["l_val"], j["r_var"], j["g_var"], j["b_var"], j["a_var"], j["l_var"], j["amount"]);
   }else if(j["type"] == std::string("box_blur")){
