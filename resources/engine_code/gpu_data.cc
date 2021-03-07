@@ -103,7 +103,7 @@ float GLContainer::parse_and_execute_JSON_op(json j)
   }else if(j["type"] == std::string("draw_noise")){
     draw_noise(j["low_thresh"], j["high_thresh"], j["smooth"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
   }else if(j["type"] == std::string("draw_regular_icosahedron")){
-    draw_regular_icosahedron(j["x_rot"]["x"], j["y_rot"]["y"], j["z_rot"]["z"], j["scale"], glm::vec3(j["center_point"]["x"], j["center_point"]["y"], j["center_point"]["z"]), glm::vec4(j["vertex_color"]["r"], j["vertex_color"]["g"], j["vertex_color"]["b"], j["vertex_color"]["a"]), j["vertex_radius"], glm::vec4(j["edge_color"]["r"], j["edge_color"]["g"], j["edge_color"]["b"], j["edge_color"]["a"]), j["edge_thickness"], glm::vec4(j["face_color"]["r"], j["face_color"]["g"], j["face_color"]["b"], j["face_color"]["a"]), j["face_thickness"], j["draw"], j["mask"]);
+    draw_regular_icosahedron(j["x_rot"], j["y_rot"], j["z_rot"], j["scale"], glm::vec3(j["center_point"]["x"], j["center_point"]["y"], j["center_point"]["z"]), glm::vec4(j["vertex_color"]["r"], j["vertex_color"]["g"], j["vertex_color"]["b"], j["vertex_color"]["a"]), j["vertex_radius"], glm::vec4(j["edge_color"]["r"], j["edge_color"]["g"], j["edge_color"]["b"], j["edge_color"]["a"]), j["edge_thickness"], glm::vec4(j["face_color"]["r"], j["face_color"]["g"], j["face_color"]["b"], j["face_color"]["a"]), j["face_thickness"], j["draw"], j["mask"]);
   }else if(j["type"] == std::string("draw_sphere")){
     draw_sphere(glm::vec3(j["location"]["x"], j["location"]["y"], j["location"]["z"]), j["radius"], glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"], j["color"]["a"]), j["draw"], j["mask"]);
   }else if(j["type"] == std::string("draw_tube")){

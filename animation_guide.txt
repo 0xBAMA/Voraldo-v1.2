@@ -1,0 +1,215 @@
+"rotate_vertical"
+	"amount"
+
+"rotate_horizontal"
+	"amount"
+
+"rollate"
+	"amount"
+
+"init_basis"
+
+"view_front"
+
+"view_back"
+
+"view_right"
+
+"view_left"
+
+"view_up"
+
+"view_down"
+
+"clickndrag_adjust"
+	"x", "y"
+
+"scale_adjust"
+	"amount"
+
+"nearest_filter"
+
+"linear_filter"
+
+"lighting_clear"
+	"use_cache",
+	"clear_level" : "r", "g", "b", "a"
+
+"point_lighting"
+	"light_position" : "x", "y", "z",
+	"color" : "r", "g", "b", "a",
+	"decay_power",
+	"distance_power"
+
+"cone_lighting"
+	"location" : "x", "y", "z",
+	"theta", "phi",
+	"cone_angle",
+	"color" : "r", "g", "b", "a",
+	"decay_power",
+	"distance_power"
+
+"directional_lighting"
+	"theta", "phi",
+	"color" : "r", "g", "b", "a",
+	"decay_power"
+
+"fake_GI"
+	"factor",
+	"color" : "r", "g", "b", "a",
+	"threshold"
+
+"ambient_occlusion"
+	"radius"
+
+"mash"
+
+
+"draw_aabb"
+	"min" : "x", "y", "z",
+	"max" : "x", "y", "z",
+	"color" : "r", "g", "b", "a",
+	"draw", "mask"
+
+"draw_cuboid"
+	"a" : "x", "y", "z",
+	"b" : "x", "y", "z",
+	"c" : "x", "y", "z",
+	"d" : "x", "y", "z",
+	"e" : "x", "y", "z",
+	"f" : "x", "y", "z",
+	"g" : "x", "y", "z",
+	"h" : "x", "y", "z",
+	"color" : "r", "g", "b", "a",
+	"draw", "mask"
+
+"draw_cylinder"
+	"tvec" : "x", "y", "z",
+	"bvec" : "x", "y", "z",
+	"radius",
+	"color" : "r", "g", "b", "a",
+	"draw", "mask"
+
+"draw_ellipsoid"
+	"center" : "x", "y", "z",
+	"radii" : "x", "y", "z",
+	"rotation" : "x", "y", "z",
+	"color" : "r", "g", "b", "a",
+ 	"draw", "mask"
+
+"draw_grid"
+	"spacing" : "x", "y", "z",
+	"width" : "x", "y", "z",
+	"offsets" : "x", "y", "z",
+	"rotation" : "x", "y", "z",
+	"color" : "r", "g", "b", "a",
+ 	"draw", "mask"
+
+"generate_heightmap_xor"
+
+"generate_heightmap_perlin"
+
+"generate_heightmap_diamond_square"
+
+"draw_heightmap"
+	"height_scale",
+	"height_color",
+	"color" : "r", "g", "b", "a",
+	"draw", "mask"
+
+"generate_perlin_noise"
+	"xscale",
+	"yscale",
+	"zscale",
+	"seed"
+
+"gen_noise"
+	"preset",
+	"seed"
+
+"draw_noise"
+	"low_thresh",
+	"high_thresh",
+	"smooth",
+	"color" : "r", "g", "b", "a",
+ 	"draw", "mask"
+
+"draw_regular_icosahedron"
+	"x_rot", "y_rot", "z_rot",
+	"scale", "center_point" : "x", "y", "z",
+	"vertex_color" : "r", "g", "b", "a",
+	"vertex_radius",
+	"edge_color" : "r", "g", "b", "a",
+	"edge_thickness",
+	"face_color" : "r", "g", "b", "a",
+	"face_thickness",
+	"draw", "mask"
+
+"draw_sphere"
+	"location" : "x", "y", "z",
+	"radius",
+	"color" : "r", "g", "b", "a",
+ 	"draw", "mask"
+
+"draw_tube"
+	"bvec" : "x", "y", "z",
+	"tvec" : "x", "y", "z",
+	"inner_radius", "outer_radius",
+	"color" : "r", "g", "b", "a",
+ 	"draw", "mask"
+
+"draw_triangle"
+	"point1" : "x", "y", "z",
+	"point2" : "x", "y", "z",
+	"point3" : "x", "y", "z",
+	"thickness",
+	"color" : "r", "g", "b", "a",
+ 	"draw", "mask"
+
+"invert_mask"
+
+"mask_by_color"
+	"r", "g", "b", "a", "l",
+	"color" : "r", "g", "b", "a",
+ 	"l_val", "r_var", "g_var", "b_var", "a_var", "l_var",
+	"amount"
+
+"box_blur"
+	"radius",
+	"touch_alpha",
+	"respect_mask"
+
+"gaussian_blur"
+	"radius",
+	"touch_alpha",
+	"respect_mask"
+
+"limiter"
+
+"shift"
+	"movement" : "x", "y", "z",
+	"loop", "mode"
+
+"compile_user_script"
+	"text"
+
+"run_user_script"
+
+"load"
+	"filename",
+	"respect_mask"
+
+"save"
+	"filename"
+
+"vat"
+	"flip",
+	"rule",
+	"init_mode",
+	"color0" : "r", "g", "b", "a",
+	"color1" : "r", "g", "b", "a",
+	"color2" : "r", "g", "b", "a",
+	"lambda", "beta", "mag",
+	"respect_mask",
+	"mins" : "x", "y", "z",
+	"maxs" : "x", "y", "z"
