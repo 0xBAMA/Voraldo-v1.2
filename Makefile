@@ -56,18 +56,6 @@ CMAKE_BINARY_DIR = /home/jb/Documents/Repos/voraldo/Voraldo-v1.2
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local/fast
-
 # Special rule for the target install
 install: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
@@ -123,6 +111,18 @@ install/strip/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
 	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -920,6 +920,33 @@ resources/lodev_lodePNG/lodepng.cc.s:
 	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/lodev_lodePNG/lodepng.cc.s
 .PHONY : resources/lodev_lodePNG/lodepng.cc.s
 
+resources/ocornut_imgui/TextEditor.o: resources/ocornut_imgui/TextEditor.cpp.o
+
+.PHONY : resources/ocornut_imgui/TextEditor.o
+
+# target to build an object file
+resources/ocornut_imgui/TextEditor.cpp.o:
+	$(MAKE) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/resources/ocornut_imgui/TextEditor.cpp.o
+.PHONY : resources/ocornut_imgui/TextEditor.cpp.o
+
+resources/ocornut_imgui/TextEditor.i: resources/ocornut_imgui/TextEditor.cpp.i
+
+.PHONY : resources/ocornut_imgui/TextEditor.i
+
+# target to preprocess a source file
+resources/ocornut_imgui/TextEditor.cpp.i:
+	$(MAKE) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/resources/ocornut_imgui/TextEditor.cpp.i
+.PHONY : resources/ocornut_imgui/TextEditor.cpp.i
+
+resources/ocornut_imgui/TextEditor.s: resources/ocornut_imgui/TextEditor.cpp.s
+
+.PHONY : resources/ocornut_imgui/TextEditor.s
+
+# target to generate assembly for a file
+resources/ocornut_imgui/TextEditor.cpp.s:
+	$(MAKE) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/resources/ocornut_imgui/TextEditor.cpp.s
+.PHONY : resources/ocornut_imgui/TextEditor.cpp.s
+
 resources/ocornut_imgui/imgui.o: resources/ocornut_imgui/imgui.cc.o
 
 .PHONY : resources/ocornut_imgui/imgui.o
@@ -1169,7 +1196,6 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... install/local"
 	@echo "... install"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
@@ -1178,6 +1204,7 @@ help:
 	@echo "... install/strip"
 	@echo "... BigInt"
 	@echo "... imgui"
+	@echo "... install/local"
 	@echo "... FastNoise"
 	@echo "... NoiseTool"
 	@echo "... Corrade"
@@ -1243,6 +1270,9 @@ help:
 	@echo "... resources/lodev_lodePNG/lodepng.o"
 	@echo "... resources/lodev_lodePNG/lodepng.i"
 	@echo "... resources/lodev_lodePNG/lodepng.s"
+	@echo "... resources/ocornut_imgui/TextEditor.o"
+	@echo "... resources/ocornut_imgui/TextEditor.i"
+	@echo "... resources/ocornut_imgui/TextEditor.s"
 	@echo "... resources/ocornut_imgui/imgui.o"
 	@echo "... resources/ocornut_imgui/imgui.i"
 	@echo "... resources/ocornut_imgui/imgui.s"

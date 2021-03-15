@@ -13,12 +13,12 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/resources/FastNoise2)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(SDL2 REQUIRED)
-add_library(sdl2 INTERFACE)
-target_include_directories(sdl2
+add_library(voraldo_sdl2 INTERFACE)
+target_include_directories(voraldo_sdl2
     INTERFACE
         ${SDL2_INCLUDE_DIR}
 )
-target_link_libraries(sdl2
+target_link_libraries(voraldo_sdl2
     INTERFACE
         ${SDL2_LIBRARY}
         ${CMAKE_DL_LIBS}
@@ -40,9 +40,10 @@ add_library(imgui
   resources/ocornut_imgui/imgui_draw.cc
   resources/ocornut_imgui/imgui_widgets.cc
   resources/ocornut_imgui/imgui_tables.cc  
-  resources/ocornut_imgui/imgui_gl3w.c)
+  resources/ocornut_imgui/imgui_gl3w.c
+  resources/ocornut_imgui/TextEditor.cpp)
 
-target_link_libraries(imgui PUBLIC sdl2 opengl)
+target_link_libraries(imgui PUBLIC voraldo_sdl2 opengl)
 
 target_compile_options(imgui PUBLIC -I/usr/include/SDL2)
 target_compile_definitions(imgui PUBLIC -D IMGUI_IMPL_OPENGL_LOADER_GL3W -D_REENTRANT)
@@ -69,4 +70,4 @@ add_executable(exe
   resources/perlin/perlin.cc
   resources/lodev_lodePNG/lodepng.cc)
 
-target_link_libraries(exe PUBLIC FastNoise imgui BigInt opengl sdl2 stdc++fs CompilerFlags)
+target_link_libraries(exe PUBLIC FastNoise imgui BigInt opengl voraldo_sdl2 stdc++fs CompilerFlags)

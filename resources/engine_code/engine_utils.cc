@@ -2072,6 +2072,7 @@ void engine::draw_user_editor_tab_contents() {
     ImGuiTextFilter Filter;
     bool AutoScroll;
     bool ScrollToBottom;
+    TextEditor editor;
 
     char text[1 << 18];
     char origtext[265] =
@@ -2290,11 +2291,11 @@ void engine::draw_user_editor_tab_contents() {
         std::ifstream file("scripts/" + std::string(command_line + 5));
         std::string loaded{std::istreambuf_iterator<char>(file),
                            std::istreambuf_iterator<char>()};
-        strcpy(text, loaded.c_str());
+        editor.SetText(loaded);
       } else if (Strnicmp(command_line, "save ", 5) == 0) {
         // try to save the string to file
         std::ofstream file("scripts/" + std::string(command_line + 5));
-        std::string savetext(text);
+        std::string savetext(editor.GetText());
         file << savetext;
       } else if (Stricmp(command_line, "list") == 0) {
         // list out all the files in scripts/
@@ -2437,25 +2438,51 @@ void engine::draw_user_editor_tab_contents() {
 
   static bool draw = true;
   static consoleclass console;
+
+  // first time init
   if (console.parent == NULL)
+  {
+    // console init
     console.parent = this;
 
+    // text editor
+    console.editor.SetLanguageDefinition(TextEditor::LanguageDefinition::GLSL()); 
+     
+    console.editor.SetPalette(TextEditor::GetDarkPalette());
+    // editor.SetPalette(TextEditor::GetLightPalette());
+    // editor.SetPalette(TextEditor::GetRetroBluePalette());
+
+    console.editor.SetText(std::string(console.origtext));
+
+    
+  }
+
+
+  
   // the first part, the editor -
   // this c style string holds the contents of the program -
-  //   need to extend Cshader class to take string instead of file
-  //   input
 
-  ImGui::InputTextMultiline(
-      "source", console.text, IM_ARRAYSIZE(console.text),
-      ImVec2(-FLT_MIN, 2 * total_screen_height / 3), // 2/3 of screen height
-      // ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 36), // 36 lines
-      ImGuiInputTextFlags_AllowTabInput);
+  // ImGui::InputTextMultiline(
+  //     "source", console.text, IM_ARRAYSIZE(console.text),
+  //     ImVec2(-FLT_MIN, 2 * total_screen_height / 3), // 2/3 of screen height
+  //     // ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 36), // 36 lines
+  //     ImGuiInputTextFlags_AllowTabInput);
+
+  auto cpos = console.editor.GetCursorPosition();
+  ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1,
+              cpos.mColumn + 1, console.editor.GetTotalLines(),
+              console.editor.IsOverwrite() ? "Ovr" : "Ins",
+              console.editor.CanUndo() ? "*" : " ",
+              console.editor.GetLanguageDefinition().mName.c_str(), "User Script");
+
+  console.editor.Render("TextEditor", ImVec2(-FLT_MIN, 2 * total_screen_height / 3));
+  
   if (ImGui::SmallButton(" Compile and Run ")) {
     // do some compilation
     // report compilation result / errors / timing
     console.AddLog(
         "%s\n",
-        GPU_Data.compile_user_script(std::string(console.text)).c_str());
+        GPU_Data.compile_user_script(std::string(console.editor.GetText())).c_str());
 
     // run the shader for every voxel and report timing
     console.AddLog("%s\n", GPU_Data.run_user_script().c_str());
@@ -2464,7 +2491,8 @@ void engine::draw_user_editor_tab_contents() {
   ImGui::SameLine();
 
   if (ImGui::SmallButton(" Clear Editor ")) {
-    strcpy(console.text, console.origtext);
+    // strcpy(console.text, console.origtext);
+    console.editor.SetText(std::string(console.origtext));
   }
 
   console.Draw("ex", &draw);
