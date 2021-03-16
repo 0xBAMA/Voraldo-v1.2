@@ -37,7 +37,7 @@ public:
 
   // used by the animation code, returns execution time in us
   float parse_and_execute_JSON_op(json j);
-    
+
   // OpenGL clear color
   glm::vec4 clear_color;
 
@@ -86,16 +86,16 @@ public:
   float lighting_clear(bool use_cache, glm::vec4 clear_level);
 
   float compute_point_lighting(glm::vec3 light_position, glm::vec4 color,
-                              float point_decay_power,
-                              float point_distance_power);
+                               float point_decay_power,
+                               float point_distance_power);
 
   float compute_cone_lighting(glm::vec3 location, float theta, float phi,
-                             float cone_angle, glm::vec4 color,
-                             float decay_power, float distance_power);
+                              float cone_angle, glm::vec4 color,
+                              float decay_power, float distance_power);
 
   float compute_new_directional_lighting(float theta, float phi,
-                                        glm::vec4 initial_ray_intensity,
-                                        float decay_power);
+                                         glm::vec4 initial_ray_intensity,
+                                         float decay_power);
 
   float compute_fake_GI(float factor, glm::vec4 sky_intensity, float thresh);
 
@@ -107,53 +107,54 @@ public:
   // shapes
 
   float draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color, bool aabb_draw,
-                 int aabb_mask);
+                  int aabb_mask);
 
   float draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d,
-                   glm::vec3 e, glm::vec3 f, glm::vec3 g, glm::vec3 h,
-                   glm::vec4 color, bool cuboid_draw, int cuboid_mask);
+                    glm::vec3 e, glm::vec3 f, glm::vec3 g, glm::vec3 h,
+                    glm::vec4 color, bool cuboid_draw, int cuboid_mask);
 
   float draw_cylinder(glm::vec3 cylinder_bvec, glm::vec3 cylinder_tvec,
-                     float cylinder_radius, glm::vec4 color, bool cylinder_draw,
-                     int cylinder_mask);
+                      float cylinder_radius, glm::vec4 color,
+                      bool cylinder_draw, int cylinder_mask);
 
   float draw_ellipsoid(glm::vec3 center, glm::vec3 radius, glm::vec3 rotation,
-                      glm::vec4 color, bool ellipsoid_draw, int ellipsoid_mask);
+                       glm::vec4 color, bool ellipsoid_draw,
+                       int ellipsoid_mask);
 
   float draw_grid(glm::ivec3 spacing, glm::ivec3 wid, glm::ivec3 off,
-                 glm::vec3 rot, glm::vec4 color, bool draw, int mask);
+                  glm::vec3 rot, glm::vec4 color, bool draw, int mask);
 
   // heightmap algorithms
   float generate_heightmap_XOR();
   float generate_heightmap_perlin();
   float generate_heightmap_diamond_square();
   float draw_heightmap(float height_scale, bool height_color, glm::vec4 color,
-                      bool draw, int mask);
+                       bool draw, int mask);
 
   // noise algorithms
   //   this is where the FastNoise2 generation goes
   float generate_perlin_noise(float xscale, float yscale, float zscale,
-                             int seed);
+                              int seed);
   float gen_noise(int preset, int seed);
   float draw_noise(float low_thresh, float high_thresh, bool smooth,
-                  glm::vec4 color, bool draw, int mask);
+                   glm::vec4 color, bool draw, int mask);
 
   float draw_regular_icosahedron(double x_rot, double y_rot, double z_rot,
-                                double scale, glm::vec3 center_point,
-                                glm::vec4 vertex_material,
-                                double verticies_radius,
-                                glm::vec4 edge_material, double edge_thickness,
-                                glm::vec4 face_material, float face_thickness,
-                                bool draw, bool mask);
+                                 double scale, glm::vec3 center_point,
+                                 glm::vec4 vertex_material,
+                                 double verticies_radius,
+                                 glm::vec4 edge_material, double edge_thickness,
+                                 glm::vec4 face_material, float face_thickness,
+                                 bool draw, bool mask);
 
-  float draw_sphere(glm::vec3 location, float radius, glm::vec4 color, bool draw,
-                   int mask);
+  float draw_sphere(glm::vec3 location, float radius, glm::vec4 color,
+                    bool draw, int mask);
 
   float draw_tube(glm::vec3 bvec, glm::vec3 tvec, float inner_radius,
-                 float outer_radius, glm::vec4 color, bool draw, int mask);
+                  float outer_radius, glm::vec4 color, bool draw, int mask);
 
   float draw_triangle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3,
-                     float thickness, glm::vec4 color, bool draw, int mask);
+                      float thickness, glm::vec4 color, bool draw, int mask);
 
   // --
   // utilities
@@ -163,8 +164,8 @@ public:
   float unmask_all();
   float invert_mask();
   float mask_by_color(bool r, bool g, bool b, bool a, bool l, glm::vec4 color,
-                     float l_val, float r_var, float g_var, float b_var,
-                     float a_var, float l_var, int mask);
+                      float l_val, float r_var, float g_var, float b_var,
+                      float a_var, float l_var, int mask);
 
   float box_blur(int radius, bool touch_alpha, bool respect_mask);
   float gaussian_blur(int radius, bool touch_alpha, bool respect_mask);
@@ -241,6 +242,7 @@ private:
   // OpenGL Data
   // the two versions of the raycast shader
   GLuint display_compute_image, display_compute_sampler;
+  GLuint display_compute_depthviz; // experimental
 
   // blitting via fullscreen geometry
   GLuint display_vao, display_vbo, display_shader_program;

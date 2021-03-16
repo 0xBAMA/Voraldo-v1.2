@@ -12,11 +12,10 @@ double tmin, tmax; //global scope, set in hit() to tell min and max parameters
 #define MIN_DISTANCE 0.0
 #define MAX_DISTANCE 5.0
 
-
-// the display texture
-uniform layout(rgba16) image2D current; // we can get the dimensions with imageSize
-uniform layout(rgba8) image3D block;
-uniform layout(rgba8) image3D lighting;
+// we can get the dimensions with imageSize
+uniform layout(rgba16f) image3D lighting; // lighting buffer
+uniform layout(rgba16) image2D current;  // render texture
+uniform layout(rgba8) image3D block;    // color data
 
 // because this is going to have to be tile-based, we need this local offset
 uniform int x_offset;
@@ -112,7 +111,7 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
         if(current_t>=tmin)
         {
             //apply the lighting scaling
-            new_read.rgb *= (4.*new_light_read.rgb);
+            new_read.rgb *= new_light_read.rgb;
 
             // parameterizing the alpha power
             alpha_squared = pow(new_read.a, upow);

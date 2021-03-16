@@ -3,7 +3,7 @@
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in; //3d workgroup
 
 uniform layout(rgba8) image3D current;
-uniform layout(r8) image3D lighting;
+uniform layout(rgba16f) image3D lighting;
 
 uniform vec3 light_position;
 uniform float light_intensity;

@@ -2,7 +2,7 @@
 layout(local_size_x = 8, local_size_y = 1, local_size_z = 8) in;    //specifies the workgroup size
 
 uniform layout(rgba8) image3D current;        //values of the block after the update
-uniform layout(rgba8) image3D lighting;        //values held in the lighting buffer
+uniform layout(rgba16f) image3D lighting;        //values held in the lighting buffer
 
 uniform int y_index;   // what plane are we in
 uniform float scale_factor; // how much should you scale the hit cell's lighting by
