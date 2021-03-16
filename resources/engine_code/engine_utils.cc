@@ -1801,7 +1801,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::Separator();
         ImGui::Text("");
         ImGui::Text("");
-        
+
         WrappedText(" Cone Lights ");
         ImGui::SameLine();
         HelpMarker("Cone lights are similar to point lights, but constrained "
@@ -1913,7 +1913,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("sfactor", &GI_scale_factor, 0.0f, 1.0f);
         ImGui::SliderFloat("alpha threshold", &GI_alpha_thresh, 0.0f, 1.0f);
         // ImGui::SliderFloat("sky intensity", &GI_sky_intensity, 0.0f, 1.0f);
-        static ImVec4 color0 = ImVec4(10./255.,10./255.,10./255.,0.);
+        static ImVec4 color0 = ImVec4(10. / 255., 10. / 255., 10. / 255., 0.);
         ImGui::ColorEdit4("sky color", (float *)&color0,
                           ImGuiColorEditFlags_AlphaBar |
                               ImGuiColorEditFlags_AlphaPreviewHalf);
@@ -2033,6 +2033,9 @@ void engine::show_voraldo_menu(bool *show) {
       ImGui::SameLine();
       if (ImGui::SmallButton(" Texture (Linear) ")) {
         GPU_Data.main_block_linear_filter();
+      }
+      if (ImGui::SmallButton(" DepthViz (Experimental) ")) {
+        GPU_Data.main_block_depthviz();
       }
       if (ImGui::SmallButton(" Swap Blocks ")) {
         GPU_Data.swap_blocks();
@@ -2440,25 +2443,21 @@ void engine::draw_user_editor_tab_contents() {
   static consoleclass console;
 
   // first time init
-  if (console.parent == NULL)
-  {
+  if (console.parent == NULL) {
     // console init
     console.parent = this;
 
     // text editor
-    console.editor.SetLanguageDefinition(TextEditor::LanguageDefinition::GLSL()); 
-     
+    console.editor.SetLanguageDefinition(
+        TextEditor::LanguageDefinition::GLSL());
+
     console.editor.SetPalette(TextEditor::GetDarkPalette());
     // editor.SetPalette(TextEditor::GetLightPalette());
     // editor.SetPalette(TextEditor::GetRetroBluePalette());
 
     console.editor.SetText(std::string(console.origtext));
-
-    
   }
 
-
-  
   // the first part, the editor -
   // this c style string holds the contents of the program -
 
@@ -2473,16 +2472,19 @@ void engine::draw_user_editor_tab_contents() {
               cpos.mColumn + 1, console.editor.GetTotalLines(),
               console.editor.IsOverwrite() ? "Ovr" : "Ins",
               console.editor.CanUndo() ? "*" : " ",
-              console.editor.GetLanguageDefinition().mName.c_str(), "User Script");
+              console.editor.GetLanguageDefinition().mName.c_str(),
+              "User Script");
 
-  console.editor.Render("TextEditor", ImVec2(-FLT_MIN, 2 * total_screen_height / 3));
-  
+  console.editor.Render("TextEditor",
+                        ImVec2(-FLT_MIN, 2 * total_screen_height / 3));
+
   if (ImGui::SmallButton(" Compile and Run ")) {
     // do some compilation
     // report compilation result / errors / timing
     console.AddLog(
         "%s\n",
-        GPU_Data.compile_user_script(std::string(console.editor.GetText())).c_str());
+        GPU_Data.compile_user_script(std::string(console.editor.GetText()))
+            .c_str());
 
     // run the shader for every voxel and report timing
     console.AddLog("%s\n", GPU_Data.run_user_script().c_str());
@@ -2721,15 +2723,14 @@ void engine::handle_events() {
 
     std::string animation_file_location = std::string("animation.json");
 
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s)
-    {
-      if(SDL_GetModState() & KMOD_SHIFT){
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s) {
+      if (SDL_GetModState() & KMOD_SHIFT) {
         GPU_Data.animation(animation_file_location);
-      }else{
+      } else {
         GPU_Data.single_screenshot();
       }
     }
-      
+
     if (event.type == SDL_MOUSEWHEEL) {
       // allow scroll to do the same thing as +/-
       if (event.wheel.y > 0) // scroll up

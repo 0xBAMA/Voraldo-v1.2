@@ -102,7 +102,13 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
 
     vec3 samp = (org + current_t * dir + vec3(1.))/2.;
     vec4 new_read = texture3D(block, samp);
-    vec4 new_light_read = texture3D(lighting, samp);
+    // vec4 new_light_read = texture3D(lighting, samp);
+
+    // ok I only want to use that alpha, the rgb comes from a depth-wise lerp between red and blue
+    // vec3 col = mix(vec3(1.), vec3(0.), distance(org, org+current_t*dir) / float(4));
+    // new_read.rgb = col;
+    new_read.rgb = samp;
+
 
     float alpha_squared;
 
@@ -110,7 +116,7 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
     {   if(current_t>=tmin)
         {
             //apply the lighting scaling
-            new_read.rgb *= new_light_read.rgb;
+            // new_read.rgb *= new_light_read.rgb;
 
             // parameterizing the alpha power
             alpha_squared = pow(new_read.a, upow);
@@ -127,7 +133,11 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
 
             // take a sample
             new_read = texture3D(block, samp);
-            new_light_read = texture3D(lighting, samp);
+            // col = mix(vec3(1.), vec3(0.), distance(org, org+current_t*dir) / float(4));
+            // new_read.rgb = col;
+            new_read.rgb = samp;
+
+            // new_light_read = texture3D(lighting, samp);
         }
     }
     return t_color;

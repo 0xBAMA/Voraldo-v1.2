@@ -376,6 +376,16 @@ float GLContainer::main_block_image() {
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
+float GLContainer::main_block_depthviz() {
+  auto t1 = std::chrono::high_resolution_clock::now();
+  main_block_linear_filter(); // filtering
+
+  rendermode = DEPTH; // set enum
+
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+}
+
 float GLContainer::main_block_linear_filter() {
   auto t1 = std::chrono::high_resolution_clock::now();
   rendermode = LINEAR;
@@ -487,6 +497,9 @@ void GLContainer::display_block() {
     switch (rendermode) {
     case IMAGE:
       display_compute_shader = display_compute_image;
+      break;
+    case DEPTH:
+      display_compute_shader = display_compute_depthviz;
       break;
     case NEAREST:
     case LINEAR:
@@ -630,9 +643,14 @@ void GLContainer::compile_shaders() {
   display_compute_image =
       CShader("resources/engine_code/shaders/raycast.cs.glsl").Program;
 
-  // raycasting, but with compute shaders
+  // raycasting, but with samplers
   display_compute_sampler =
       CShader("resources/engine_code/shaders/raycast_sampler.cs.glsl").Program;
+
+  // raycasting with depth visualization
+  display_compute_depthviz =
+      CShader("resources/engine_code/shaders/raycast_sampler_depthviz.cs.glsl")
+          .Program;
 
   // lighting functions
   lighting_clear_compute =

@@ -65,6 +65,7 @@ public:
 
   // to set type of renderer
   float main_block_image();
+  float main_block_depthviz();
   float main_block_linear_filter();
   float main_block_nearest_filter();
 
@@ -212,7 +213,7 @@ public:
   std::vector<std::string> operations; // log of all operations
 
 private:
-  enum rendermode_t { IMAGE, NEAREST, LINEAR } rendermode = LINEAR;
+  enum rendermode_t { IMAGE, DEPTH, NEAREST, LINEAR } rendermode = LINEAR;
 
   bool redraw_flag = true;       // need to update render texture
   bool color_mipmap_flag = true; // need to recompute mipmap before render
