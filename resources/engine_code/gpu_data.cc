@@ -542,6 +542,10 @@ void GLContainer::display_block() {
     glUniform1f(glGetUniformLocation(display_compute_shader, "upow"),
                 alpha_correction_power);
 
+    // tonemapping setting
+    glUniform1i(glGetUniformLocation(display_compute_shader, "ACES_behavior"),
+                tonemap_mode);
+
     // loop through tiles
     for (int x = 0; x < SSFACTOR * screen_width; x += TILESIZE) {
       // update the x offset
@@ -589,10 +593,6 @@ void GLContainer::display_block() {
     glUniform3f(glGetUniformLocation(display_shader_program, "temp_adjustment"),
                 col.x, col.y, col.z);
   }
-
-  // tonemapping setting
-  glUniform1i(glGetUniformLocation(display_shader_program, "ACES_behavior"),
-              tonemap_mode);
 
   // pixel scaling
   glUniform1f(glGetUniformLocation(display_shader_program, "ssfactor"),

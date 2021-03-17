@@ -10,10 +10,9 @@ uniform bool use_cache;
 
 void main()
 {
-    // use alpha to boost? how are we going to deal with the fact that incoming values are constrained to (0.-1.)?
-	if(use_cache)
-		imageStore(lighting, ivec3(gl_GlobalInvocationID.xyz), imageLoad(lighting_cache, ivec3(gl_GlobalInvocationID.xyz)));
-	else
-   	imageStore(lighting, ivec3(gl_GlobalInvocationID.xyz), vec4(intensity));
+    if(use_cache)
+        imageStore(lighting, ivec3(gl_GlobalInvocationID.xyz), imageLoad(lighting_cache, ivec3(gl_GlobalInvocationID.xyz)));
+    else
+        imageStore(lighting, ivec3(gl_GlobalInvocationID.xyz), vec4(intensity * intensity.w));
 }
 

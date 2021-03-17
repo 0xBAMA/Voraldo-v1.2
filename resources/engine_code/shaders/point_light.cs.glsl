@@ -90,7 +90,7 @@ void traceray(vec3 dir)
 
 
     vec4 prev_intensity = imageLoad(lighting, ivec3(gl_GlobalInvocationID.xyz)); // the lighting value that was in the cell, before this operation
-    vec4 current_intensity = light_intensity; // the strength of the light, before traversing any of the volume
+    vec4 current_intensity = light_intensity * light_intensity.w; // the strength of the light, before traversing any of the volume
 
     // float step = float((tmax-tmin))/NUM_STEPS;
     float step = 0.003; // uniform step seems to fit better here

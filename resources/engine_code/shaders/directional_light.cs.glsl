@@ -90,7 +90,7 @@ void traceray(vec3 dir)
     hit(org, dir); // we now have tmin and tmax set - tmin will be negative and will tell where the first intersection with the block is
 
     float current_t = float(tmin);
-    vec4 current_intensity = light_intensity; // the strength of the light, before traversing any of the volume
+    vec4 current_intensity = light_intensity * light_intensity.w; // the strength of the light, before traversing any of the volume
 
     vec4 prev_intensity = imageLoad(lighting, ivec3(gl_GlobalInvocationID.xyz)); // the lighting value that was in the cell, before this operation
 

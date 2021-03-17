@@ -54,7 +54,7 @@ void main()
                 if(!hit)  // ray escaped the volume, use sky_intensity instead
                 {
                     // take the light from the sky
-                    new_light_val = prev_light_val + sky_intensity; // should this take scale_factor as well?
+                    new_light_val = prev_light_val + sky_intensity * sky_intensity.w;
                 }
             }
         }

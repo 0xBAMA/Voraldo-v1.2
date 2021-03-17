@@ -1736,16 +1736,14 @@ void engine::show_voraldo_menu(bool *show) {
 
         OrangeText("SETTINGS");
 
-        static ImVec4 color0;
-        ImGui::ColorEdit4(" Color", (float *)&color0,
-                          ImGuiColorEditFlags_AlphaBar |
-                              ImGuiColorEditFlags_AlphaPreviewHalf);
+        static glm::vec4 color0 = glm::vec4(0, 0, 0, 1);
+        ImGui::ColorEdit3(" Color", (float *)&color0);
+        ImGui::SliderFloat("intensity scale    ", &color0.w, 0.0, 5.0);
 
         ImGui::Checkbox(" Clear to Cached Levels ", &use_cache);
 
         if (ImGui::SmallButton(" Clear ")) {
-          GPU_Data.lighting_clear(
-              use_cache, glm::vec4(color0.x, color0.y, color0.z, color0.w));
+          GPU_Data.lighting_clear(use_cache, color0);
         }
 
         ImGui::Separator();
@@ -1781,16 +1779,14 @@ void engine::show_voraldo_menu(bool *show) {
 
         OrangeText("COLOR");
 
-        static ImVec4 colorp;
-        ImGui::ColorEdit4(" ", (float *)&colorp,
-                          ImGuiColorEditFlags_AlphaBar |
-                              ImGuiColorEditFlags_AlphaPreviewHalf);
+        static glm::vec4 colorp = glm::vec4(0, 0, 0, 1);
+        ImGui::ColorEdit3(" ", (float *)&colorp);
+        ImGui::SliderFloat("intensity scale   ", &colorp.w, 0.0, 5.0);
 
         if (ImGui::SmallButton(" Point Light ")) {
-          GPU_Data.compute_point_lighting(
-              point_light_position,
-              glm::vec4(colorp.x, colorp.y, colorp.z, colorp.w),
-              point_decay_power, point_distance_power);
+          GPU_Data.compute_point_lighting(point_light_position, colorp,
+                                          point_decay_power,
+                                          point_distance_power);
         }
 
         ImGui::Text("");
@@ -1837,10 +1833,9 @@ void engine::show_voraldo_menu(bool *show) {
 
         OrangeText("COLOR");
 
-        static ImVec4 colorc;
-        ImGui::ColorEdit4("  ", (float *)&colorc,
-                          ImGuiColorEditFlags_AlphaBar |
-                              ImGuiColorEditFlags_AlphaPreviewHalf);
+        static glm::vec4 colorc = glm::vec4(0, 0, 0, 1);
+        ImGui::ColorEdit3("  ", (float *)&colorc);
+        ImGui::SliderFloat("intensity scale  ", &colorc.w, 0.0, 5.0);
 
         if (ImGui::SmallButton(" Cone Light ")) {
           // the call to the cone light function
@@ -1873,15 +1868,14 @@ void engine::show_voraldo_menu(bool *show) {
         OrangeText("PARAMETERS");
         ImGui::SliderFloat("decay", &decay_power, 0.0f, 3.0f, "%.3f");
         OrangeText("COLOR");
-        static ImVec4 colord;
-        ImGui::ColorEdit4("    ", (float *)&colord,
-                          ImGuiColorEditFlags_AlphaBar |
-                              ImGuiColorEditFlags_AlphaPreviewHalf);
+
+        static glm::vec4 colord = glm::vec4(0, 0, 0, 1);
+        ImGui::ColorEdit3("    ", (float *)&colord);
+        ImGui::SliderFloat("intensity scale ", &colord.w, 0.0, 5.0);
 
         if (ImGui::SmallButton(" Directional ")) {
           GPU_Data.compute_new_directional_lighting(
-              directional_theta, directional_phi,
-              glm::vec4(colord.x, colord.y, colord.z, colord.w), decay_power);
+              directional_theta, directional_phi, colord, decay_power);
         }
 
         ImGui::Separator();
@@ -1913,16 +1907,13 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("sfactor", &GI_scale_factor, 0.0f, 1.0f);
         ImGui::SliderFloat("alpha threshold", &GI_alpha_thresh, 0.0f, 1.0f);
         // ImGui::SliderFloat("sky intensity", &GI_sky_intensity, 0.0f, 1.0f);
-        static ImVec4 color0 = ImVec4(10. / 255., 10. / 255., 10. / 255., 0.);
-        ImGui::ColorEdit4("sky color", (float *)&color0,
-                          ImGuiColorEditFlags_AlphaBar |
-                              ImGuiColorEditFlags_AlphaPreviewHalf);
+        static glm::vec4 color0 =
+            glm::vec4(40. / 255., 40. / 255., 40. / 255., 1.);
+        ImGui::ColorEdit3("sky color", (float *)&color0);
+        ImGui::SliderFloat("intensity scale", &color0.w, 0.0, 5.0);
 
         if (ImGui::SmallButton(" Apply GI ")) {
-          GPU_Data.compute_fake_GI(
-              GI_scale_factor,
-              glm::vec4(color0.x, color0.y, color0.z, color0.w),
-              GI_alpha_thresh);
+          GPU_Data.compute_fake_GI(GI_scale_factor, color0, GI_alpha_thresh);
         }
         ImGui::Separator();
         ImGui::EndTabItem();
@@ -1970,7 +1961,7 @@ void engine::show_voraldo_menu(bool *show) {
         if (ImGui::SmallButton(" Mash ")) {
           GPU_Data.mash();
           if (clear) {
-            GPU_Data.lighting_clear(false, glm::vec4(0.25));
+            GPU_Data.lighting_clear(false, glm::vec4(1.));
           }
         }
 
