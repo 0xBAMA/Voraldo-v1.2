@@ -7,10 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_FLAGS "-std=c++17 -lstdc++fs")
 set(CMAKE_REQUIRED_FLAGS -lstdc++fs)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/resources/FastNoise2)
 
 # this makes SDL2 work
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+
 
 find_package(SDL2 REQUIRED)
 add_library(voraldo_sdl2 INTERFACE)
@@ -30,6 +31,8 @@ find_package(OpenGL REQUIRED)
 add_library(opengl INTERFACE)
 target_link_libraries(opengl INTERFACE OpenGL::GL)
 
+# FastNoise2 
+add_subdirectory(${PROJECT_SOURCE_DIR}/resources/FastNoise2)
 
 # this is for ImGUI
 add_library(imgui
@@ -70,4 +73,5 @@ add_executable(exe
   resources/perlin/perlin.cc
   resources/lodev_lodePNG/lodepng.cc)
 
-target_link_libraries(exe PUBLIC FastNoise imgui BigInt opengl voraldo_sdl2 stdc++fs CompilerFlags)
+target_link_libraries(exe PUBLIC imgui BigInt opengl voraldo_sdl2 stdc++fs FastNoise CompilerFlags)
+

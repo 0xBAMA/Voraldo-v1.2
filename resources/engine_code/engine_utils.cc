@@ -2602,6 +2602,7 @@ void engine::handle_events() {
   while (SDL_PollEvent(&event)) {
     ImGui_ImplSDL2_ProcessEvent(&event);
 
+    // executes regardless
     if (event.type == SDL_QUIT)
       pquit = true;
 
@@ -2616,120 +2617,125 @@ void engine::handle_events() {
              SDL_BUTTON_X1)) // x1 is browser back on the mouse
       quitconfirm = !quitconfirm;
 
-    if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE &&
-        SDL_GetModState() & KMOD_SHIFT)
-      pquit = true; // force quit
+    if (!ImGui::GetIO().WantCaptureKeyboard) {
+      if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE &&
+          SDL_GetModState() & KMOD_SHIFT)
+        pquit = true; // force quit
 
-    float smallstep = 0.008;
-    float largestep = 0.120;
+      float smallstep = 0.008;
+      float largestep = 0.120;
 
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_UP) {
-      if (SDL_GetModState() & KMOD_SHIFT) {
-        GPU_Data.rotate_vertical(largestep);
-      } else {
-        GPU_Data.rotate_vertical(smallstep);
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_UP) {
+        if (SDL_GetModState() & KMOD_SHIFT) {
+          GPU_Data.rotate_vertical(largestep);
+        } else {
+          GPU_Data.rotate_vertical(smallstep);
+        }
+      }
+
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_DOWN) {
+        if (SDL_GetModState() & KMOD_SHIFT) {
+          GPU_Data.rotate_vertical(-largestep);
+        } else {
+          GPU_Data.rotate_vertical(-smallstep);
+        }
+      }
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_LEFT) {
+        if (SDL_GetModState() & KMOD_SHIFT) {
+          GPU_Data.rotate_horizontal(largestep);
+        } else {
+          GPU_Data.rotate_horizontal(smallstep);
+        }
+      }
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RIGHT) {
+        if (SDL_GetModState() & KMOD_SHIFT) {
+          GPU_Data.rotate_horizontal(-largestep);
+        } else {
+          GPU_Data.rotate_horizontal(-smallstep);
+        }
+      }
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PAGEDOWN) {
+        if (SDL_GetModState() & KMOD_SHIFT) {
+          GPU_Data.rolltate(-largestep);
+        } else {
+          GPU_Data.rolltate(-smallstep);
+        }
+      }
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PAGEUP) {
+        if (SDL_GetModState() & KMOD_SHIFT) {
+          GPU_Data.rolltate(largestep);
+        } else {
+          GPU_Data.rolltate(smallstep);
+        }
+      }
+
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_MINUS) {
+        GPU_Data.scale += 0.1f; // make scale smaller (offsets are larger)
+      }
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_EQUALS) {
+        // SDLK_PLUS requires that you hit the shift
+        GPU_Data.scale -= 0.1f; // make scale larger  (offsets are smaller)
+      }
+
+      // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1)
+      //   // put on screen 1
+      // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2)
+      //   // put on screen 2
+      // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3)
+      //   // put on screen 3
+
+      // snap to cardinal directions
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1)
+        GPU_Data.view_front();
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_2)
+        GPU_Data.view_right();
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_3)
+        GPU_Data.view_back();
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_4)
+        GPU_Data.view_left();
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_5)
+        GPU_Data.view_up();
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_6)
+        GPU_Data.view_down();
+
+      // till I come up with a good way to maintain state for the mouse click
+      // and drag, this is how that offset is controlled
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_h) {
+        GPU_Data.clickndragx += SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
+      }
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_l) {
+        GPU_Data.clickndragx -= SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
+      }
+
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_k) {
+        GPU_Data.clickndragy += SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
+      }
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_j) {
+        GPU_Data.clickndragy -= SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
+      }
+
+      std::string animation_file_location = std::string("animation.json");
+
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s) {
+        if (SDL_GetModState() & KMOD_SHIFT) {
+          GPU_Data.animation(animation_file_location);
+        } else {
+          GPU_Data.single_screenshot();
+        }
       }
     }
 
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_DOWN) {
-      if (SDL_GetModState() & KMOD_SHIFT) {
-        GPU_Data.rotate_vertical(-largestep);
-      } else {
-        GPU_Data.rotate_vertical(-smallstep);
-      }
-    }
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_LEFT) {
-      if (SDL_GetModState() & KMOD_SHIFT) {
-        GPU_Data.rotate_horizontal(largestep);
-      } else {
-        GPU_Data.rotate_horizontal(smallstep);
-      }
-    }
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RIGHT) {
-      if (SDL_GetModState() & KMOD_SHIFT) {
-        GPU_Data.rotate_horizontal(-largestep);
-      } else {
-        GPU_Data.rotate_horizontal(-smallstep);
-      }
-    }
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PAGEDOWN) {
-      if (SDL_GetModState() & KMOD_SHIFT) {
-        GPU_Data.rolltate(-largestep);
-      } else {
-        GPU_Data.rolltate(-smallstep);
-      }
-    }
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PAGEUP) {
-      if (SDL_GetModState() & KMOD_SHIFT) {
-        GPU_Data.rolltate(largestep);
-      } else {
-        GPU_Data.rolltate(smallstep);
-      }
-    }
-
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_MINUS) {
-      GPU_Data.scale += 0.1f; // make scale smaller (offsets are larger)
-    }
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_EQUALS) {
-      // SDLK_PLUS requires that you hit the shift
-      GPU_Data.scale -= 0.1f; // make scale larger  (offsets are smaller)
-    }
-
-    // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1)
-    //   // put on screen 1
-    // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2)
-    //   // put on screen 2
-    // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3)
-    //   // put on screen 3
-
-    // snap to cardinal directions
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1)
-      GPU_Data.view_front();
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_2)
-      GPU_Data.view_right();
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_3)
-      GPU_Data.view_back();
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_4)
-      GPU_Data.view_left();
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_5)
-      GPU_Data.view_up();
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_6)
-      GPU_Data.view_down();
-
-    // till I come up with a good way to maintain state for the mouse click and
-    // drag, this is how that offset is controlled
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_h) {
-      GPU_Data.clickndragx += SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
-    }
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_l) {
-      GPU_Data.clickndragx -= SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
-    }
-
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_k) {
-      GPU_Data.clickndragy += SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
-    }
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_j) {
-      GPU_Data.clickndragy -= SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
-    }
-
-    std::string animation_file_location = std::string("animation.json");
-
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s) {
-      if (SDL_GetModState() & KMOD_SHIFT) {
-        GPU_Data.animation(animation_file_location);
-      } else {
-        GPU_Data.single_screenshot();
-      }
-    }
-
-    if (event.type == SDL_MOUSEWHEEL) {
-      // allow scroll to do the same thing as +/-
-      if (event.wheel.y > 0) // scroll up
-      {
-        GPU_Data.scale -= 0.1f;
-      } else if (event.wheel.y < 0) // scroll down
-      {
-        GPU_Data.scale += 0.1f;
+    // mouse operations
+    if (!ImGui::GetIO().WantCaptureMouse) {
+      if (event.type == SDL_MOUSEWHEEL) {
+        // allow scroll to do the same thing as +/-
+        if (event.wheel.y > 0) // scroll up
+        {
+          GPU_Data.scale -= 0.1f;
+        } else if (event.wheel.y < 0) // scroll down
+        {
+          GPU_Data.scale += 0.1f;
+        }
       }
     }
   }

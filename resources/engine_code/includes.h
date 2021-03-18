@@ -45,7 +45,11 @@ using std::flush;
 #include "../ocornut_imgui/imgui.h"
 #include "../ocornut_imgui/imgui_impl_opengl3.h"
 #include "../ocornut_imgui/imgui_impl_sdl.h"
+
+// Third party imgui text editor
 #include "../ocornut_imgui/TextEditor.h"
+
+// Third party imgui orientation widget replacement
 
 // GLEW replacment
 #include "../ocornut_imgui/gl3w.h"
@@ -88,18 +92,18 @@ constexpr double pi = 3.14159265358979323846;
 // #define TRIPLE_MONITOR // enable to span all three monitors
 
 // voxel dimension
-#define DIM 256 
+#define DIM 256
 // #define DIM 512
 
 // supersampling factor for main display shader
 // #define SSFACTOR 5.0   // tanks performance
 // #define SSFACTOR 3.5
-#define SSFACTOR 2.8 // this is for 8x multisampling
+// #define SSFACTOR 2.8 // this is for 8x multisampling
 // #define SSFACTOR 2.0  // this is for 4x multisampling
 // #define SSFACTOR 1.65
 // #define SSFACTOR 1.25 // small amount of multisampling
 // #define SSFACTOR 1.0  // no multisampling
-// #define SSFACTOR 0.64 // this is <1x multisampling
+#define SSFACTOR 0.64 // this is <1x multisampling
 // #define SSFACTOR 0.32 // this is <1x multisampling
 
 // for the tile based rendering - needs to be a multiple of 32
