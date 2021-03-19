@@ -48,8 +48,8 @@ using std::flush;
 
 // Third party imgui text editor
 #include "../ocornut_imgui/TextEditor.h"
-
 // Third party imgui orientation widget replacement
+#include "../ocornut_imgui/ImGuizmo.h"
 
 // GLEW replacment
 #include "../ocornut_imgui/gl3w.h"

@@ -2491,6 +2491,13 @@ void engine::draw_user_editor_tab_contents() {
   console.Draw("ex", &draw);
 }
 
+void engine::update_fps_history() {
+  // push back - put in the new value
+  fps_history.push_back(ImGui::GetIO().Framerate);
+  // pop front - take out the oldest value
+  fps_history.pop_front();
+}
+
 // small overlay to show the FPS counter, FPS graph
 void engine::fps_overlay(bool *p_open) {
   if (*p_open) {
@@ -2532,37 +2539,7 @@ void engine::fps_overlay(bool *p_open) {
   }
 }
 
-void engine::quit_conf(bool *open) {
-  if (*open) {
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration;
-
-    // create centered window
-    ImGui::SetNextWindowPos(
-        ImVec2(total_screen_width / 2 - 120, total_screen_height / 2 - 25));
-    ImGui::SetNextWindowSize(ImVec2(215, 40));
-    ImGui::Begin("quit", open, flags);
-
-    ImGui::Text("Are you sure you want to quit?");
-
-    ImGui::Text("  ");
-    ImGui::SameLine();
-
-    // button to cancel -> set this window's bool to false
-    if (ImGui::SmallButton(" Cancel "))
-      *open = false;
-
-    ImGui::SameLine();
-    ImGui::Text("    ");
-    ImGui::SameLine();
-
-    // button to quit -> set pquit to true
-    if (ImGui::SmallButton(" Quit "))
-      pquit = true;
-
-    ImGui::End();
-  }
-}
-
+// wrapper to do everything from the main loop
 void engine::draw_windows() {
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL3_NewFrame();
@@ -2741,11 +2718,37 @@ void engine::handle_events() {
   }
 }
 
-void engine::update_fps_history() {
-  // push back - put in the new value
-  fps_history.push_back(ImGui::GetIO().Framerate);
-  // pop front - take out the oldest value
-  fps_history.pop_front();
+// quit confirmation, just to prevent accidental quit - shift-esc override
+// vim muscle memory can be an issue when you just quit with esc
+void engine::quit_conf(bool *open) {
+  if (*open) {
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration;
+
+    // create centered window
+    ImGui::SetNextWindowPos(
+        ImVec2(total_screen_width / 2 - 120, total_screen_height / 2 - 25));
+    ImGui::SetNextWindowSize(ImVec2(215, 40));
+    ImGui::Begin("quit", open, flags);
+
+    ImGui::Text("Are you sure you want to quit?");
+
+    ImGui::Text("  ");
+    ImGui::SameLine();
+
+    // button to cancel -> set this window's bool to false
+    if (ImGui::SmallButton(" Cancel "))
+      *open = false;
+
+    ImGui::SameLine();
+    ImGui::Text("    ");
+    ImGui::SameLine();
+
+    // button to quit -> set pquit to true
+    if (ImGui::SmallButton(" Quit "))
+      pquit = true;
+
+    ImGui::End();
+  }
 }
 
 void engine::quit() {
@@ -2759,5 +2762,6 @@ void engine::quit() {
   SDL_DestroyWindow(window);
   SDL_Quit();
 
+  // really shoould be destroying textures, etc
   cout << "goodbye." << endl;
 }

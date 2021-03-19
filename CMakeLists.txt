@@ -44,7 +44,8 @@ add_library(imgui
   resources/ocornut_imgui/imgui_widgets.cc
   resources/ocornut_imgui/imgui_tables.cc  
   resources/ocornut_imgui/imgui_gl3w.c
-  resources/ocornut_imgui/TextEditor.cpp)
+  resources/ocornut_imgui/TextEditor.cpp
+  resources/ocornut_imgui/ImGuizmo.cpp)
 
 target_link_libraries(imgui PUBLIC voraldo_sdl2 opengl)
 
