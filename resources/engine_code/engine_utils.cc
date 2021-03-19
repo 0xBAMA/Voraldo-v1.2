@@ -1995,6 +1995,8 @@ void engine::show_voraldo_menu(bool *show) {
       ImGui::SliderFloat("alpha correction power",
                          &GPU_Data.alpha_correction_power, 0.5, 4.0);
 
+      ImGui::SliderFloat("gamma", &GPU_Data.gamma_correction, 0.5, 4.0);
+
       ImGui::SliderInt("color temp", &GPU_Data.color_temp, 1000, 45000);
 
       ImGui::SliderInt("tonemapping mode", &GPU_Data.tonemap_mode, 0, 2);
@@ -2536,7 +2538,7 @@ void engine::orientation_widget_imgui() {
 
   static struct utils {
     bool viewDirty = false;
-    bool useWindow = true;
+    bool useWindow = false;
     bool isPerspective = false;
     int gizmoCount = 1;
     float camDistance = 8.f;
@@ -2747,41 +2749,41 @@ void engine::orientation_widget_imgui() {
 
       ImGuiIO &io = ImGui::GetIO();
       float viewManipulateRight = io.DisplaySize.x;
-      float viewManipulateTop = 0;
-      if (useWindow) {
-        ImGui::SetNextWindowSize(ImVec2(800, 400));
-        ImGui::SetNextWindowPos(ImVec2(400, 20));
-        ImGui::PushStyleColor(ImGuiCol_WindowBg,
-                              (ImVec4)ImColor(0.35f, 0.3f, 0.3f));
-        ImGui::Begin("Gizmo", 0, ImGuiWindowFlags_NoMove);
-        ImGuizmo::SetDrawlist();
-        float windowWidth = (float)ImGui::GetWindowWidth();
-        float windowHeight = (float)ImGui::GetWindowHeight();
-        ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y,
-                          windowWidth, windowHeight);
-        viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
-        viewManipulateTop = ImGui::GetWindowPos().y;
-      } else {
-        ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-      }
+      float viewManipulateTop = io.DisplaySize.y - 128;
+      // if (useWindow) {
+      // ImGui::SetNextWindowSize(ImVec2(800, 400));
+      // ImGui::SetNextWindowPos(ImVec2(400, 20));
+      // ImGui::PushStyleColor(ImGuiCol_WindowBg,
+      //                       (ImVec4)ImColor(0.35f, 0.3f, 0.3f));
+      // ImGui::Begin("Gizmo", 0, ImGuiWindowFlags_NoMove);
+      // ImGuizmo::SetDrawlist();
+      // float windowWidth = (float)ImGui::GetWindowWidth();
+      // float windowHeight = (float)ImGui::GetWindowHeight();
+      // ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y,
+      //                   windowWidth, windowHeight);
+      // viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
+      // viewManipulateTop = ImGui::GetWindowPos().y;
+      // } else {
+      ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+      // }
 
-      ImGuizmo::DrawGrid(cameraView, cameraProjection, identityMatrix, 100.f);
-      ImGuizmo::DrawCubes(cameraView, cameraProjection, &objectMatrix[0][0],
-                          gizmoCount);
-      ImGuizmo::Manipulate(
-          cameraView, cameraProjection, mCurrentGizmoOperation,
-          mCurrentGizmoMode, matrix, NULL, useSnap ? &snap[0] : NULL,
-          boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL);
+      // ImGuizmo::DrawGrid(cameraView, cameraProjection, identityMatrix,
+      // 100.f); ImGuizmo::DrawCubes(cameraView, cameraProjection,
+      // &objectMatrix[0][0], gizmoCount);
+      // ImGuizmo::Manipulate(
+      // cameraView, cameraProjection, mCurrentGizmoOperation,
+      // mCurrentGizmoMode, matrix, NULL, useSnap ? &snap[0] : NULL,
+      // boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL);
 
       ImGuizmo::ViewManipulate(
           cameraView, camDistance,
           ImVec2(viewManipulateRight - 128, viewManipulateTop),
           ImVec2(128, 128), 0x10101010);
 
-      if (useWindow) {
-        ImGui::End();
-        ImGui::PopStyleColor(1);
-      }
+      // if (useWindow) {
+      // ImGui::End();
+      // ImGui::PopStyleColor(1);
+      // }
     }
 
   } utilities;
@@ -2894,7 +2896,7 @@ void engine::draw_windows() {
     show_voraldo_menu(&show_voraldo_window);
 
   // show quit confirm window if the user hit escape last frame, and again every
-  // frame till they choose to exit
+  // frame till they choose to exit - shift+esc to override this behavior
   quit_conf(&quitconfirm);
 
   ImGui::Render();
@@ -2922,6 +2924,10 @@ void engine::handle_events() {
              SDL_BUTTON_X1)) // x1 is browser back on the mouse
       quitconfirm = !quitconfirm;
 
+    // wrap in this check, to prevent issues with text editing, etc, colliding
+    // with intended keyboard usage (e.g. typing in numbers triggering the
+    // snap-to-view behavior, every time you hit 's' it triggers the screenshot
+    // behavior...) - really quite elegant the way imgui handles it
     if (!ImGui::GetIO().WantCaptureKeyboard) {
       if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE &&
           SDL_GetModState() & KMOD_SHIFT)
@@ -3012,7 +3018,10 @@ void engine::handle_events() {
         GPU_Data.view_down();
 
       // till I come up with a good way to maintain state for the mouse click
-      // and drag, this is how that offset is controlled
+      // and drag, this is how that offset is controlled - got a line on this
+      // with some of the imgui functions related to click and drag. Note it
+      // will need to go inside the wantcapturemouse check, so that there aren't
+      // collisions with existing imgui behavior - see note below
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_h) {
         GPU_Data.clickndragx += SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
       }
@@ -3027,10 +3036,9 @@ void engine::handle_events() {
         GPU_Data.clickndragy -= SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
       }
 
-      std::string animation_file_location = std::string("animation.json");
-
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s) {
         if (SDL_GetModState() & KMOD_SHIFT) {
+          std::string animation_file_location = std::string("animation.json");
           GPU_Data.animation(animation_file_location);
         } else {
           GPU_Data.single_screenshot();
