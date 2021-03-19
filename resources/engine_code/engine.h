@@ -59,6 +59,9 @@ private:
   std::deque<float> fps_history;
   void fps_overlay(bool *p_open);
 
+  // ImGuizmo
+  void orientation_widget_imgui();
+
   // everything associated with quitting
   bool quitconfirm = false;   // show quit prompt
   void quit_conf(bool *open); // draws quit prompt window

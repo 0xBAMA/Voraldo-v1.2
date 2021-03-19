@@ -65,7 +65,7 @@ using std::flush;
 // shader compilation wrapper - may need to be extended
 #include "shader.h"
 
-// up to 3d perlin noise generation
+// up to 3d perlin noise
 #include "../perlin/perlin.h"
 
 // more general noise solution

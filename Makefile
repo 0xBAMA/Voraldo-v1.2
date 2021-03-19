@@ -631,6 +631,32 @@ MagnumShaderTools/fast:
 .PHONY : MagnumShaderTools/fast
 
 #=============================================================================
+# Target rules for targets named MagnumTrade
+
+# Build rule for target.
+MagnumTrade: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 MagnumTrade
+.PHONY : MagnumTrade
+
+# fast build rule for target.
+MagnumTrade/fast:
+	$(MAKE) $(MAKESILENT) -f resources/FastNoise2/NoiseTool/ThirdParty/magnum/src/Magnum/Trade/CMakeFiles/MagnumTrade.dir/build.make resources/FastNoise2/NoiseTool/ThirdParty/magnum/src/Magnum/Trade/CMakeFiles/MagnumTrade.dir/build
+.PHONY : MagnumTrade/fast
+
+#=============================================================================
+# Target rules for targets named MagnumTradeObjects
+
+# Build rule for target.
+MagnumTradeObjects: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 MagnumTradeObjects
+.PHONY : MagnumTradeObjects
+
+# fast build rule for target.
+MagnumTradeObjects/fast:
+	$(MAKE) $(MAKESILENT) -f resources/FastNoise2/NoiseTool/ThirdParty/magnum/src/Magnum/Trade/CMakeFiles/MagnumTradeObjects.dir/build.make resources/FastNoise2/NoiseTool/ThirdParty/magnum/src/Magnum/Trade/CMakeFiles/MagnumTradeObjects.dir/build
+.PHONY : MagnumTradeObjects/fast
+
+#=============================================================================
 # Target rules for targets named MagnumImGuiIntegration
 
 # Build rule for target.
@@ -912,6 +938,33 @@ resources/lodev_lodePNG/lodepng.s: resources/lodev_lodePNG/lodepng.cc.s
 resources/lodev_lodePNG/lodepng.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/lodev_lodePNG/lodepng.cc.s
 .PHONY : resources/lodev_lodePNG/lodepng.cc.s
+
+resources/ocornut_imgui/ImGuizmo.o: resources/ocornut_imgui/ImGuizmo.cpp.o
+
+.PHONY : resources/ocornut_imgui/ImGuizmo.o
+
+# target to build an object file
+resources/ocornut_imgui/ImGuizmo.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/resources/ocornut_imgui/ImGuizmo.cpp.o
+.PHONY : resources/ocornut_imgui/ImGuizmo.cpp.o
+
+resources/ocornut_imgui/ImGuizmo.i: resources/ocornut_imgui/ImGuizmo.cpp.i
+
+.PHONY : resources/ocornut_imgui/ImGuizmo.i
+
+# target to preprocess a source file
+resources/ocornut_imgui/ImGuizmo.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/resources/ocornut_imgui/ImGuizmo.cpp.i
+.PHONY : resources/ocornut_imgui/ImGuizmo.cpp.i
+
+resources/ocornut_imgui/ImGuizmo.s: resources/ocornut_imgui/ImGuizmo.cpp.s
+
+.PHONY : resources/ocornut_imgui/ImGuizmo.s
+
+# target to generate assembly for a file
+resources/ocornut_imgui/ImGuizmo.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/imgui.dir/build.make CMakeFiles/imgui.dir/resources/ocornut_imgui/ImGuizmo.cpp.s
+.PHONY : resources/ocornut_imgui/ImGuizmo.cpp.s
 
 resources/ocornut_imgui/TextEditor.o: resources/ocornut_imgui/TextEditor.cpp.o
 
@@ -1227,6 +1280,8 @@ help:
 	@echo "... MagnumShaderTools"
 	@echo "... MagnumShaders"
 	@echo "... MagnumShadersObjects"
+	@echo "... MagnumTrade"
+	@echo "... MagnumTradeObjects"
 	@echo "... NoiseTool"
 	@echo "... corrade-rc"
 	@echo "... exe"
@@ -1261,6 +1316,9 @@ help:
 	@echo "... resources/lodev_lodePNG/lodepng.o"
 	@echo "... resources/lodev_lodePNG/lodepng.i"
 	@echo "... resources/lodev_lodePNG/lodepng.s"
+	@echo "... resources/ocornut_imgui/ImGuizmo.o"
+	@echo "... resources/ocornut_imgui/ImGuizmo.i"
+	@echo "... resources/ocornut_imgui/ImGuizmo.s"
 	@echo "... resources/ocornut_imgui/TextEditor.o"
 	@echo "... resources/ocornut_imgui/TextEditor.i"
 	@echo "... resources/ocornut_imgui/TextEditor.s"

@@ -2055,7 +2055,6 @@ void engine::show_voraldo_menu(bool *show) {
 void engine::draw_user_editor_tab_contents() {
   // assumes an already open window
   // locally declared class, static instance held to keep the info
-
   struct consoleclass {
     char InputBuf[256];
     ImVector<char *> Items;
@@ -2126,6 +2125,7 @@ void engine::draw_user_editor_tab_contents() {
       IM_ASSERT(buf);
       return (char *)memcpy(buf, (const void *)s, len);
     }
+
     static void Strtrim(char *s) {
       char *str_end = s + strlen(s);
       while (str_end > s && str_end[-1] == ' ')
@@ -2162,7 +2162,6 @@ void engine::draw_user_editor_tab_contents() {
         ClearLog();
       }
 
-      bool copy_to_clipboard = false;
       ImGui::Separator();
 
       // Reserve enough left-over height for 1 separator + 1 input text
@@ -2177,8 +2176,6 @@ void engine::draw_user_editor_tab_contents() {
       ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,
                           ImVec2(4, 1)); // Tighten spacing
 
-      if (copy_to_clipboard)
-        ImGui::LogToClipboard();
       for (int i = 0; i < Items.Size; i++) {
         const char *item = Items[i];
         if (!Filter.PassFilter(item))
@@ -2203,8 +2200,6 @@ void engine::draw_user_editor_tab_contents() {
         if (has_color)
           ImGui::PopStyleColor();
       }
-      if (copy_to_clipboard)
-        ImGui::LogFinish();
 
       if (ScrollToBottom ||
           (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
@@ -2241,8 +2236,6 @@ void engine::draw_user_editor_tab_contents() {
       ImGui::SetItemDefaultFocus();
       if (reclaim_focus)
         ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
-
-      // ImGui::End();
     }
 
     void ExecCommand(const char *command_line) {
@@ -2278,7 +2271,8 @@ void engine::draw_user_editor_tab_contents() {
         } else if (Strnicmp(command_line, "man ", 4) ==
                    0) { // properly formatted command
           // handle individual manual entries
-          // easiest to use a std::map<std::string, std::string>
+          // probably easiest to use a std::map<std::string, std::string>
+          // also have to still decide what goes in this header
         }
       } else if (Strnicmp(command_line, "load ", 5) == 0) {
         // try to load the string that follows 'load '
@@ -2482,7 +2476,6 @@ void engine::draw_user_editor_tab_contents() {
   }
 
   ImGui::SameLine();
-
   if (ImGui::SmallButton(" Clear Editor ")) {
     // strcpy(console.text, console.origtext);
     console.editor.SetText(std::string(console.origtext));
@@ -2539,6 +2532,8 @@ void engine::fps_overlay(bool *p_open) {
   }
 }
 
+void engine::orientation_widget_imgui() {}
+
 // wrapper to do everything from the main loop
 void engine::draw_windows() {
   // Start the Dear ImGui frame
@@ -2549,6 +2544,9 @@ void engine::draw_windows() {
   // graph of fps history
   if (show_fps_overlay)
     fps_overlay(&show_fps_overlay);
+
+  // replacement orienation widget
+  orientation_widget_imgui();
 
   // this has to be the first ImGUI window drawn - control window docks to it
   static ImGuiDockNodeFlags dockspace_flags =
@@ -2701,6 +2699,13 @@ void engine::handle_events() {
         }
       }
     }
+
+    // NEED TO ADD CLICK AND DRAG CODE HERE - wrapping in wantcapturemouse check
+    // is a good way to make sure that I'm not triggering the click and drag
+    // behavior when not intended. This has already been a huge improvement for
+    // the keyboard stuff, with how much it was triggering the behavior while I
+    // was inputting text in the text editor, etc, now it's not doing any of
+    // that anymore.
 
     // mouse operations
     if (!ImGui::GetIO().WantCaptureMouse) {
