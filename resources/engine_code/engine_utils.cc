@@ -2732,6 +2732,8 @@ void engine::orientation_widget_imgui() {
         case ImGuizmo::SCALE:
           ImGui::InputFloat("Scale Snap", &snap[0]);
           break;
+        default:
+          break;
         }
         ImGui::Checkbox("Bound Sizing", &boundSizing);
         if (boundSizing) {
@@ -2798,12 +2800,7 @@ void engine::orientation_widget_imgui() {
   ImGuizmo::SetOrthographic(!utilities.isPerspective);
   ImGuizmo::BeginFrame();
 
-  ImGui::SetNextWindowPos(ImVec2(1024, 100));
-  ImGui::SetNextWindowSize(ImVec2(256, 256));
-
   // create a window and insert the inspector
-  ImGui::SetNextWindowPos(ImVec2(10, 10));
-  ImGui::SetNextWindowSize(ImVec2(320, 340));
   ImGui::Begin("Editor");
   if (ImGui::RadioButton("Full view", !utilities.useWindow))
     utilities.useWindow = false;
