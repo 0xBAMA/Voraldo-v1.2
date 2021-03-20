@@ -2804,13 +2804,13 @@ void engine::orientation_widget_imgui() {
 
   // create a window and insert the inspector
   ImGui::Begin("Editor");
-  if (ImGui::RadioButton("Full view", !utilities.useWindow))
-    utilities.useWindow = false;
-  ImGui::SameLine();
-  if (ImGui::RadioButton("Window", utilities.useWindow))
-    utilities.useWindow = true;
+  // if (ImGui::RadioButton("Full view", !utilities.useWindow))
+  // utilities.useWindow = false;
+  // ImGui::SameLine();
+  // if (ImGui::RadioButton("Window", utilities.useWindow))
+  // utilities.useWindow = true;
 
-  ImGui::Text("Camera");
+  // ImGui::Text("Camera");
   bool viewDirty = false;
   if (ImGui::RadioButton("Perspective", utilities.isPerspective))
     utilities.isPerspective = true;
@@ -2839,19 +2839,20 @@ void engine::orientation_widget_imgui() {
   }
 
   ImGui::Text("X: %f Y: %f", io.MousePos.x, io.MousePos.y);
-  if (ImGuizmo::IsUsing()) {
-    ImGui::Text("Using gizmo");
-  } else {
-    ImGui::Text(ImGuizmo::IsOver() ? "Over gizmo" : "");
-    ImGui::SameLine();
-    ImGui::Text(ImGuizmo::IsOver(ImGuizmo::TRANSLATE) ? "Over translate gizmo"
-                                                      : "");
-    ImGui::SameLine();
-    ImGui::Text(ImGuizmo::IsOver(ImGuizmo::ROTATE) ? "Over rotate gizmo" : "");
-    ImGui::SameLine();
-    ImGui::Text(ImGuizmo::IsOver(ImGuizmo::SCALE) ? "Over scale gizmo" : "");
-  }
-  ImGui::Separator();
+  // if (ImGuizmo::IsUsing()) {
+  //   ImGui::Text("Using gizmo");
+  // } else {
+  //   ImGui::Text(ImGuizmo::IsOver() ? "Over gizmo" : "");
+  //   ImGui::SameLine();
+  //   ImGui::Text(ImGuizmo::IsOver(ImGuizmo::TRANSLATE) ? "Over translate
+  //   gizmo"
+  //                                                     : "");
+  //   ImGui::SameLine();
+  //   ImGui::Text(ImGuizmo::IsOver(ImGuizmo::ROTATE) ? "Over rotate gizmo" :
+  //   ""); ImGui::SameLine(); ImGui::Text(ImGuizmo::IsOver(ImGuizmo::SCALE) ?
+  //   "Over scale gizmo" : "");
+  // }
+  // ImGui::Separator();
   for (int matId = 0; matId < utilities.gizmoCount; matId++) {
     ImGuizmo::SetID(matId);
 
@@ -2862,6 +2863,21 @@ void engine::orientation_widget_imgui() {
       utilities.lastUsing = matId;
     }
   }
+
+  ImGui::Text(" ");
+  ImGui::Text(" ");
+  ImGui::Text(" %f  %f  %f  %f ", utilities.cameraView[0],
+              utilities.cameraView[1], utilities.cameraView[2],
+              utilities.cameraView[3]);
+  ImGui::Text(" %f  %f  %f  %f ", utilities.cameraView[4],
+              utilities.cameraView[5], utilities.cameraView[6],
+              utilities.cameraView[7]);
+  ImGui::Text(" %f  %f  %f  %f ", utilities.cameraView[8],
+              utilities.cameraView[9], utilities.cameraView[10],
+              utilities.cameraView[11]);
+  ImGui::Text(" %f  %f  %f  %f ", utilities.cameraView[12],
+              utilities.cameraView[13], utilities.cameraView[14],
+              utilities.cameraView[15]);
 
   ImGui::End();
 }

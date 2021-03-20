@@ -15,6 +15,9 @@ out vec4 fragment_output;
 // COLOR TEMP ADJUSTMENT
 uniform vec3 temp_adjustment;
 
+// Gamma Correction
+uniform float gamma;
+
 mat3 temp_adjust(vec3 c)
 {
 	mat3 t;
@@ -29,12 +32,14 @@ void main()
 	vec4 texread_color = texture(main_display_texture, ssfactor*(gl_FragCoord.xy + gl_SamplePosition.xy));
 	vec4 running_color = texread_color;
 
-	// temperature correction
+	// temperature adjust
 	running_color.xyz = temp_adjust(temp_adjustment) * running_color.xyz;
 
 	// luminance preservation
 	running_color.xyz *= dot(texread_color.xyz, vec3(0.2126, 0.7152, 0.0722)) / max(dot(running_color.xyz, vec3(0.2126, 0.7152, 0.0722)), 1e-5);
 
+	// gamma correction
+	running_color = pow(running_color, vec4(1./gamma));
 
 	// fragment output
 	fragment_output = running_color;

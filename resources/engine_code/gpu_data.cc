@@ -542,6 +542,10 @@ void GLContainer::display_block() {
     glUniform1f(glGetUniformLocation(display_compute_shader, "upow"),
                 alpha_correction_power);
 
+    // // gamma correction
+    // glUniform1f(glGetUniformLocation(display_compute_shader, "gamma"),
+    //             gamma_correction);
+
     // tonemapping setting
     glUniform1i(glGetUniformLocation(display_compute_shader, "ACES_behavior"),
                 tonemap_mode);
@@ -593,6 +597,10 @@ void GLContainer::display_block() {
     glUniform3f(glGetUniformLocation(display_shader_program, "temp_adjustment"),
                 col.x, col.y, col.z);
   }
+
+  // gamma correction
+  glUniform1f(glGetUniformLocation(display_shader_program, "gamma"),
+              gamma_correction);
 
   // pixel scaling
   glUniform1f(glGetUniformLocation(display_shader_program, "ssfactor"),
