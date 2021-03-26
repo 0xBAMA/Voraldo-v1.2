@@ -2019,20 +2019,43 @@ void engine::show_voraldo_menu(bool *show) {
       }
 
       OrangeText("VOXEL RENDERER DATA ACCESS TYPE");
-      if (ImGui::SmallButton(" Image3D ")) {
-        GPU_Data.main_block_image();
+
+      // DROPDOWN FOR THE RENDERER SWITCHER
+      const char* modes[] = {"Image3D", "Image3D (Supercover)", "Texture3D (Nearest)", "Texture3D (Mipmapped Linear)", "Depth Visualization", "Position Visualization"};
+      static int current_mode = 3;
+      static int prev_frame_mode;
+
+      ImGui::Combo("Mode", &current_mode, modes, IM_ARRAYSIZE(modes));
+
+      if(current_mode != prev_frame_mode)
+      { // if it changed, invoke desired behavior
+        switch(current_mode)
+        {
+          case 0: // Image3D
+            GPU_Data.main_block_image();
+            break;
+          case 1: // Image3D (Supercover)
+            // not yet implemented
+            break;
+          case 2: // Texture3D (Nearest)
+            GPU_Data.main_block_nearest_filter();
+            break;
+          case 3: // Texture3D (Mipmapped Linear)
+            GPU_Data.main_block_linear_filter();
+            break;
+          case 4: // Depth Visualization
+            GPU_Data.main_block_depth();
+            break;
+          case 5: // Position Visualization
+            GPU_Data.main_block_position();
+            break;
+          default:
+            break;
+        }
+
+        prev_frame_mode = current_mode;
       }
-      ImGui::SameLine();
-      if (ImGui::SmallButton(" Texture (Nearest) ")) {
-        GPU_Data.main_block_nearest_filter();
-      }
-      ImGui::SameLine();
-      if (ImGui::SmallButton(" Texture (Linear) ")) {
-        GPU_Data.main_block_linear_filter();
-      }
-      if (ImGui::SmallButton(" DepthViz (Experimental) ")) {
-        GPU_Data.main_block_depthviz();
-      }
+      
       if (ImGui::SmallButton(" Swap Blocks ")) {
         GPU_Data.swap_blocks();
         GPU_Data.set_redraw_flag();
@@ -3010,6 +3033,8 @@ void engine::handle_events() {
       // this needs to be converted, also check against TRIPLE_MONITOR flag to
       // disable
 
+      if(TRIPLE_MONITOR)
+      {
       // put on screen 1
       // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1)
       // ("Display 0")SDL_SetWindowPosition(window, 0, 0)
@@ -3021,7 +3046,8 @@ void engine::handle_events() {
       // put on screen 3
       // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3)
       // ("Display 2")SDL_SetWindowPosition(window, 2*total_screen_width, 0)
-
+      }
+        
       // snap to cardinal directions
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1)
         GPU_Data.view_front();

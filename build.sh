@@ -1,7 +1,7 @@
 mkdir build
 cmake -S . -B ./build
 cd build
-make
-cp ./exe ..
+make exe
+cp ./bin/exe ..
 cd ..
 rm -r ./build

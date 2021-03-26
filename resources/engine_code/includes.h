@@ -89,7 +89,7 @@ using json = nlohmann::json;
 // pi definition
 constexpr double pi = 3.14159265358979323846;
 
-// #define TRIPLE_MONITOR // enable to span all three monitors
+#define TRIPLE_MONITOR false // enable to span all three monitors
 
 // voxel dimension
 #define DIM 256

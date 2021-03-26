@@ -15,7 +15,6 @@ public:
     load_textures();
     main_block_linear_filter();
     init_basis();
-    // animation_worker.set_parent(this);
   }
 
   // display functions
@@ -69,7 +68,8 @@ public:
   // to set type of renderer
   float main_block_image();
   // float main_block_image_supercover(); // todo
-  float main_block_depthviz();
+  float main_block_depth();
+  float main_block_position();
   float main_block_linear_filter();
   float main_block_nearest_filter();
 
@@ -198,17 +198,6 @@ public:
                   float mag, bool respect_mask, glm::bvec3 mins,
                   glm::bvec3 maxs);
 
-  // // --
-  // // the worker class closely integrates here
-  // class worker {
-  // public:
-  //   GLContainer *parent;
-  //   void set_parent(GLContainer *my_parent) { parent = my_parent; }
-
-  //   bool pop(); // do an operation, report if oplist is empty
-  //   std::vector<json> oplist;
-  // } animation_worker;
-
   void log(std::string text);          // for operation logging
   void clear_log();                    // clear the log
   void save_log(std::string filename); // save the current log
@@ -218,8 +207,8 @@ public:
   std::vector<std::string> operations; // log of all operations
 
 private:
-  enum rendermode_t { IMAGE, DEPTH, NEAREST, LINEAR } rendermode = LINEAR;
-
+    
+  GLuint display_compute_shader;
   bool redraw_flag = true;       // need to update render texture
   bool color_mipmap_flag = true; // need to recompute mipmap before render
   bool light_mipmap_flag = true; // need to recompute mipmap before render
@@ -248,7 +237,8 @@ private:
   // OpenGL Data
   // the two versions of the raycast shader
   GLuint display_compute_image, display_compute_sampler;
-  GLuint display_compute_depthviz; // experimental
+  GLuint display_compute_depth;    // experimental
+  GLuint display_compute_position; // also experimental
 
   // blitting via fullscreen geometry
   GLuint display_vao, display_vbo, display_shader_program;

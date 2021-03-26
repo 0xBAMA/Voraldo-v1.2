@@ -370,17 +370,31 @@ float GLContainer::rolltate(float amnt) {
 
 float GLContainer::main_block_image() {
   auto t1 = std::chrono::high_resolution_clock::now();
-  rendermode = IMAGE;
   redraw_flag = true;
+
+  display_compute_shader = display_compute_image;
+
   auto t2 = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-float GLContainer::main_block_depthviz() {
+float GLContainer::main_block_depth() {
   auto t1 = std::chrono::high_resolution_clock::now();
   main_block_linear_filter(); // filtering
+  redraw_flag = true;
 
-  rendermode = DEPTH; // set enum
+  display_compute_shader = display_compute_depth;
+
+  auto t2 = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+}
+
+float GLContainer::main_block_position() {
+  auto t1 = std::chrono::high_resolution_clock::now();
+  main_block_linear_filter(); // filtering
+  redraw_flag = true;
+
+  display_compute_shader = display_compute_position;
 
   auto t2 = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
@@ -388,7 +402,6 @@ float GLContainer::main_block_depthviz() {
 
 float GLContainer::main_block_linear_filter() {
   auto t1 = std::chrono::high_resolution_clock::now();
-  rendermode = LINEAR;
   glBindTexture(GL_TEXTURE_3D, textures[2]); // front color
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
                   GL_LINEAR_MIPMAP_LINEAR);
@@ -402,6 +415,9 @@ float GLContainer::main_block_linear_filter() {
                   GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   redraw_flag = true;
+
+  display_compute_shader = display_compute_sampler;
+
   auto t2 = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
@@ -409,7 +425,6 @@ float GLContainer::main_block_linear_filter() {
 // set nearest filtering
 float GLContainer::main_block_nearest_filter() {
   auto t1 = std::chrono::high_resolution_clock::now();
-  rendermode = NEAREST;
   glBindTexture(GL_TEXTURE_3D, textures[2]);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -420,6 +435,9 @@ float GLContainer::main_block_nearest_filter() {
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   redraw_flag = true;
+
+  display_compute_shader = display_compute_sampler;
+
   auto t2 = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
@@ -489,23 +507,6 @@ void GLContainer::display_block() {
       // generate the light mipmap
       light_mipmap_gen();
       light_mipmap_flag = false;
-    }
-
-    // GLuint display_compute_shader = display_compute_image;
-    GLuint display_compute_shader = display_compute_sampler;
-    // pick a display compute shader based on rendermode
-    switch (rendermode) {
-    case IMAGE:
-      display_compute_shader = display_compute_image;
-      break;
-    case DEPTH:
-      display_compute_shader = display_compute_depthviz;
-      break;
-    case NEAREST:
-    case LINEAR:
-    default:
-      display_compute_shader = display_compute_sampler;
-      break;
     }
 
     // do the tile based rendering using the raycast compute shader
@@ -655,8 +656,12 @@ void GLContainer::compile_shaders() {
       CShader("resources/engine_code/shaders/raycast_sampler.cs.glsl").Program;
 
   // raycasting with depth visualization
-  display_compute_depthviz =
-      CShader("resources/engine_code/shaders/raycast_sampler_depthviz.cs.glsl")
+  display_compute_depth =
+      CShader("resources/engine_code/shaders/raycast_sampler_depth.cs.glsl")
+          .Program;
+  // raycasting with position visualization
+  display_compute_position =
+      CShader("resources/engine_code/shaders/raycast_sampler_position.cs.glsl")
           .Program;
 
   // lighting functions
@@ -974,7 +979,7 @@ void GLContainer::load_textures() {
                &zeroes[0]);
   glBindImageTexture(
       0, textures[0], 0, GL_TRUE, 0, GL_READ_WRITE,
-      GL_RGBA16); // 16 bits, hopefully higher precision is helpful
+      GL_RGBA16F); // 16 bits, hopefully higher precision is helpful
 
   // copy/paste buffer render texture - this is going to be a small rectangular
   // texture, will only be shown inside the menus
