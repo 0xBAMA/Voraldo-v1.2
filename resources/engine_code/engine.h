@@ -47,7 +47,7 @@ private:
   void draw_windows();
   void handle_events();
 
-  // due to extensive contents, this is broken out
+  // due to how much is going on here, this is broken out
   void draw_user_editor_tab_contents();
 
   // shows general control window

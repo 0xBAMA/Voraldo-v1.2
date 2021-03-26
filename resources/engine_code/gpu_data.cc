@@ -542,10 +542,6 @@ void GLContainer::display_block() {
     glUniform1f(glGetUniformLocation(display_compute_shader, "upow"),
                 alpha_correction_power);
 
-    // // gamma correction
-    // glUniform1f(glGetUniformLocation(display_compute_shader, "gamma"),
-    //             gamma_correction);
-
     // tonemapping setting
     glUniform1i(glGetUniformLocation(display_compute_shader, "ACES_behavior"),
                 tonemap_mode);
@@ -605,6 +601,9 @@ void GLContainer::display_block() {
   // pixel scaling
   glUniform1f(glGetUniformLocation(display_shader_program, "ssfactor"),
               SSFACTOR);
+
+  // dither toggle
+  glUniform1i(glGetUniformLocation(display_shader_program, "dither"), dither);
 
   // one triangle, 3 verticies
   glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -965,17 +964,17 @@ void GLContainer::load_textures() {
   cout << "rendertextures ("
        << int(SSFACTOR * SSFACTOR * screen_width * screen_height * 8)
        << " bytes).....";
+
   // main render texture - this is going to be a rectangular texture, larger
   // than the screen so we can do some supersampling
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_RECTANGLE, textures[0]);
-  glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA16, screen_width * SSFACTOR,
+  glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA16F, screen_width * SSFACTOR,
                screen_height * SSFACTOR, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                &zeroes[0]);
   glBindImageTexture(
       0, textures[0], 0, GL_TRUE, 0, GL_READ_WRITE,
       GL_RGBA16); // 16 bits, hopefully higher precision is helpful
-  // set up filtering for this texture
 
   // copy/paste buffer render texture - this is going to be a small rectangular
   // texture, will only be shown inside the menus

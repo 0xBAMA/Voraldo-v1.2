@@ -14,7 +14,7 @@ double tmin, tmax; //global scope, set in hit() to tell min and max parameters
 
 // we can get the dimensions with imageSize
 uniform layout(rgba16f) image3D lighting; // lighting buffer
-uniform layout(rgba16) image2D current;  // render texture
+uniform layout(rgba16f) image2D current;  // render texture
 uniform layout(rgba8) image3D block;    // color data
 
 // because this is going to have to be tile-based, we need this local offset

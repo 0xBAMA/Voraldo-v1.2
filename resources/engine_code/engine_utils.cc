@@ -1999,6 +1999,9 @@ void engine::show_voraldo_menu(bool *show) {
 
       ImGui::SliderInt("color temp", &GPU_Data.color_temp, 1000, 45000);
 
+      // dither toggle
+      ImGui::Checkbox("dither", &GPU_Data.dither);
+
       ImGui::SliderInt("tonemapping mode", &GPU_Data.tonemap_mode, 0, 2);
 
       switch (GPU_Data.tonemap_mode) {
@@ -2894,7 +2897,7 @@ void engine::draw_windows() {
     fps_overlay(&show_fps_overlay);
 
   // replacement orienation widget
-  orientation_widget_imgui();
+  // orientation_widget_imgui();
 
   // this has to be the first ImGUI window drawn - control window docks to it
   static ImGuiDockNodeFlags dockspace_flags =

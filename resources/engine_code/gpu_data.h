@@ -41,6 +41,9 @@ public:
   // OpenGL clear color
   glm::vec4 clear_color;
 
+  // dithering
+  bool dither = false;
+
   // screen dimensions
   unsigned int screen_width, screen_height;
 
@@ -65,6 +68,7 @@ public:
 
   // to set type of renderer
   float main_block_image();
+  // float main_block_image_supercover(); // todo
   float main_block_depthviz();
   float main_block_linear_filter();
   float main_block_nearest_filter();
@@ -72,7 +76,7 @@ public:
   // settings variables
   glm::vec3 orientation_widget_offset;
   float alpha_correction_power = 2.0;
-  float gamma_correction = 2.0;
+  float gamma_correction = 1.618;
   int color_temp = 6500;
   int tonemap_mode = 2;
 
