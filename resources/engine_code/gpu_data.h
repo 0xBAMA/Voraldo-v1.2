@@ -29,6 +29,11 @@ public:
   void swap_blocks() { tex_offset = tex_offset == 1 ? 0 : 1; }
   void set_redraw_flag() { redraw_flag = true; }
 
+  // dither modes
+  int ditherdim; // width of dither texture, can't use ImageSize on samplers so this needs to be passed 
+  void dither_bayer();
+  void dither_blue();
+
   // screenshot, animation
   void single_screenshot();
   void screenshot(std::string filename);
@@ -138,9 +143,11 @@ public:
                        bool draw, int mask);
 
   // noise algorithms
-  //   this is where the FastNoise2 generation goes
   float generate_perlin_noise(float xscale, float yscale, float zscale,
                               int seed);
+
+  // float generate_glm_perlin();
+
   float gen_noise(int preset, int seed);
   float draw_noise(float low_thresh, float high_thresh, bool smooth,
                    glm::vec4 color, bool draw, int mask);

@@ -34,6 +34,7 @@ using std::flush;
 #define GLM_SWIZZLE_XYZW
 #include "../glm/glm.hpp"                  //general vector types
 #include "../glm/gtc/matrix_transform.hpp" // for glm::ortho
+#include "../glm/gtc/noise.hpp"            // noise funcs
 #include "../glm/gtc/type_ptr.hpp"         //to send matricies gpu-side
 #include "../glm/gtx/rotate_vector.hpp"
 #include "../glm/gtx/transform.hpp"

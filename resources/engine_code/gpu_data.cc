@@ -239,6 +239,41 @@ float GLContainer::parse_and_execute_JSON_op(json j) {
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
+void GLContainer::dither_bayer()
+{
+	// from https://www.anisopteragames.com/how-to-fix-color-banding-with-dithering/
+	static const char pattern[] = {
+  0, 32,  8, 40,  2, 34, 10, 42,   /* 8x8 Bayer ordered dithering  */
+  48, 16, 56, 24, 50, 18, 58, 26,  /* pattern.  Each input pixel   */
+  12, 44,  4, 36, 14, 46,  6, 38,  /* is scaled to the 0..63 range */
+  60, 28, 52, 20, 62, 30, 54, 22,  /* before looking in this table */
+  3, 35, 11, 43,  1, 33,  9, 41,   /* to determine the action.     */
+  51, 19, 59, 27, 49, 17, 57, 25,
+  15, 47,  7, 39, 13, 45,  5, 37,
+  63, 31, 55, 23, 61, 29, 53, 21 };
+
+  ditherdim = 8;
+
+  glActiveTexture(GL_TEXTURE0 + 1);
+  glBindTexture(GL_TEXTURE_2D, textures[1]);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, ditherdim, ditherdim, 0, GL_RED,
+               GL_UNSIGNED_BYTE, pattern);
+}
+
+void GLContainer::dither_blue()
+{
+	// generate 64x64 blue noise texture from the header
+
+	ditherdim = 64;
+
+	// send it GPU-wards
+}
+
 void GLContainer::screenshot(std::string filename) {
   // already accounts for TRIPLE_MONITOR
   unsigned width = screen_width;
@@ -514,8 +549,9 @@ void GLContainer::display_block() {
 
     // display texture
     glUniform1i(glGetUniformLocation(display_compute_shader, "current"), 0);
-    glUniform1i(glGetUniformLocation(display_compute_shader, "block"),
-                2 + tex_offset);
+    glUniform1i(glGetUniformLocation(display_compute_shader, "block"), 2 + tex_offset);
+
+    // lighting
     glUniform1i(glGetUniformLocation(display_compute_shader, "lighting"), 6);
 
     // basis vectors
@@ -567,12 +603,10 @@ void GLContainer::display_block() {
     auto t2 = std::chrono::high_resolution_clock::now();
 
     cout << "tiled refresh took "
-         << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1)
-                .count()
+         << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count()
          << " microseconds" << endl;
 
-    redraw_flag =
-        false; // we won't need to draw anything again, till something changes
+    redraw_flag = false; // no need to draw anything again, till something changes
   }
 
   // clear the screen
@@ -599,12 +633,13 @@ void GLContainer::display_block() {
   glUniform1f(glGetUniformLocation(display_shader_program, "gamma"),
               gamma_correction);
 
+  // dithering
+  glUniform1i(glGetUniformLocation(display_shader_program, "dither"), 1);
+  glUniform1i(glGetUniformLocation(display_shader_program, "ditherdim"), ditherdim);
+
   // pixel scaling
   glUniform1f(glGetUniformLocation(display_shader_program, "ssfactor"),
               SSFACTOR);
-
-  // dither toggle
-  glUniform1i(glGetUniformLocation(display_shader_program, "dither"), dither);
 
   // one triangle, 3 verticies
   glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -981,13 +1016,14 @@ void GLContainer::load_textures() {
       0, textures[0], 0, GL_TRUE, 0, GL_READ_WRITE,
       GL_RGBA16F); // 16 bits, hopefully higher precision is helpful
 
-  // copy/paste buffer render texture - this is going to be a small rectangular
-  // texture, will only be shown inside the menus
-  glActiveTexture(GL_TEXTURE0 + 1);
-  glBindTexture(GL_TEXTURE_2D, textures[1]);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, 512, 256, 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, NULL);
-  glBindImageTexture(1, textures[1], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16);
+  // this is now the dither pattern shader
+  // glActiveTexture(GL_TEXTURE0 + 1);
+  // glBindTexture(GL_TEXTURE_2D, textures[1]);
+  // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 512, 256, 0, GL_RGBA,
+               // GL_UNSIGNED_BYTE, &zeroes[0]);
+  // glBindImageTexture(1, textures[1], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
+
+  dither_bayer();
 
   cout << "...........done." << endl;
 
@@ -1012,6 +1048,11 @@ void GLContainer::load_textures() {
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
+
+  // options are blue noise and the bayer matrix, initialize with bayer or blue noise
+  dither_bayer();
+  // dither_blue();
+
 
   cout << "...........done." << endl;
 
@@ -1092,9 +1133,9 @@ void GLContainer::load_textures() {
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
+
   // 3d texture for noise - DIM on a side
   generate_perlin_noise(0.014, 0.04, 0.014, 0);
-  // gen_noise(0,0);
 
   cout << "heightmap............";
   // heightmap - initialize with a generated diamond square heightmap
@@ -2834,6 +2875,25 @@ float GLContainer::generate_perlin_noise(float xscale = 0.014,
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
+// float GLContainer::generate_glm_perlin()
+// {
+//   auto t1 = std::chrono::high_resolution_clock::now();
+//   std::vector<unsigned char> data;
+
+//   for (int x = 0; x < DIM; x++)
+//     for (int y = 0; y < DIM; y++)
+//       for (int z = 0; z < DIM; z++) {
+//         float sample = glm::perlin(glm::vec3(x*0.014, y*0.04, z*0.014));
+//         data.push_back((unsigned char)(sample * 255));
+//         data.push_back((unsigned char)(sample * 255));
+//         data.push_back((unsigned char)(sample * 255));
+//         data.push_back(255);
+//       }
+
+//   auto t2 = std::chrono::high_resolution_clock::now();
+//   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+// }
+
 float GLContainer::gen_noise(int preset, int seed) {
   auto t1 = std::chrono::high_resolution_clock::now();
   json j;
@@ -2841,23 +2901,19 @@ float GLContainer::gen_noise(int preset, int seed) {
   j["seed"] = seed;
   log(j.dump());
 
-  // FastNoise::SmartNode<> fnGenerator =
-  // FastNoise::NewFromEncodedNodeTree("DQAFAAAAAAAAQAgAAAAAAD8AAAAAAA==");
-
-  auto fnSimplex = FastNoise::New<FastNoise::Simplex>();
-  auto fnGenerator = FastNoise::New<FastNoise::FractalFBm>();
-
-  fnGenerator->SetSource(fnSimplex);
-  fnGenerator->SetOctaveCount(3);
-
+  auto fnPerlin = FastNoise::New<FastNoise::Perlin>();
   // Create an array of floats to store the noise output in
   std::vector<float> noiseOutput(DIM * DIM * DIM);
 
   // Generate a 16 x 16 x 16 area of noise
-  fnGenerator->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, DIM, DIM, DIM,
+  fnPerlin->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, DIM, DIM, DIM,
                                 0.02f, 1337);
-  // int index = 0;
 
+
+
+  // FastNoise::SmartNode<> fnGenerator =
+  // FastNoise::NewFromEncodedNodeTree("DQAFAAAAAAAAQAgAAAAAAD8AAAAAAA==");
+  // int index = 0;
   // for (int z = 0; z < DIM; z++) {
   // for (int y = 0; y < DIM; y++) {
   // for (int x = 0; x < DIM; x++) {
