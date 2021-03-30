@@ -1999,37 +1999,45 @@ void engine::show_voraldo_menu(bool *show) {
 
       ImGui::SliderInt("color temp", &GPU_Data.color_temp, 1000, 45000);
 
-      // dither toggle
-      ImGui::Checkbox("dither", &GPU_Data.dither);
+      // dither toggle - need to add the logic about blue noise dither, then give a way to pick between them
+      // ImGui::Checkbox("dither", &GPU_Data.dither);
 
-      ImGui::SliderInt("tonemapping mode", &GPU_Data.tonemap_mode, 0, 2);
+      ImGui::Text("");
 
-      switch (GPU_Data.tonemap_mode) {
-      case 0:
-        ImGui::Text("0 - none");
-        break;
-      case 1:
-        ImGui::Text("1 - cheap ACES approx");
-        break;
-      case 2:
-        ImGui::Text("2 - full ACES");
-        break;
-      default:
-        break;
+      // DROPDOWN FOR THE TONEMAP MODE
+      // code from:
+      //  https://www.shadertoy.com/view/4dBcD1
+      //  https://www.shadertoy.com/view/WdjSW3
+      //  https://64.github.io/tonemapping/
+      //  http://filmicworlds.com/blog/filmic-tonemapping-operators/
+      
+      const char* tmodes[] = {"None (Linear)", "ACES (Narkowicz 2015)", "Unreal Engine 3", "Unreal Engine 4",
+      "Uncharted 2", "Gran Turismo", "Modified Gran Turismo", "Rienhard", "Modified Rienhard"};
+
+      static int current_tmode = GPU_Data.tonemap_mode;
+      static int prev_frame_tmode;
+
+      ImGui::Combo("Tonemapping Mode", &current_tmode, tmodes, IM_ARRAYSIZE(tmodes));
+      
+      if(current_tmode != prev_frame_tmode) // if selection changed
+      {
+        GPU_Data.tonemap_mode = current_tmode; // pass to GL container
+        prev_frame_tmode = current_tmode;
       }
 
-      OrangeText("VOXEL RENDERER DATA ACCESS TYPE");
-
+      ImGui::SameLine();
+      HelpMarker("Adjust Gamma factor if too dark/too bright.");
+      
       // DROPDOWN FOR THE RENDERER SWITCHER
-      const char* modes[] = {"Image3D", "Image3D (Supercover)", "Texture3D (Nearest)", "Texture3D (Mipmapped Linear)", "Depth Visualization", "Position Visualization"};
-      static int current_mode = 3;
-      static int prev_frame_mode;
+      const char* rmodes[] = {"Image3D", "Image3D (Supercover)", "Texture3D (Nearest)", "Texture3D (Mipmapped Linear)", "Depth Visualization", "Position Visualization"};
+      static int current_rmode = 3;
+      static int prev_frame_rmode;
 
-      ImGui::Combo("Mode", &current_mode, modes, IM_ARRAYSIZE(modes));
+      ImGui::Combo("Render Mode", &current_rmode, rmodes, IM_ARRAYSIZE(rmodes));
 
-      if(current_mode != prev_frame_mode)
+      if(current_rmode != prev_frame_rmode)
       { // if it changed, invoke desired behavior
-        switch(current_mode)
+        switch(current_rmode)
         {
           case 0: // Image3D
             GPU_Data.main_block_image();
@@ -2053,7 +2061,7 @@ void engine::show_voraldo_menu(bool *show) {
             break;
         }
 
-        prev_frame_mode = current_mode;
+        prev_frame_rmode = current_rmode;
       }
       
       if (ImGui::SmallButton(" Swap Blocks ")) {

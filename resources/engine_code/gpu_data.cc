@@ -514,11 +514,12 @@ void GLContainer::display_block() {
   static float acp; // alpha correction power
   // color temperature, done this way so it hooks on the first frame
   static int temp_temperature = 0;
+  static int temp_tonemapping_mode = 0;
   static glm::vec4 temp_clear_color;
 
   if ((temp_scale != scale) || (temp_clickndragx != clickndragx) ||
       (temp_clickndragy != clickndragy) || (acp != alpha_correction_power) ||
-      (clear_color != temp_clear_color))
+      (clear_color != temp_clear_color) || (tonemap_mode != temp_tonemapping_mode))
     redraw_flag = true;
 
   temp_scale = scale;
@@ -526,6 +527,7 @@ void GLContainer::display_block() {
   temp_clickndragy = clickndragy;
   acp = alpha_correction_power;
   temp_clear_color = clear_color;
+  temp_tonemapping_mode = tonemap_mode;
 
   if (redraw_flag) {
 
@@ -1135,7 +1137,8 @@ void GLContainer::load_textures() {
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
 
   // 3d texture for noise - DIM on a side
-  generate_perlin_noise(0.014, 0.04, 0.014, 0);
+  cout << generate_perlin_noise(0.014, 0.04, 0.014, 0) << " us" << endl << endl;
+  cout << gen_noise(0,0) << " us" << endl << endl;
 
   cout << "heightmap............";
   // heightmap - initialize with a generated diamond square heightmap
@@ -2909,7 +2912,7 @@ float GLContainer::gen_noise(int preset, int seed) {
   fnPerlin->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, DIM, DIM, DIM,
                                 0.02f, 1337);
 
-
+  cout << endl << fnPerlin->GetSIMDLevel() << endl << endl;
 
   // FastNoise::SmartNode<> fnGenerator =
   // FastNoise::NewFromEncodedNodeTree("DQAFAAAAAAAAQAgAAAAAAD8AAAAAAA==");

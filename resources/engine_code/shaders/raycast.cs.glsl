@@ -92,6 +92,97 @@ vec3 aces_fitted(vec3 v)
 }
 
 
+vec3 uncharted2(vec3 v)
+{
+    float A = 0.15;
+    float B = 0.50;
+    float C = 0.10;
+    float D = 0.20;
+    float E = 0.02;
+    float F = 0.30;
+    float W = 11.2;
+
+    float ExposureBias = 2.0f;
+    v *= ExposureBias;
+
+    return (((v*(A*v+C*B)+D*E)/(v*(A*v+B)+D*F))-E/F)*(((W*(A*W+C*B)+D*E)/(W*(A*W+B)+D*F))-E/F);
+}
+
+vec3 rienhard(vec3 v)
+{
+    return v / (vec3(1.) + v);
+}
+
+vec3 rienhard2(vec3 v)
+{
+    const float L_white = 4.0;
+    return (v * (vec3(1.) + v / (L_white * L_white))) / (1.0 + v);
+}
+
+vec3 tonemap_uchimura(vec3 v)
+{
+    const float P = 1.0;  // max display brightness
+    const float a = 1.0;  // contrast
+    const float m = 0.22; // linear section start
+    const float l = 0.4;  // linear section length
+    const float c = 1.33; // black
+    const float b = 0.0;  // pedestal
+
+    // Uchimura 2017, "HDR theory and practice"
+    // Math: https://www.desmos.com/calculator/gslcdxvipg
+    // Source: https://www.slideshare.net/nikuque/hdr-theory-and-practicce-jp
+    float l0 = ((P - m) * l) / a;
+    float L0 = m - m / a;
+    float L1 = m + (1.0 - m) / a;
+    float S0 = m + l0;
+    float S1 = m + a * l0;
+    float C2 = (a * P) / (P - S1);
+    float CP = -C2 / P;
+
+    vec3 w0 = 1.0 - smoothstep(0.0, m, v);
+    vec3 w2 = step(m + l0, v);
+    vec3 w1 = 1.0 - w0 - w2;
+
+    vec3 T = m * pow(v / m, vec3(c)) + vec3(b);
+    vec3 S = P - (P - S1) * exp(CP * (v - S0));
+    vec3 L = m + a * (v - vec3(m));
+
+    return T * w0 + L * w1 + S * w2;
+}
+
+vec3 tonemap_uchimura2(vec3 v)
+{
+    const float P = 1.0;  // max display brightness
+    const float a = 1.7;  // contrast
+    const float m = 0.1; // linear section start
+    const float l = 0.0;  // linear section length
+    const float c = 1.33; // black
+    const float b = 0.0;  // pedestal
+
+    float l0 = ((P - m) * l) / a;
+    float L0 = m - m / a;
+    float L1 = m + (1.0 - m) / a;
+    float S0 = m + l0;
+    float S1 = m + a * l0;
+    float C2 = (a * P) / (P - S1);
+    float CP = -C2 / P;
+
+    vec3 w0 = 1.0 - smoothstep(0.0, m, v);
+    vec3 w2 = step(m + l0, v);
+    vec3 w1 = 1.0 - w0 - w2;
+
+    vec3 T = m * pow(v / m, vec3(c)) + vec3(b);
+    vec3 S = P - (P - S1) * exp(CP * (v - S0));
+    vec3 L = m + a * (v - vec3(m));
+
+    return T * w0 + L * w1 + S * w2;
+}
+
+vec3 tonemap_unreal3(vec3 v)
+{
+    return v / (v + 0.155) * 1.019;
+}
+
 bool hit(vec3 org, vec3 dir)
 {
     // hit() code adapted from:
@@ -215,13 +306,31 @@ void main()
         // tonemapping
         switch(ACES_behavior)
         {
-            case 0: // no tonemapping
+            case 0: // None (Linear)
                 break;
-            case 1: // cheap version
+            case 1: // ACES (Narkowicz 2015)
                 color.xyz = cheapo_aces_approx(color.xyz);
                 break;
-            case 2: // full version
+            case 2: // Unreal Engine 3
+                color.xyz = tonemap_unreal3(color.xyz);
+                break;
+            case 3: // Unreal Engine 4
                 color.xyz = aces_fitted(color.xyz);
+                break;
+            case 4: // Uncharted 2
+                color.xyz = uncharted2(color.xyz);
+                break;
+            case 5: // Gran Turismo
+                color.xyz = tonemap_uchimura(color.xyz);
+                break;
+            case 6: // Modified Gran Turismo
+                color.xyz = tonemap_uchimura2(color.xyz);
+                break;
+            case 7: // Rienhard
+                color.xyz = rienhard(color.xyz);
+                break;
+            case 8: // Modified Rienhard
+                color.xyz = rienhard2(color.xyz);
                 break;
         }
         // store final result

@@ -81,9 +81,9 @@ public:
   // settings variables
   glm::vec3 orientation_widget_offset;
   float alpha_correction_power = 2.0;
-  float gamma_correction = 1.618;
+  float gamma_correction = 1.337;
   int color_temp = 6500;
-  int tonemap_mode = 2;
+  int tonemap_mode = 6;
 
   float scale = 5.;
   float clickndragx = 0;
