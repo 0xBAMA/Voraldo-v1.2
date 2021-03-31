@@ -2006,14 +2006,16 @@ void engine::show_voraldo_menu(bool *show) {
 
       // DROPDOWN FOR THE TONEMAP MODE
       // code from:
-      //  https://www.shadertoy.com/view/4dBcD1
+      //  https://www.shadertoy.com/view/4dBcD1 - todo: finish copying the rest of these
       //  https://www.shadertoy.com/view/WdjSW3
+      //  https://www.shadertoy.com/view/ldlcWX
       //  https://64.github.io/tonemapping/
       //  http://filmicworlds.com/blog/filmic-tonemapping-operators/
       
       const char* tmodes[] = {"None (Linear)", "ACES (Narkowicz 2015)", "Unreal Engine 3", "Unreal Engine 4",
-      "Uncharted 2", "Gran Turismo", "Modified Gran Turismo", "Rienhard", "Modified Rienhard"};
-
+      "Uncharted 2", "Gran Turismo", "Modified Gran Turismo", "Rienhard", "Modified Rienhard", "jt", "robobo1221s",
+      "robo", "reinhardRobo", "jodieRobo", "jodieRobo2", "jodieReinhard", "jodieReinhard2"};
+      
       static int current_tmode = GPU_Data.tonemap_mode;
       static int prev_frame_tmode;
 

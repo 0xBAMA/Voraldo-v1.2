@@ -183,6 +183,131 @@ vec3 tonemap_unreal3(vec3 v)
     return v / (v + 0.155) * 1.019;
 }
 
+
+#define toLum(color) dot(color, vec3(.2125, .7154, .0721) )
+#define lightAjust(a,b) ((1.-b)*(pow(1.-a,vec3(b+1.))-1.)+a)/b
+#define reinhard(c,l) c * (l / (1. + l) / l)
+vec3 jt_toneMap(vec3 x){
+    float l = toLum(x);
+    x = reinhard(x,l);
+    float m = max(x.r,max(x.g,x.b));
+    return min(lightAjust(x/m,m),x);
+}
+#undef toLum
+#undef lightAjust
+#undef reinhard
+
+
+vec3 robobo1221sTonemap(vec3 x){
+	return sqrt(x / (x + 1.0f / x)) - abs(x) + x;
+}
+
+vec3 roboTonemap(vec3 c){
+    return c/sqrt(1.+c*c);
+}
+
+vec3 jodieRoboTonemap(vec3 c){
+    float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+    vec3 tc=c/sqrt(c*c+1.);
+    return mix(c/sqrt(l*l+1.),tc,tc);
+}
+
+vec3 jodieRobo2ElectricBoogaloo(const vec3 color){
+    float luma = dot(color, vec3(.2126, .7152, .0722));
+
+    // tonemap curve goes on this line
+    // (I used robo here)
+    vec4 rgbl = vec4(color, luma) * inversesqrt(luma*luma + 1.);
+
+    vec3 mappedColor = rgbl.rgb;
+    float mappedLuma = rgbl.a;
+
+    float channelMax = max(max(max(
+    	mappedColor.r,
+    	mappedColor.g),
+    	mappedColor.b),
+    	1.);
+
+    // this is just the simplified/optimised math
+    // of the more human readable version below
+    return (
+        (mappedLuma*mappedColor-mappedColor)-
+        (channelMax*mappedLuma-mappedLuma)
+    )/(mappedLuma-channelMax);
+
+    const vec3 white = vec3(1);
+
+    // prevent clipping
+    vec3 clampedColor = mappedColor/channelMax;
+
+    // x is how much white needs to be mixed with
+    // clampedColor so that its luma equals the
+    // mapped luma
+    //
+    // mix(mappedLuma/channelMax,1.,x) = mappedLuma;
+    //
+    // mix is defined as
+    // x*(1-a)+y*a
+    // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/mix.xhtml
+    //
+    // (mappedLuma/channelMax)*(1.-x)+1.*x = mappedLuma
+
+    float x = (mappedLuma - mappedLuma*channelMax)
+        /(mappedLuma - channelMax);
+    return mix(clampedColor, white, x);
+}
+
+vec3 jodieReinhardTonemap(vec3 c){
+    float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+    vec3 tc=c/(c+1.);
+    return mix(c/(l+1.),tc,tc);
+}
+
+vec3 jodieReinhard2ElectricBoogaloo(const vec3 color){
+    float luma = dot(color, vec3(.2126, .7152, .0722));
+
+    // tonemap curve goes on this line
+    // (I used reinhard here)
+    vec4 rgbl = vec4(color, luma) / (luma + 1.);
+
+    vec3 mappedColor = rgbl.rgb;
+    float mappedLuma = rgbl.a;
+
+    float channelMax = max(max(max(
+    	mappedColor.r,
+    	mappedColor.g),
+    	mappedColor.b),
+    	1.);
+
+    // this is just the simplified/optimised math
+    // of the more human readable version below
+    return (
+        (mappedLuma*mappedColor-mappedColor)-
+        (channelMax*mappedLuma-mappedLuma)
+    )/(mappedLuma-channelMax);
+
+    const vec3 white = vec3(1);
+
+    // prevent clipping
+    vec3 clampedColor = mappedColor/channelMax;
+
+    // x is how much white needs to be mixed with
+    // clampedColor so that its luma equals the
+    // mapped luma
+    //
+    // mix(mappedLuma/channelMax,1.,x) = mappedLuma;
+    //
+    // mix is defined as
+    // x*(1-a)+y*a
+    // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/mix.xhtml
+    //
+    // (mappedLuma/channelMax)*(1.-x)+1.*x = mappedLuma
+
+    float x = (mappedLuma - mappedLuma*channelMax)
+        /(mappedLuma - channelMax);
+    return mix(clampedColor, white, x);
+}
+
 bool hit(vec3 org, vec3 dir)
 {
     // hit() code adapted from:
@@ -312,7 +437,7 @@ void main()
                 color.xyz = cheapo_aces_approx(color.xyz);
                 break;
             case 2: // Unreal Engine 3
-                color.xyz = tonemap_unreal3(color.xyz);
+                color.xyz = pow(tonemap_unreal3(color.xyz), vec3(2.8));
                 break;
             case 3: // Unreal Engine 4
                 color.xyz = aces_fitted(color.xyz);
@@ -331,6 +456,27 @@ void main()
                 break;
             case 8: // Modified Rienhard
                 color.xyz = rienhard2(color.xyz);
+                break;
+            case 9: // jt_tonemap
+                color.xyz = jt_toneMap(color.xyz);
+                break;
+            case 10: // robobo1221s
+                color.xyz = robobo1221sTonemap(color.xyz);
+                break;
+            case 11: // robo
+                color.xyz = roboTonemap(color.xyz);
+                break;
+            case 12: // jodieRobo
+                color.xyz = jodieRoboTonemap(color.xyz);
+                break;
+            case 13: // jodieRobo2
+                color.xyz = jodieRobo2ElectricBoogaloo(color.xyz);
+                break;
+            case 14: // jodieReinhard
+                color.xyz = jodieReinhardTonemap(color.xyz);
+                break;
+            case 15: // jodieReinhard2
+                color.xyz = jodieReinhard2ElectricBoogaloo(color.xyz);
                 break;
         }
         // store final result
