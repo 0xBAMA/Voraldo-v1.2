@@ -158,7 +158,7 @@ public:
                                  double verticies_radius,
                                  glm::vec4 edge_material, double edge_thickness,
                                  glm::vec4 face_material, float face_thickness,
-                                 bool draw, bool mask);
+                                 bool draw, int mask);
 
   float draw_sphere(glm::vec3 location, float radius, glm::vec4 color,
                     bool draw, int mask);

@@ -1821,7 +1821,7 @@ float GLContainer::draw_regular_icosahedron(
     double x_rot, double y_rot, double z_rot, double scale,
     glm::vec3 center_point, glm::vec4 vertex_material, double verticies_radius,
     glm::vec4 edge_material, double edge_thickness, glm::vec4 face_material,
-    float face_thickness, bool draw, bool mask) {
+    float face_thickness, bool draw, int mask) {
   auto t1 = std::chrono::high_resolution_clock::now();
 
   { // scoped to prevent issues with below
