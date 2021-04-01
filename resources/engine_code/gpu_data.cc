@@ -1137,7 +1137,7 @@ void GLContainer::load_textures() {
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
 
   // 3d texture for noise - DIM on a side
-  cout << generate_perlin_noise(0.014, 0.04, 0.014, 0) << " us" << endl << endl;
+  // cout << generate_perlin_noise(0.014, 0.04, 0.014, 0) << " us" << endl << endl;
   cout << gen_noise(0,0) << " us" << endl << endl;
 
   cout << "heightmap............";
@@ -2904,18 +2904,14 @@ float GLContainer::gen_noise(int preset, int seed) {
   j["seed"] = seed;
   log(j.dump());
 
-  auto fnPerlin = FastNoise::New<FastNoise::Perlin>();
-  // Create an array of floats to store the noise output in
-  std::vector<float> noiseOutput(DIM * DIM * DIM);
+  // auto fnGenerator = FastNoise::New<FastNoise::Perlin>();
+  FastNoise::SmartNode<> fnGenerator = FastNoise::NewFromEncodedNodeTree("DQDAAAAAAAAQB8AEAAAAAA/CwABAAAAAAAAAAEAAAAAAAAAARUAzcyMP+xROD8AAAA/AgAAAIA/AQkAARcAFK5HP8P1KECkcD1A7FEYwBsABQAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZk+AArXI70BBABcj4I/AAAAAClcjz8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 
-  // Generate a 16 x 16 x 16 area of noise
-  fnPerlin->GenUniformGrid3D(noiseOutput.data(), 0, 0, 0, DIM, DIM, DIM,
-                                0.02f, 1337);
+  std::vector<GLfloat> noiseOutput;
+  noiseOutput.resize(DIM * DIM * DIM);
 
-  cout << endl << fnPerlin->GetSIMDLevel() << endl << endl;
+  fnGenerator->GenUniformGrid3D(noiseOutput.data(), -DIM/2, -DIM/2, -DIM/2, DIM, DIM, DIM, 1./15., 1337);
 
-  // FastNoise::SmartNode<> fnGenerator =
-  // FastNoise::NewFromEncodedNodeTree("DQAFAAAAAAAAQAgAAAAAAD8AAAAAAA==");
   // int index = 0;
   // for (int z = 0; z < DIM; z++) {
   // for (int y = 0; y < DIM; y++) {
@@ -2928,10 +2924,9 @@ float GLContainer::gen_noise(int preset, int seed) {
   // cout << endl;
   // }
 
-  // send noiseOutput to the GPU
+  // send processed values to the GPU
   glBindTexture(GL_TEXTURE_3D, textures[11]);
-  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, &noiseOutput[0]);
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, DIM, DIM, DIM, 0, GL_RED, GL_FLOAT, &noiseOutput[0]);
   glGenerateMipmap(GL_TEXTURE_3D);
 
   auto t2 = std::chrono::high_resolution_clock::now();
