@@ -2070,6 +2070,19 @@ void engine::show_voraldo_menu(bool *show) {
         GPU_Data.swap_blocks();
         GPU_Data.set_redraw_flag();
       }
+      
+      if(ImGui::SmallButton(" Dither Bayer ")) {
+      	GPU_Data.dither_bayer();
+      	GPU_Data.set_redraw_flag();
+      }
+      
+      if(ImGui::SmallButton(" Dither Blue ")) {
+      	GPU_Data.dither_blue();
+      	GPU_Data.set_redraw_flag();
+      }
+      
+      
+      
       ImGui::SameLine();
       HelpMarker("Swapping blocks will undo when used once, and redo when used "
                  "again. It toggles front and back buffers, so it can't do "

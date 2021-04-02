@@ -1,6 +1,9 @@
 #include "gpu_data.h"
 #include "includes.h"
 
+// blue noise
+#include "../kajott_bluenoise/bluenoise.h"
+
 void GLContainer::log(std::string text) {
   cout << " issued \"" << text << "\" at " << current_time_and_date() << endl;
   operations.push_back(text);
@@ -242,18 +245,22 @@ float GLContainer::parse_and_execute_JSON_op(json j) {
 void GLContainer::dither_bayer()
 {
 	// from https://www.anisopteragames.com/how-to-fix-color-banding-with-dithering/
-	static const char pattern[] = {
+	std::vector<uint8_t> pattern = {
   0, 32,  8, 40,  2, 34, 10, 42,   /* 8x8 Bayer ordered dithering  */
   48, 16, 56, 24, 50, 18, 58, 26,  /* pattern.  Each input pixel   */
-  12, 44,  4, 36, 14, 46,  6, 38,  /* is scaled to the 0..63 range */
+  12, 44,  4, 36, 14, 46,  6, 38,  /* starts scaled to the 0..63 range */
   60, 28, 52, 20, 62, 30, 54, 22,  /* before looking in this table */
   3, 35, 11, 43,  1, 33,  9, 41,   /* to determine the action.     */
   51, 19, 59, 27, 49, 17, 57, 25,
   15, 47,  7, 39, 13, 45,  5, 37,
   63, 31, 55, 23, 61, 29, 53, 21 };
+  
+  for(auto &x : pattern)
+	x *= 4;
 
   ditherdim = 8;
-
+  
+  // send it GPU-wards
   glActiveTexture(GL_TEXTURE0 + 1);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
 
@@ -262,16 +269,27 @@ void GLContainer::dither_bayer()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, ditherdim, ditherdim, 0, GL_RED,
-               GL_UNSIGNED_BYTE, pattern);
+               GL_UNSIGNED_BYTE, &pattern[0]);
 }
 
 void GLContainer::dither_blue()
 {
 	// generate 64x64 blue noise texture from the header
+	std::vector<uint8_t> pattern = gen_blue_noise();
 
 	ditherdim = 64;
+	
+  // send it GPU-wards
+  glActiveTexture(GL_TEXTURE0 + 1);
+  glBindTexture(GL_TEXTURE_2D, textures[1]);
 
-	// send it GPU-wards
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, ditherdim, ditherdim, 0, GL_RED,
+               GL_UNSIGNED_BYTE, &pattern[0]);
+
 }
 
 void GLContainer::screenshot(std::string filename) {
@@ -1025,7 +1043,8 @@ void GLContainer::load_textures() {
                // GL_UNSIGNED_BYTE, &zeroes[0]);
   // glBindImageTexture(1, textures[1], 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
 
-  dither_bayer();
+  //dither_bayer();
+	dither_blue();
 
   cout << "...........done." << endl;
 
@@ -1050,11 +1069,6 @@ void GLContainer::load_textures() {
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
-
-  // options are blue noise and the bayer matrix, initialize with bayer or blue noise
-  dither_bayer();
-  // dither_blue();
-
 
   cout << "...........done." << endl;
 
