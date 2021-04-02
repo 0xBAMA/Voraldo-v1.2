@@ -1,9 +1,6 @@
 #include "gpu_data.h"
 #include "includes.h"
 
-// blue noise
-#include "../kajott_bluenoise/bluenoise.h"
-
 void GLContainer::log(std::string text) {
   cout << " issued \"" << text << "\" at " << current_time_and_date() << endl;
   operations.push_back(text);

@@ -36,7 +36,7 @@ mat3 temp_adjust(vec3 c)
 
 float get_dither_val()
 {
-	return texture2D(dither, gl_FragCoord.xy/float(ditherdim)).r / 128.0 - (1.0 / 128.0);
+	return texture2D(dither, gl_FragCoord.xy/float(ditherdim)).r / 64.0 - (1.0 / 128.0);
 }
 
 void main()

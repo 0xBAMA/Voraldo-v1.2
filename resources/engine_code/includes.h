@@ -69,6 +69,8 @@ using std::flush;
 // up to 3d perlin noise
 #include "../perlin/perlin.h"
 
+// blue noise
+#include "../kajott_bluenoise/bluenoise.h"
 
 // more general noise solution
 #include "../FastNoise2/include/FastNoise/FastNoise.h"

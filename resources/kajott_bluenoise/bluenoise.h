@@ -47,7 +47,7 @@ struct map_state {
     float emap[AREA];            // energy map
     int imin, imax;              // index of minimum and maximum energy spots
     int points;                  // number of active points in the bitmap
-} state1, state2, *state = &state1;
+} static state1, state2, *state = &state1;
 
 // get/set/clear individual bits in the current state bitmap
 #define BMP_GET(i) ((state->bitmap[((i) >> 5)] >> ((i) & 31)) & 1u)
@@ -56,17 +56,17 @@ struct map_state {
 
 // energy distribution LUT
 // (twice the image dimensions so that we can sample from a window)
-float etab[(SIZE * 2) * (SIZE * 2)];
+static float etab[(SIZE * 2) * (SIZE * 2)];
 // TODO: Maybe it's faster to shrink the LUT to image size and handle wrap-
 //       around in update_map()? The large LUT might be cache-unfriendly ...
 
 // resulting noise image
-uint8_t noise[AREA];
+static uint8_t noise[AREA];
 
 
 // update the current energy map (and imax/imin) after adding (sign=+1)
 // or removing (sign=-1) a point at index
-void update_map(int index, float sign) {
+inline void update_map(int index, float sign) {
     int px = I2X(index);
     int py = I2Y(index);
     const float* pt = &etab[((SIZE - py) * (SIZE * 2)) + (SIZE - px)];
@@ -88,7 +88,7 @@ void update_map(int index, float sign) {
 }
 
 
-std::vector<uint8_t> gen_blue_noise() {
+inline std::vector<uint8_t> gen_blue_noise() {
     srand(time(NULL));
     //FILE *f;
     
