@@ -2905,24 +2905,10 @@ float GLContainer::gen_noise(int preset, int seed) {
   log(j.dump());
 
   // auto fnGenerator = FastNoise::New<FastNoise::Perlin>();
-  FastNoise::SmartNode<> fnGenerator = FastNoise::NewFromEncodedNodeTree("DQDAAAAAAAAQB8AEAAAAAA/CwABAAAAAAAAAAEAAAAAAAAAARUAzcyMP+xROD8AAAA/AgAAAIA/AQkAARcAFK5HP8P1KECkcD1A7FEYwBsABQAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZk+AArXI70BBABcj4I/AAAAAClcjz8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-
-  std::vector<GLfloat> noiseOutput;
-  noiseOutput.resize(DIM * DIM * DIM);
+  FastNoise::SmartNode<> fnGenerator = FastNoise::NewFromEncodedNodeTree("EAB7FC4/GwAFAAQAAAAAAAAAAAAAAAAAAAAAAAAAAQQAKVwPPs3MTD+uR2E+AAAAAKRw/b8AAAAAAAAAAAAAAAABHQAVALgehT+uR6E/heuRPwMAAACAPwEVAI/CdT/NzMw+j8L1PiUA7FG4P+xRuD8pXM8/AACAPxUAj8J1PaRwPT+amRk/DQADAAAAhesRQBAAAAAAPxAAj8J1vRUAcT0KP+xRuD6PwnU+DQAHAAAAXI/CPwIArkcBQAAfhWs/AAAAAAABCQABAwAAAAA/AQYAAf//AAAKAA==");
+  std::vector<GLfloat> noiseOutput(DIM * DIM * DIM);
 
   fnGenerator->GenUniformGrid3D(noiseOutput.data(), -DIM/2, -DIM/2, -DIM/2, DIM, DIM, DIM, 1./15., 1337);
-
-  // int index = 0;
-  // for (int z = 0; z < DIM; z++) {
-  // for (int y = 0; y < DIM; y++) {
-  // for (int x = 0; x < DIM; x++) {
-  // ProcessVoxelData(x, y, z, noiseOutput[index++]);
-  // cout << noiseOutput[index++] << " ";
-  // }
-  // cout << endl;
-  // }
-  // cout << endl;
-  // }
 
   // send processed values to the GPU
   glBindTexture(GL_TEXTURE_3D, textures[11]);
