@@ -251,12 +251,12 @@ void GLContainer::dither_bayer()
   51, 19, 59, 27, 49, 17, 57, 25,
   15, 47,  7, 39, 13, 45,  5, 37,
   63, 31, 55, 23, 61, 29, 53, 21 };
-  
+
   for(auto &x : pattern)
 	x *= 4;
 
   ditherdim = 8;
-  
+
   // send it GPU-wards
   glActiveTexture(GL_TEXTURE0 + 1);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
@@ -275,7 +275,7 @@ void GLContainer::dither_blue()
 	std::vector<uint8_t> pattern = gen_blue_noise();
 
 	ditherdim = 64;
-	
+
   // send it GPU-wards
   glActiveTexture(GL_TEXTURE0 + 1);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
@@ -657,6 +657,8 @@ void GLContainer::display_block() {
   // pixel scaling
   glUniform1f(glGetUniformLocation(display_shader_program, "ssfactor"),
               SSFACTOR);
+
+	  glUniform1i(glGetUniformLocation(display_shader_program, "main_display_texture"), 0);
 
   // one triangle, 3 verticies
   glDrawArrays(GL_TRIANGLES, 0, 3);
