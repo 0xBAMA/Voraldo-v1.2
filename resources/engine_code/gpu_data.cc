@@ -658,7 +658,8 @@ void GLContainer::display_block() {
   glUniform1f(glGetUniformLocation(display_shader_program, "ssfactor"),
               SSFACTOR);
 
-	  glUniform1i(glGetUniformLocation(display_shader_program, "main_display_texture"), 0);
+  // the render texture, read from 
+  glUniform1i(glGetUniformLocation(display_shader_program, "main_display_texture"), 0);
 
   // one triangle, 3 verticies
   glDrawArrays(GL_TRIANGLES, 0, 3);
