@@ -29,7 +29,7 @@ void main()
             {
                 current_weight = 1-(distance(vec3(0), vec3(x, y, z)));
                 total_weight+=current_weight;
-                alpha_sum += texture3D(current, vec3(ivec3(gl_GlobalInvocationID.xyz)+ivec3(x,y,z))/imageSize(lighting)).a*current_weight;
+                alpha_sum += texture(current, vec3(ivec3(gl_GlobalInvocationID.xyz)+ivec3(x,y,z))/imageSize(lighting)).a*current_weight;
             }
 
     //sum up alpha values across the cells being considered

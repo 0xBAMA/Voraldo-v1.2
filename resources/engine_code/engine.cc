@@ -4,10 +4,16 @@
 
 engine::engine()
 {
-    init();              // set up SDL2, OpenGL, dearImGUI
-    gl_debug_enable();  // debug callback for error reporting
-    while(!pquit)      // main loop
-        main_loop();
+}
+
+void engine::init()
+{
+    SDL2_setup();           // all SDL setup, window hidden
+    gl_setup();             // gl3w init, glEnables, blendfunc
+    gl_debug_enable();
+    GPU_Data.init();        // wrapper for GPU-side setup
+    imgui_setup();          // colors, other config
+    SDL_ShowWindow(window); // show the window when done
 }
 
 engine::~engine()

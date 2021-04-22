@@ -985,7 +985,7 @@ void GLContainer::load_textures() {
   std::vector<GLfloat> light;
 
   std::default_random_engine generator;
-  std::uniform_int_distribution<unsigned char> distribution(0, 255);
+  std::uniform_int_distribution<unsigned short> distribution(0, 255);
 
   light.resize(4 * DIM * DIM * DIM, 1.0); // fill the array with 1.0
   zeroes.resize(4 * DIM * DIM * DIM, 0);  // fill the array with zeroes

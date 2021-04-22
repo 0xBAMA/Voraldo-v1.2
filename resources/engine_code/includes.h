@@ -55,6 +55,7 @@ using std::flush;
 // GLEW replacment
 #include "../ocornut_imgui/gl3w.h"
 
+#define SDL_MAIN_HANDLED
 // SDL includes - windowing, gl context, system info
 #include <SDL2/SDL.h>
 // allows you to run OpenGL inside of SDL2
