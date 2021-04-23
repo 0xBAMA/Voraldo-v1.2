@@ -23,7 +23,8 @@ int main(int argc, char **argv)
 
     engine e;
 
-    e.init();
+    if(!e.init())
+        return 1;
 
     while(e.run())      // main loop
         e.main_loop();

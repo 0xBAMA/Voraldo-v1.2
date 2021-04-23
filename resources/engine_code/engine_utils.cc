@@ -3171,6 +3171,10 @@ void engine::quit_conf(bool *open) {
 }
 
 void engine::quit() {
+
+  if(!uiInit)
+      return;
+
   // shutdown everything
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplSDL2_Shutdown();

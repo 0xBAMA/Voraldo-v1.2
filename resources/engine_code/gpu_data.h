@@ -9,12 +9,17 @@ public:
   ~GLContainer() {}
 
   // GPU side initialization
-  void init() {
+  bool init() {
     compile_shaders();
     buffer_geometry();
-    load_textures();
+    
+    if(!load_textures())
+        return false;
+
     main_block_linear_filter();
     init_basis();
+
+    return true;
   }
 
   // display functions
@@ -230,7 +235,7 @@ private:
   // init helper functions
   void compile_shaders();
   void buffer_geometry();
-  void load_textures();
+  bool load_textures();
   void cube_geometry(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d,
                      glm::vec3 e, glm::vec3 f, glm::vec3 g, glm::vec3 h,
                      std::vector<glm::vec3> &points,

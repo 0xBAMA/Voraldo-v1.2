@@ -9,7 +9,7 @@ public:
   ~engine();
 
   // cleaner call from constructor
-  void init();
+  bool init();
 
   bool run() { return !pquit; }
   // the program's main loop
@@ -22,6 +22,7 @@ public:
   }
 
 private:
+  bool uiInit;
   SDL_Window *window;
   SDL_GLContext GLcontext;
 
