@@ -21,7 +21,7 @@ void main()
 	if(pmask.r > 0 && respect_mask) //the cell was masked
 	{
 		// this will be more complex, need to figure out how variable mask works
-		imageStore(current, ivec3(gl_GlobalInvocationID.xyz), mix(lbcontent, pcol, pmask.r/255.));  //color takes on previous color
+		imageStore(current, ivec3(gl_GlobalInvocationID.xyz), mix(lbcontent, pcol, pmask.r/255));  //color takes on previous color
 		// imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), pmask > opmask ? pmask : opmask);  //mask is set to the greater of the two
 		imageStore(current_mask, ivec3(gl_GlobalInvocationID.xyz), pmask);
 	}

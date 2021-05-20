@@ -372,8 +372,8 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
         step = 0.001f;
 
     vec3 samp = (org + current_t * dir + vec3(1.))/2.;
-    vec4 new_read = texture3D(block, samp);
-    vec4 new_light_read = texture3D(lighting, samp);
+    vec4 new_read = texture(block, samp);
+    vec4 new_light_read = texture(lighting, samp);
 
     float alpha_squared;
 
@@ -397,8 +397,8 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
             samp = (org + current_t * dir + vec3(1.))/2.;
 
             // take a sample
-            new_read = texture3D(block, samp);
-            new_light_read = texture3D(lighting, samp);
+            new_read = texture(block, samp);
+            new_light_read = texture(lighting, samp);
         }
     }
     return t_color;

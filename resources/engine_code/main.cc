@@ -17,8 +17,17 @@
 
 #include "engine.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
+    SDL_SetMainReady();
+
     engine e;
+
+    if(!e.init())
+        return 1;
+
+    while(e.run())      // main loop
+        e.main_loop();
+
     return 0;
 }

@@ -978,14 +978,14 @@ void GLContainer::cube_geometry(glm::vec3 a, glm::vec3 b, glm::vec3 c,
   face(b, d, f, h, points, normals, colors, color); // face BDFH
 }
 
-void GLContainer::load_textures() {
+bool GLContainer::load_textures() {
 
   // data arrays
   std::vector<unsigned char> ucxor, zeroes, random;
   std::vector<GLfloat> light;
 
   std::default_random_engine generator;
-  std::uniform_int_distribution<unsigned char> distribution(0, 255);
+  std::uniform_int_distribution<unsigned short> distribution(0, 255);
 
   light.resize(4 * DIM * DIM * DIM, 1.0); // fill the array with 1.0
   zeroes.resize(4 * DIM * DIM * DIM, 0);  // fill the array with zeroes
@@ -1008,6 +1008,17 @@ void GLContainer::load_textures() {
   cout << "....done." << endl;
 
   cout << "Creating texture handles...";
+
+  GLint image_units;
+
+  glGetIntegerv(GL_MAX_IMAGE_UNITS, &image_units);
+
+  if(image_units < 13)
+  {
+      cout << "\nGPU does not have enough image units. Only has "<<image_units<<" but 13 needed." << endl;
+      return false;
+  }
+
   // create all the texture handles
   glGenTextures(13, &textures[0]);
   cout << "...........done." << endl;
@@ -1175,6 +1186,8 @@ void GLContainer::load_textures() {
   // generate a mipmap for the front RGBA buffer
   color_mipmap_gen();
   light_mipmap_gen();
+
+  return true;
 }
 
 // view rotation functions

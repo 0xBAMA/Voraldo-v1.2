@@ -8,7 +8,21 @@ public:
   engine();
   ~engine();
 
+  // cleaner call from constructor
+  bool init();
+
+  bool run() { return !pquit; }
+  // the program's main loop
+  void main_loop() {
+    update_fps_history();      // get new fps value
+    GPU_Data.display();        // GPU-side action
+    draw_windows();            // ImGUI windows
+    SDL_GL_SwapWindow(window); // swap double buffers
+    handle_events();           // SDL input handling
+  }
+
 private:
+  bool uiInit;
   SDL_Window *window;
   SDL_GLContext GLcontext;
 
@@ -19,28 +33,10 @@ private:
   // wrapper for the grisly details
   GLContainer GPU_Data;
 
-  // cleaner call from constructor
-  void init() {
-    SDL2_setup();           // all SDL setup, window hidden
-    gl_setup();             // gl3w init, glEnables, blendfunc
-    GPU_Data.init();        // wrapper for GPU-side setup
-    imgui_setup();          // colors, other config
-    SDL_ShowWindow(window); // show the window when done
-  }
-
   // init helper functions
   void SDL2_setup();
   void gl_setup();
   void imgui_setup();
-
-  // the program's main loop
-  void main_loop() {
-    update_fps_history();      // get new fps value
-    GPU_Data.display();        // GPU-side action
-    draw_windows();            // ImGUI windows
-    SDL_GL_SwapWindow(window); // swap double buffers
-    handle_events();           // SDL input handling
-  }
 
   // main loop helper functions
   void update_fps_history();
