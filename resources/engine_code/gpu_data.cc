@@ -658,7 +658,7 @@ void GLContainer::display_block() {
   glUniform1f(glGetUniformLocation(display_shader_program, "ssfactor"),
               SSFACTOR);
 
-  // the render texture, read from 
+  // the render texture, read from
   glUniform1i(glGetUniformLocation(display_shader_program, "main_display_texture"), 0);
 
   // one triangle, 3 verticies
@@ -2670,6 +2670,34 @@ std::string GLContainer::vat(float flip, std::string rule, int initmode,
   // get the rule out of v
   return v.getShortRule();
 }
+
+
+float GLContainer::letters(int count, glm::vec4 color, bool draw, int mask) {
+	auto t1 = std::chrono::high_resolution_clock::now();
+	// this function isn't logging right now
+
+	// load up the model
+	letter_selector l;
+	float fcolor[] = {color.r, color.g, color.b, color.a};
+
+	// construct a block
+	std::vector<unsigned char> loaded_bytes; loaded_bytes.resize(DIM*DIM*DIM);
+
+	l.populate(loaded_bytes, DIM, count, fcolor);
+
+	 // the rest is exactly the same as VAT
+   glBindTexture(GL_TEXTURE_3D, textures[10]); // put it in the loadbuffer
+   glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+                GL_UNSIGNED_BYTE, &loaded_bytes[0]);
+   copy_loadbuffer(true);
+
+	// for(int i = 0 ; i < loaded_bytes.size(); i++)
+		// std::cout << " " << loaded_bytes[i] << std::endl;
+
+	auto t2 = std::chrono::high_resolution_clock::now();
+	return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+}
+
 
 // load - set redraw_flag to true
 float GLContainer::load(std::string filename, bool respect_mask) {

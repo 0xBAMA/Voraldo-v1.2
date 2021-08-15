@@ -81,6 +81,9 @@ using std::flush;
 // Brent Werness' Voxel Automata Terrain
 #include "../VAT/VAT.h"
 
+// letter model
+#include "../hoard-of-bitfonts/letters.h"
+
 // Niels Lohmann - JSON for Modern C++
 #include "../nlohmann_JSON/json.hpp"
 using json = nlohmann::json;
@@ -93,7 +96,7 @@ using json = nlohmann::json;
 // pi definition
 constexpr double pi = 3.14159265358979323846;
 
-// alternatively, from https://www.shadertoy.com/view/7sSGzz 
+// alternatively, from https://www.shadertoy.com/view/7sSGzz
 // Octuple Precision, even though Shadertoy is Full Precision (32-Bit Floating Point)
 // #define pi 3.1415926535897932384626433832795028841971693993751058209749445923078164
 

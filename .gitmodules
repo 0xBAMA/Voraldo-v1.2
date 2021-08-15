@@ -1,3 +1,6 @@
 [submodule "resources/FastNoise2"]
 	path = resources/FastNoise2
 	url = https://github.com/Auburn/FastNoise2.git
+[submodule "resources/hoard-of-bitfonts"]
+	path = resources/hoard-of-bitfonts
+	url = https://github.com/0xBAMA/hoard-of-bitfonts

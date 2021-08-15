@@ -109,7 +109,7 @@ void traceray(vec3 dir)
 
             // new read for the alpha_sample
             // alpha_sample = imageLoad(current, sample_location).a;
-            alpha_sample = texture3D(current, sample_location/vec3(imageSize(lighting))).a;
+            alpha_sample = texture(current, sample_location/vec3(imageSize(lighting))).a;
 
             // decrement intensity with the value of alpha_sample
             current_intensity *= 1-pow(alpha_sample, decay_power);

@@ -1375,6 +1375,38 @@ void engine::show_voraldo_menu(bool *show) {
 
         ImGui::EndTabItem();
       }
+
+      if (ImGui::BeginTabItem(" Letters ")) {
+			static int count = 0;
+			static bool draw = true;
+			static int mask = 0;
+			static ImVec4 color1 = ImVec4(210.0 / 255.0, 180.0 / 255.0, 140.0 / 255.0, 105.0 / 255.0); // Wikipedia Tan
+
+			ImGui::Text(" ");
+			ImGui::SliderInt("Letter Count", &count, 0, 10000);
+			ImGui::Text(" ");
+
+			ImGui::Separator();
+
+			OrangeText("OPTIONS");
+			ImGui::Checkbox("  Draw ", &draw);
+			ImGui::SameLine();
+			ImGui::InputInt(" Mask ", &mask);
+
+			// bounds check
+			mask = std::clamp(mask, 0, 255);
+
+			ImGui::ColorEdit4("  Color", (float *)&color1, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf);
+
+			ImGui::Text(" ");
+			ImGui::SetCursorPosX(16);
+
+			if (ImGui::SmallButton(" Draw ")) {
+				GPU_Data.letters(count, glm::vec4(color1.x, color1.y, color1.z, color1.w), draw, mask);
+			}
+			ImGui::EndTabItem();
+	  	}
+
       ImGui::EndTabBar();
       ImGui::EndTabItem();
     }
@@ -2011,16 +2043,16 @@ void engine::show_voraldo_menu(bool *show) {
       //  https://www.shadertoy.com/view/ldlcWX
       //  https://64.github.io/tonemapping/
       //  http://filmicworlds.com/blog/filmic-tonemapping-operators/
-      
+
       const char* tmodes[] = {"None (Linear)", "ACES (Narkowicz 2015)", "Unreal Engine 3", "Unreal Engine 4",
       "Uncharted 2", "Gran Turismo", "Modified Gran Turismo", "Rienhard", "Modified Rienhard", "jt", "robobo1221s",
       "robo", "reinhardRobo", "jodieRobo", "jodieRobo2", "jodieReinhard", "jodieReinhard2"};
-      
+
       static int current_tmode = GPU_Data.tonemap_mode;
       static int prev_frame_tmode;
 
       ImGui::Combo("Tonemapping Mode", &current_tmode, tmodes, IM_ARRAYSIZE(tmodes));
-      
+
       if(current_tmode != prev_frame_tmode) // if selection changed
       {
         GPU_Data.tonemap_mode = current_tmode; // pass to GL container
@@ -2029,7 +2061,7 @@ void engine::show_voraldo_menu(bool *show) {
 
       ImGui::SameLine();
       HelpMarker("Adjust Gamma factor if too dark/too bright.");
-      
+
       // DROPDOWN FOR THE RENDERER SWITCHER
       const char* rmodes[] = {"Image3D", "Image3D (Supercover)", "Texture3D (Nearest)", "Texture3D (Mipmapped Linear)", "Depth Visualization", "Position Visualization"};
       static int current_rmode = 3;
@@ -2065,24 +2097,24 @@ void engine::show_voraldo_menu(bool *show) {
 
         prev_frame_rmode = current_rmode;
       }
-      
+
       if (ImGui::SmallButton(" Swap Blocks ")) {
         GPU_Data.swap_blocks();
         GPU_Data.set_redraw_flag();
       }
-      
+
       if(ImGui::SmallButton(" Dither Bayer ")) {
       	GPU_Data.dither_bayer();
       	GPU_Data.set_redraw_flag();
       }
-      
+
       if(ImGui::SmallButton(" Dither Blue ")) {
       	GPU_Data.dither_blue();
       	GPU_Data.set_redraw_flag();
       }
-      
-      
-      
+
+
+
       ImGui::SameLine();
       HelpMarker("Swapping blocks will undo when used once, and redo when used "
                  "again. It toggles front and back buffers, so it can't do "
@@ -3070,7 +3102,7 @@ void engine::handle_events() {
       // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3)
       // ("Display 2")SDL_SetWindowPosition(window, 2*total_screen_width, 0)
       }
-        
+
       // snap to cardinal directions
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1)
         GPU_Data.view_front();

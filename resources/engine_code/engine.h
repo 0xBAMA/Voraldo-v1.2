@@ -26,6 +26,8 @@ private:
     GPU_Data.init();        // wrapper for GPU-side setup
     imgui_setup();          // colors, other config
     SDL_ShowWindow(window); // show the window when done
+
+	 GPU_Data.letters(10, glm::vec4(10.), true, 127);
   }
 
   // init helper functions

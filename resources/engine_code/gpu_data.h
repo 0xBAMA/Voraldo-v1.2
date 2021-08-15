@@ -30,7 +30,7 @@ public:
   void set_redraw_flag() { redraw_flag = true; }
 
   // dither modes
-  int ditherdim; // width of dither texture, can't use ImageSize on samplers so this needs to be passed 
+  int ditherdim; // width of dither texture, can't use ImageSize on samplers so this needs to be passed
   void dither_bayer();
   void dither_blue();
 
@@ -205,6 +205,8 @@ public:
                   float mag, bool respect_mask, glm::bvec3 mins,
                   glm::bvec3 maxs);
 
+	float letters(int count, glm::vec4 color, bool draw, int mask);
+
   void log(std::string text);          // for operation logging
   void clear_log();                    // clear the log
   void save_log(std::string filename); // save the current log
@@ -214,7 +216,7 @@ public:
   std::vector<std::string> operations; // log of all operations
 
 private:
-    
+
   GLuint display_compute_shader;
   bool redraw_flag = true;       // need to update render texture
   bool color_mipmap_flag = true; // need to recompute mipmap before render
