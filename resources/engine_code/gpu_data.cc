@@ -2681,7 +2681,7 @@ float GLContainer::letters(int count, glm::vec4 color, bool draw, int mask) {
 	float fcolor[] = {color.r, color.g, color.b, color.a};
 
 	// construct a block
-	std::vector<unsigned char> loaded_bytes; loaded_bytes.resize(DIM*DIM*DIM);
+	std::vector<unsigned char> loaded_bytes; loaded_bytes.resize(DIM*DIM*DIM*4, 0);
 
 	l.populate(loaded_bytes, DIM, count, fcolor);
 
@@ -2689,7 +2689,7 @@ float GLContainer::letters(int count, glm::vec4 color, bool draw, int mask) {
    glBindTexture(GL_TEXTURE_3D, textures[10]); // put it in the loadbuffer
    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
                 GL_UNSIGNED_BYTE, &loaded_bytes[0]);
-   copy_loadbuffer(true);
+   copy_loadbuffer(mask);
 
 	// for(int i = 0 ; i < loaded_bytes.size(); i++)
 		// std::cout << " " << loaded_bytes[i] << std::endl;
