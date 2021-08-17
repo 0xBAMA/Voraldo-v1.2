@@ -1382,8 +1382,21 @@ void engine::show_voraldo_menu(bool *show) {
 			static int mask = 0;
 			static ImVec4 color1 = ImVec4(210.0 / 255.0, 180.0 / 255.0, 140.0 / 255.0, 105.0 / 255.0); // Wikipedia Tan
 
+			static int num_directions{1};
+
 			ImGui::Text(" ");
 			ImGui::SliderInt("Letter Count", &count, 0, 10000);
+			ImGui::SliderInt("num variants", &num_directions, 1, 49);
+			ImGui::SameLine();
+			HelpMarker(" There are a couple different ways in which variation is added - as you "
+			"increase the number, you will see more and more of them applied, as detailed here. My "
+			"plan is basically to go from stamping only on the xy plane, one pixel thick, to now a "
+			"configurable scheme, where you can specify the randomization of not only orientation "
+			"but scaling, which will correspondingly thicken glyphs and create 2x2x2 representations, "
+			"3x3x3 representations, etc. Selection logic is as follows: number of orientations is "
+			"the number, mod 6, plus 1 kinda - e.g. 1 is one direction, 2 is two, etc, and when you "
+			"hit 7, you're going to start seeing 1 possible orientation of glyphs with scale factor 2, "
+			"right, so that's basically how that goes. Special value 49 is full fuckup.");
 			ImGui::Text(" ");
 
 			ImGui::Separator();
@@ -1402,7 +1415,7 @@ void engine::show_voraldo_menu(bool *show) {
 			ImGui::SetCursorPosX(16);
 
 			if (ImGui::SmallButton(" Draw ")) {
-				GPU_Data.letters(count, glm::vec4(color1.x, color1.y, color1.z, color1.w), draw, mask);
+				GPU_Data.letters(count, num_directions, glm::vec4(color1.x, color1.y, color1.z, color1.w), draw, mask);
 			}
 			ImGui::EndTabItem();
 	  	}

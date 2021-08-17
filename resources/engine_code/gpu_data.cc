@@ -2672,7 +2672,7 @@ std::string GLContainer::vat(float flip, std::string rule, int initmode,
 }
 
 
-float GLContainer::letters(int count, glm::vec4 color, bool draw, int mask) {
+float GLContainer::letters(int count, int num_dirs, glm::vec4 color, bool draw, int mask) {
 	auto t1 = std::chrono::high_resolution_clock::now();
 	// this function isn't logging right now
 
@@ -2683,7 +2683,7 @@ float GLContainer::letters(int count, glm::vec4 color, bool draw, int mask) {
 	// construct a block
 	std::vector<unsigned char> loaded_bytes; loaded_bytes.resize(DIM*DIM*DIM*4, 0);
 
-	l.populate(loaded_bytes, DIM, count, fcolor);
+	l.populate(loaded_bytes, DIM, count, num_dirs, fcolor);
 
 	 // the rest is exactly the same as VAT
    glBindTexture(GL_TEXTURE_3D, textures[10]); // put it in the loadbuffer

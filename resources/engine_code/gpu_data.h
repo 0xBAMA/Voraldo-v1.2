@@ -205,7 +205,7 @@ public:
                   float mag, bool respect_mask, glm::bvec3 mins,
                   glm::bvec3 maxs);
 
-	float letters(int count, glm::vec4 color, bool draw, int mask);
+	float letters(int count, int variants, glm::vec4 color, bool draw, int mask);
 
   void log(std::string text);          // for operation logging
   void clear_log();                    // clear the log
