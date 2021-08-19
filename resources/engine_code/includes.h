@@ -90,6 +90,11 @@ using json = nlohmann::json;
 
 // noise utility
 
+
+
+// size of the temporal accumulation history
+#define NUM_FRAMES_HISTORY 8
+
 // contains the OpenGL wrapper class
 #include "gpu_data.h"
 
@@ -102,6 +107,7 @@ constexpr double pi = 3.14159265358979323846;
 
 
 #define TRIPLE_MONITOR false // enable to span all three monitors
+
 
 // voxel dimension
 #define DIM 256

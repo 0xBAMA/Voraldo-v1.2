@@ -15,6 +15,7 @@ double tmin, tmax; //global scope, set in hit() to tell min and max parameters
 
 // the display texture
 uniform layout(rgba16f) image2D current; // we can get the dimensions with imageSize
+uniform sampler2D dither; // blue noise texture
 
 // samplers
 uniform sampler3D block;
@@ -38,6 +39,7 @@ uniform vec3 basis_z;
 uniform vec4 clear_color;
 
 uniform float scale;
+uniform float perspfactor;
 
 uniform float upow;
 
@@ -420,7 +422,8 @@ void main()
 
     //start with a vector pointing down the z axis (greater than half the corner to corner distance, i.e. > ~1.75)
     vec3 org = rot * vec3(-x_start, -y_start,  2.); //add the offsets in x and y
-    vec3 dir = rot * vec3(       0,        0, -2.); //simply a vector pointing in the opposite direction, no xy offsets
+    // vec3 dir = rot * vec3(       0,        0, -2.); //simply a vector pointing in the opposite direction, no xy offsets
+    vec3 dir = rot * vec3( -perspfactor*x_start, -perspfactor*y_start, -2.);  // perspective projection
 
     Global_Loc -= ivec2(clickndragx, clickndragy);
     if(Global_Loc.x < dimensions.x && Global_Loc.y < dimensions.y)  // we are good to check the ray against the AABB
@@ -485,6 +488,10 @@ void main()
                 color.xyz = jodieReinhard2ElectricBoogaloo(color.xyz);
                 break;
         }
+
+		  // grab the result from the previous frame
+		  color = mix(color, imageLoad(current, Global_Loc), 0.2);
+
         // store the final result
         imageStore(current, Global_Loc, color);
     }  // else, this part of the tile falls outside of the image bounds, no operation should take place

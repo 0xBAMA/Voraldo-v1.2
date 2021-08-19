@@ -35,6 +35,8 @@ uniform vec3 basis_z;
 uniform vec4 clear_color;
 
 uniform float scale;
+uniform float perspfactor;
+
 
 uniform float upow;
 
@@ -365,7 +367,7 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
     float step = float((tmax-tmin))/NUM_STEPS;
     if(step < 0.001f)
         step = 0.001f;
-    
+
     vec3 block_size = vec3(imageSize(block));
 
     ivec3 samp = ivec3((block_size/2.0f)*(org+current_t*dir+vec3(1.)));
@@ -414,7 +416,8 @@ void main()
                             basis_z.x, basis_z.y, basis_z.z));
 
     vec3 org = rot * vec3(-x_start, -y_start,  2.); //add the offsets in x and y
-    vec3 dir = rot * vec3(      0.,       0., -2.); //simply a vector pointing in the opposite direction, no xy offsets
+    // vec3 dir = rot * vec3(      0.,       0., -2.); //simply a vector pointing in the opposite direction, no xy offsets
+    vec3 dir = rot * vec3( -perspfactor*x_start, -perspfactor*y_start, -2.);  // perspective projection
 
     Global_Loc -= ivec2(clickndragx, clickndragy);
     if(Global_Loc.x < dimensions.x && Global_Loc.y < dimensions.y)  // we are good to check the ray against the AABB

@@ -2043,6 +2043,7 @@ void engine::show_voraldo_menu(bool *show) {
       ImGui::SliderFloat("gamma", &GPU_Data.gamma_correction, 0.5, 4.0);
 
       ImGui::SliderInt("color temp", &GPU_Data.color_temp, 1000, 45000);
+      ImGui::SliderFloat("perspective", &GPU_Data.perspfactor, 0.0, 2.5);
 
       // dither toggle - need to add the logic about blue noise dither, then give a way to pick between them
       // ImGui::Checkbox("dither", &GPU_Data.dither);
@@ -2116,17 +2117,15 @@ void engine::show_voraldo_menu(bool *show) {
         GPU_Data.set_redraw_flag();
       }
 
-      if(ImGui::SmallButton(" Dither Bayer ")) {
-      	GPU_Data.dither_bayer();
-      	GPU_Data.set_redraw_flag();
-      }
-
-      if(ImGui::SmallButton(" Dither Blue ")) {
-      	GPU_Data.dither_blue();
-      	GPU_Data.set_redraw_flag();
-      }
-
-
+      // if(ImGui::SmallButton(" Dither Bayer ")) {
+      // 	GPU_Data.dither_bayer();
+      // 	GPU_Data.set_redraw_flag();
+      // }
+		//
+      // if(ImGui::SmallButton(" Dither Blue ")) {
+      // 	GPU_Data.dither_blue();
+      // 	GPU_Data.set_redraw_flag();
+      // }
 
       ImGui::SameLine();
       HelpMarker("Swapping blocks will undo when used once, and redo when used "

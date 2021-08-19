@@ -10,10 +10,6 @@ uniform float ssfactor;
 
 out vec4 fragment_output;
 
-// apply dithering?
-// uniform bool dither;
-
-
 uniform sampler2D dither;
 uniform int ditherdim; // can't use imagesize to get dimension
 

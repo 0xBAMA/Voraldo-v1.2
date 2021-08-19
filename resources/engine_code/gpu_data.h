@@ -27,7 +27,7 @@ public:
 
   // swapping blocks
   void swap_blocks() { tex_offset = tex_offset == 1 ? 0 : 1; }
-  void set_redraw_flag() { redraw_flag = true; }
+  void set_redraw_flag() { redraw_flag = true; redraw_count = NUM_FRAMES_HISTORY;}
 
   // dither modes
   int ditherdim; // width of dither texture, can't use ImageSize on samplers so this needs to be passed
@@ -86,6 +86,7 @@ public:
   int tonemap_mode = 6;
 
   float scale = 5.;
+  float perspfactor = 0.2;
   float clickndragx = 0;
   float clickndragy = 0;
 
@@ -219,6 +220,7 @@ private:
 
   GLuint display_compute_shader;
   bool redraw_flag = true;       // need to update render texture
+  int redraw_count = NUM_FRAMES_HISTORY; // for temporal accumulation
   bool color_mipmap_flag = true; // need to recompute mipmap before render
   bool light_mipmap_flag = true; // need to recompute mipmap before render
 

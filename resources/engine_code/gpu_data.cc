@@ -379,7 +379,7 @@ void GLContainer::animation(std::string filename) {
 
 float GLContainer::init_basis() {
   auto t1 = std::chrono::high_resolution_clock::now();
-  redraw_flag = true;
+  set_redraw_flag();
   basisx = glm::vec3(-1., 0., 0.);
   basisy = glm::vec3(0., -1., 0.);
   basisz = glm::vec3(0., 0., 1.);
@@ -393,7 +393,7 @@ float GLContainer::rotate_vertical(float amnt) {
   basisx = glm::rotate(basisx, amnt, glm::vec3(1, 0, 0));
   basisy = glm::rotate(basisy, amnt, glm::vec3(1, 0, 0));
   basisz = glm::rotate(basisz, amnt, glm::vec3(1, 0, 0));
-  redraw_flag = true;
+    set_redraw_flag();
   auto t2 = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
@@ -403,7 +403,7 @@ float GLContainer::rotate_horizontal(float amnt) {
   basisx = glm::rotate(basisx, amnt, glm::vec3(0, 1, 0));
   basisy = glm::rotate(basisy, amnt, glm::vec3(0, 1, 0));
   basisz = glm::rotate(basisz, amnt, glm::vec3(0, 1, 0));
-  redraw_flag = true;
+    set_redraw_flag();
   auto t2 = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
@@ -413,14 +413,14 @@ float GLContainer::rolltate(float amnt) {
   basisx = glm::rotate(basisx, amnt, glm::vec3(0, 0, 1));
   basisy = glm::rotate(basisy, amnt, glm::vec3(0, 0, 1));
   basisz = glm::rotate(basisz, amnt, glm::vec3(0, 0, 1));
-  redraw_flag = true;
+    set_redraw_flag();
   auto t2 = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
 float GLContainer::main_block_image() {
   auto t1 = std::chrono::high_resolution_clock::now();
-  redraw_flag = true;
+    set_redraw_flag();
 
   display_compute_shader = display_compute_image;
 
@@ -431,7 +431,7 @@ float GLContainer::main_block_image() {
 float GLContainer::main_block_depth() {
   auto t1 = std::chrono::high_resolution_clock::now();
   main_block_linear_filter(); // filtering
-  redraw_flag = true;
+    set_redraw_flag();
 
   display_compute_shader = display_compute_depth;
 
@@ -442,7 +442,7 @@ float GLContainer::main_block_depth() {
 float GLContainer::main_block_position() {
   auto t1 = std::chrono::high_resolution_clock::now();
   main_block_linear_filter(); // filtering
-  redraw_flag = true;
+    set_redraw_flag();
 
   display_compute_shader = display_compute_position;
 
@@ -464,7 +464,7 @@ float GLContainer::main_block_linear_filter() {
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
                   GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  redraw_flag = true;
+  set_redraw_flag();
 
   display_compute_shader = display_compute_sampler;
 
@@ -484,7 +484,7 @@ float GLContainer::main_block_nearest_filter() {
   glBindTexture(GL_TEXTURE_3D, textures[6]);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  redraw_flag = true;
+  set_redraw_flag();
 
   display_compute_shader = display_compute_sampler;
 
@@ -524,6 +524,7 @@ void GLContainer::display_block() {
 
   // check for state updates
   static float temp_scale;
+  static float temp_perspfactor;
   static float temp_clickndragx;
   static float temp_clickndragy;
   static float acp; // alpha correction power
@@ -532,12 +533,21 @@ void GLContainer::display_block() {
   static int temp_tonemapping_mode = 0;
   static glm::vec4 temp_clear_color;
 
-  if ((temp_scale != scale) || (temp_clickndragx != clickndragx) ||
+	// temporal accumulation logic
+	redraw_flag = (redraw_count > 0) || redraw_flag;
+	if(redraw_flag)
+		redraw_count--;
+
+  if ((temp_scale != scale) || (temp_perspfactor != perspfactor) || (temp_clickndragx != clickndragx) ||
       (temp_clickndragy != clickndragy) || (acp != alpha_correction_power) ||
-      (clear_color != temp_clear_color) || (tonemap_mode != temp_tonemapping_mode))
-    redraw_flag = true;
+      (clear_color != temp_clear_color) || (tonemap_mode != temp_tonemapping_mode) || (redraw_count > 0))
+		{
+			redraw_flag = true;
+		}
+
 
   temp_scale = scale;
+  temp_perspfactor = perspfactor;
   temp_clickndragx = clickndragx;
   temp_clickndragy = clickndragy;
   acp = alpha_correction_power;
@@ -568,6 +578,10 @@ void GLContainer::display_block() {
     glUniform1i(glGetUniformLocation(display_compute_shader, "current"), 0);
     glUniform1i(glGetUniformLocation(display_compute_shader, "block"), 2 + tex_offset);
 
+	 // blue noise texture
+  	glUniform1i(glGetUniformLocation(display_shader_program, "dither"), 1);
+
+
     // lighting
     glUniform1i(glGetUniformLocation(display_compute_shader, "lighting"), 6);
 
@@ -581,6 +595,9 @@ void GLContainer::display_block() {
 
     // zoom parameter
     glUniform1f(glGetUniformLocation(display_compute_shader, "scale"), scale);
+
+	 // perspective projection factor
+    glUniform1f(glGetUniformLocation(display_compute_shader, "perspfactor"), perspfactor);
 
     // click and drag
     glUniform1f(glGetUniformLocation(display_compute_shader, "clickndragx"),
@@ -1238,7 +1255,7 @@ float GLContainer::lighting_clear(bool use_cache, glm::vec4 clear_level) {
   log(j.dump());
 
   glUseProgram(lighting_clear_compute);
-  redraw_flag = true;
+  set_redraw_flag();
   light_mipmap_flag = true;
 
   glUniform1i(glGetUniformLocation(lighting_clear_compute, "lighting"), 6);
@@ -1274,7 +1291,7 @@ float GLContainer::compute_point_lighting(glm::vec3 light_position,
   log(j.dump());
 
   glUseProgram(point_lighting_compute);
-  redraw_flag = true;
+  set_redraw_flag();
   light_mipmap_flag = true;
 
   glUniform1i(glGetUniformLocation(point_lighting_compute, "lighting"), 6);
@@ -1319,7 +1336,7 @@ float GLContainer::compute_cone_lighting(glm::vec3 location, float theta,
   j["distance_power"] = distance_power;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   light_mipmap_flag = true;
   glUseProgram(cone_lighting_compute);
 
@@ -1365,7 +1382,7 @@ float GLContainer::compute_new_directional_lighting(float theta, float phi,
   j["phi"] = phi;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   light_mipmap_flag = true;
 
   glUseProgram(directional_lighting_compute);
@@ -1404,7 +1421,7 @@ float GLContainer::compute_fake_GI(float factor, glm::vec4 color,
   j["factor"] = factor;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   light_mipmap_flag = true;
 
   glUseProgram(fakeGI_compute);
@@ -1450,7 +1467,7 @@ float GLContainer::compute_ambient_occlusion(int radius) {
   j["radius"] = radius;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   light_mipmap_flag = true;
 
   glUseProgram(ambient_occlusion_compute);
@@ -1508,7 +1525,7 @@ float GLContainer::draw_aabb(glm::vec3 min, glm::vec3 max, glm::vec4 color,
   log(j.dump());
 
   // need to redraw after any drawing operation is done
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
 
   swap_blocks();
@@ -1578,7 +1595,7 @@ float GLContainer::draw_cuboid(glm::vec3 a, glm::vec3 b, glm::vec3 c,
   j["mask"] = cuboid_mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
   swap_blocks();
 
@@ -1633,7 +1650,7 @@ float GLContainer::draw_cylinder(glm::vec3 bvec, glm::vec3 tvec, float radius,
   j["mask"] = mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
   swap_blocks();
 
@@ -1689,7 +1706,7 @@ float GLContainer::draw_ellipsoid(glm::vec3 center, glm::vec3 radii,
   j["mask"] = mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
   swap_blocks();
 
@@ -1749,7 +1766,7 @@ float GLContainer::draw_grid(glm::ivec3 spacing, glm::ivec3 width,
   j["mask"] = mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
   swap_blocks();
 
@@ -1799,7 +1816,7 @@ float GLContainer::draw_heightmap(float height_scale, bool height_color,
   j["mask"] = mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
   swap_blocks();
 
@@ -2036,7 +2053,7 @@ float GLContainer::draw_sphere(glm::vec3 location, float radius,
   j["mask"] = mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
 
   swap_blocks();
@@ -2088,7 +2105,7 @@ float GLContainer::draw_tube(glm::vec3 bvec, glm::vec3 tvec, float inner_radius,
   j["mask"] = mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
 
   swap_blocks();
@@ -2144,7 +2161,7 @@ float GLContainer::draw_triangle(glm::vec3 point1, glm::vec3 point2,
   j["mask"] = mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
 
   swap_blocks();
@@ -2188,7 +2205,7 @@ float GLContainer::clear_all(bool respect_mask) {
   j["respect_mask"] = respect_mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
 
   swap_blocks();
@@ -2344,7 +2361,7 @@ float GLContainer::box_blur(int radius, bool touch_alpha, bool respect_mask) {
   j["respect_mask"] = respect_mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
   swap_blocks();
   glUseProgram(box_blur_compute);
@@ -2382,7 +2399,7 @@ float GLContainer::gaussian_blur(int radius, bool touch_alpha,
   j["respect_mask"] = respect_mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
 
   // I think I'm going to restrict the range of radii, since I'm not sure about
@@ -2415,7 +2432,7 @@ float GLContainer::gaussian_blur(int radius, bool touch_alpha,
 // limiter
 float GLContainer::limiter() {
   auto t1 = std::chrono::high_resolution_clock::now();
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
 
   // the details of this operation still need to be worked out - there is a
@@ -2436,7 +2453,7 @@ float GLContainer::shift(glm::ivec3 movement, bool loop, int mode) {
   j["movement"]["z"] = movement.z;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
   swap_blocks();
 
@@ -2504,7 +2521,7 @@ std::string GLContainer::run_user_script() {
   std::stringstream report;
   auto t1 = std::chrono::high_resolution_clock::now();
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
   swap_blocks();
 
@@ -2538,7 +2555,7 @@ float GLContainer::copy_loadbuffer(bool respect_mask) {
   // doesn't make sense to make this available to the JSON thing because it is
   // only available through the load and VAT
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
   swap_blocks();
   glUseProgram(copy_loadbuff_compute);
@@ -2599,7 +2616,7 @@ std::string GLContainer::vat(float flip, std::string rule, int initmode,
   j["maxs"]["z"] = maxs.z;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
 
   int dimension;
@@ -2708,7 +2725,7 @@ float GLContainer::load(std::string filename, bool respect_mask) {
   j["respect_mask"] = respect_mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
 
   std::vector<unsigned char> image_loaded_bytes;
@@ -2977,7 +2994,7 @@ float GLContainer::draw_noise(float low_thresh, float high_thresh, bool smooth,
   j["mask"] = mask;
   log(j.dump());
 
-  redraw_flag = true;
+  set_redraw_flag();
   color_mipmap_flag = true;
 
   swap_blocks();

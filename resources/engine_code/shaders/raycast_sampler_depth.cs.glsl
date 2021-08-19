@@ -37,6 +37,8 @@ uniform vec3 basis_z;
 uniform vec4 clear_color;
 
 uniform float scale;
+uniform float perspfactor;
+
 
 uniform float upow;
 
@@ -156,7 +158,7 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
     vec4 new_read = texture(block, samp);
     // vec4 new_light_read = texture(lighting, samp);
 
-    // ok I only want to use that alpha, the rgb comes from a depth-wise lerp 
+    // ok I only want to use that alpha, the rgb comes from a depth-wise lerp
     vec3 col = mix(vec3(1.), vec3(0.), distance(org, org+current_t*dir) / float(4));
     new_read.rgb = col;
     // new_read.rgb = samp;
@@ -211,7 +213,8 @@ void main()
 
     //start with a vector pointing down the z axis (greater than half the corner to corner distance, i.e. > ~1.75)
     vec3 org = rot * vec3(-x_start, -y_start,  2.); //add the offsets in x and y
-    vec3 dir = rot * vec3(       0,        0, -2.); //simply a vector pointing in the opposite direction, no xy offsets
+    // vec3 dir = rot * vec3(       0,        0, -2.); //simply a vector pointing in the opposite direction, no xy offsets
+    vec3 dir = rot * vec3( -perspfactor*x_start, -perspfactor*y_start, -2.);  // perspective projection
 
     Global_Loc -= ivec2(clickndragx, clickndragy);
 
