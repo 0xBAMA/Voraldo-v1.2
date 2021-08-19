@@ -540,9 +540,9 @@ void GLContainer::display_block() {
 
   if ((temp_scale != scale) || (temp_perspfactor != perspfactor) || (temp_clickndragx != clickndragx) ||
       (temp_clickndragy != clickndragy) || (acp != alpha_correction_power) ||
-      (clear_color != temp_clear_color) || (tonemap_mode != temp_tonemapping_mode) || (redraw_count > 0))
+      (clear_color != temp_clear_color) || (tonemap_mode != temp_tonemapping_mode))
 		{
-			redraw_flag = true;
+			redraw_flag = true; redraw_count++;
 		}
 
 
@@ -579,7 +579,10 @@ void GLContainer::display_block() {
     glUniform1i(glGetUniformLocation(display_compute_shader, "block"), 2 + tex_offset);
 
 	 // blue noise texture
-  	glUniform1i(glGetUniformLocation(display_shader_program, "dither"), 1);
+  	glUniform1i(glGetUniformLocation(display_compute_shader, "dither"), 1);
+	static int frame = 0;
+	glUniform1i(glGetUniformLocation(display_compute_shader, "frame"), (frame=frame+1));
+
 
 
     // lighting

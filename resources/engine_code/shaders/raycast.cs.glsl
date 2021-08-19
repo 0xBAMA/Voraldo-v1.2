@@ -17,6 +17,9 @@ uniform layout(rgba16f) image3D lighting; // lighting buffer
 uniform layout(rgba16f) image2D current;  // render texture
 uniform layout(rgba8) image3D block;    // color data
 
+uniform sampler2D dither; // blue noise texture
+uniform int frame;
+
 // because this is going to have to be tile-based, we need this local offset
 uniform int x_offset;
 uniform int y_offset;

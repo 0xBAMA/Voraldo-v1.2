@@ -15,6 +15,9 @@ double tmin, tmax; //global scope, set in hit() to tell min and max parameters
 
 // the display texture
 uniform layout(rgba16f) image2D current; // we can get the dimensions with imageSize
+uniform sampler2D dither; // blue noise texture
+uniform int frame;
+
 
 // samplers
 uniform sampler3D block;

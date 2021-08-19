@@ -3136,17 +3136,21 @@ void engine::handle_events() {
       // collisions with existing imgui behavior - see note below
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_h) {
         GPU_Data.clickndragx += SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
-      }
+			 GPU_Data.set_redraw_flag();
+		}
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_l) {
         GPU_Data.clickndragx -= SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
-      }
+			 GPU_Data.set_redraw_flag();
+		}
 
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_k) {
         GPU_Data.clickndragy += SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
-      }
+			 GPU_Data.set_redraw_flag();
+		}
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_j) {
         GPU_Data.clickndragy -= SDL_GetModState() & KMOD_SHIFT ? 50 : 5;
-      }
+			 GPU_Data.set_redraw_flag();
+		}
 
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s) {
         if (SDL_GetModState() & KMOD_SHIFT) {
@@ -3172,9 +3176,11 @@ void engine::handle_events() {
         if (event.wheel.y > 0) // scroll up
         {
           GPU_Data.scale -= 0.1f;
+			 GPU_Data.set_redraw_flag();
         } else if (event.wheel.y < 0) // scroll down
         {
           GPU_Data.scale += 0.1f;
+			 GPU_Data.set_redraw_flag();
         }
       }
     }
