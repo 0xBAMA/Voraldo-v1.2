@@ -5747,3 +5747,51 @@ tiled refresh took 2,141 microseconds
 tiled refresh took 2,096 microseconds
 tiled refresh took 2,138 microseconds
 goodbye.
+creating window................done.
+setting up OpenGL context......done.
+
+Renderer: AMD Radeon VII (VEGA20, DRM 3.40.0, 5.11.0-25-generic, LLVM 12.0.1)
+OpenGL version supported 4.6 (Core Profile) Mesa 21.1.6 - kisak-mesa PPA
+
+display geometry init................................done.
+orientation widget geometry init.....................done.
+generating init xor texture.........done.
+Creating texture handles..............done.
+rendertextures (66,355,200 bytes)................done.
+color voxel blocks at 256 resolution (134,217,728 bytes)..................done.
+mask voxel blocks at 256 resolution (33,554,432 bytes)..................done.
+light buffer voxel blocks at 256 resolution (100,663,296 bytes)..................done.
+ issued "{"scale":0.0,"seed":"EAB7FC4/GwAFAAQAAAAAAAAAAAAAAAAAAAAAAAAAAQQAKVwPPs3MTD+uR2E+AAAAAKRw/b8AAAAAAAAAAAAAAAABHQAVALgehT+uR6E/heuRPwMAAACAPwEVAI/CdT/NzMw+j8L1PiUA7FG4P+xRuD8pXM8/AACAPxUAj8J1PaRwPT+amRk/DQADAAAAhesRQBAAAAAAPxAAj8J1vRUAcT0KP+xRuD6PwnU+DQAHAAAAXI/CPwIArkcBQAAfhWs/AAAAAAABCQABAwAAAAA/AQYAAf//AAAKAA=="}" at [17:33:00 | 21/08/2021] 
+1.39331e+06 us
+
+heightmap............ issued "{"type":"generate_heightmap_diamond_square"}" at [17:33:02 | 21/08/2021] 
+........done.
+main color block mipmap generated in 49 microseconds
+light block mipmap generated in 41 microseconds
+loaded 55,920 letters from 55,920 fonts.
+stamping at 153 9 with dimensions 13 9
+stamping at 68 14 with dimensions 12 6
+stamping at 16 250 with dimensions 20 10
+stamping at 58 121 with dimensions 18 9
+stamping at 40 209 with dimensions 18 15
+stamping at 126 188 with dimensions 8 8
+stamping at 181 82 with dimensions 12 6
+stamping at 191 138 with dimensions 13 3
+stamping at 201 35 with dimensions 10 8
+stamping at 131 2 with dimensions 20 8
+OpenGL debug output enabled.
+
+main color block mipmap generated in 28 microseconds
+light block mipmap generated in 1 microseconds
+tiled refresh took 1,292 microseconds
+tiled refresh took 564 microseconds
+tiled refresh took 2,361 microseconds
+tiled refresh took 505 microseconds
+tiled refresh took 667 microseconds
+tiled refresh took 1,257 microseconds
+tiled refresh took 2,188 microseconds
+tiled refresh took 2,148 microseconds
+tiled refresh took 2,173 microseconds
+tiled refresh took 2,267 microseconds
+tiled refresh took 3,536 microseconds
+goodbye.

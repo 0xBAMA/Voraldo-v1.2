@@ -376,7 +376,10 @@ void GLContainer::animation(std::string filename) {
 
     //  display the block (as many times as the frame history dictates)
 	 for(int i = 0; i < NUM_FRAMES_HISTORY; i++)
-    	display_block();
+	 {
+		 display_block();
+		 SDL_Delay(20); // taking it easy on the laptop
+	 }
 
     //  save the screenshot for frame n
     std::stringstream ss;
