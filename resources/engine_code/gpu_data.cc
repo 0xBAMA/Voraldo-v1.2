@@ -151,7 +151,7 @@ float GLContainer::parse_and_execute_JSON_op(json j) {
   } else if (j["type"] == std::string("generate_perlin_noise")) {
     generate_perlin_noise(j["xscale"], j["yscale"], j["zscale"], j["seed"]);
   } else if (j["type"] == std::string("gen_noise")) {
-    gen_noise(j["preset"], j["seed"]);
+    gen_noise(j["scale"], j["seed"]);
   } else if (j["type"] == std::string("draw_noise")) {
     draw_noise(j["low_thresh"], j["high_thresh"], j["smooth"],
                glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"],
@@ -272,9 +272,16 @@ void GLContainer::dither_bayer()
 void GLContainer::dither_blue()
 {
 	// generate 64x64 blue noise texture from the header
-	std::vector<uint8_t> pattern = gen_blue_noise();
+	// std::vector<uint8_t> pattern = gen_blue_noise();
 
-	ditherdim = 64;
+	// load from file instead
+		std::vector<unsigned char> image_loaded_bytes;
+		unsigned width, height;
+
+		unsigned error =
+			lodepng::decode(image_loaded_bytes, width, height, std::string("resources/LDR_RGBA_0_blue_noise.png").c_str());
+
+		ditherdim = width;
 
   // send it GPU-wards
   glActiveTexture(GL_TEXTURE0 + 1);
@@ -284,8 +291,8 @@ void GLContainer::dither_blue()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, ditherdim, ditherdim, 0, GL_RED,
-               GL_UNSIGNED_BYTE, &pattern[0]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, ditherdim, ditherdim, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, &image_loaded_bytes[0]);
 
 }
 
@@ -367,8 +374,9 @@ void GLContainer::animation(std::string filename) {
           json(j["frame" + std::to_string(n)]["op" + std::to_string(i)]));
     }
 
-    //  display the block
-    display_block();
+    //  display the block (as many times as the frame history dictates)
+	 for(int i = 0; i < NUM_FRAMES_HISTORY; i++)
+    	display_block();
 
     //  save the screenshot for frame n
     std::stringstream ss;
@@ -580,8 +588,13 @@ void GLContainer::display_block() {
 
 	 // blue noise texture
   	glUniform1i(glGetUniformLocation(display_compute_shader, "dither"), 1);
-	static int frame = 0;
-	glUniform1i(glGetUniformLocation(display_compute_shader, "frame"), (frame=frame+1));
+  	glUniform1i(glGetUniformLocation(display_compute_shader, "ditherdim"), ditherdim);
+
+	// number of steps through the volume
+  	glUniform1i(glGetUniformLocation(display_compute_shader, "num_steps"), num_steps);
+
+	static long long frame = 0;
+	glUniform1i(glGetUniformLocation(display_compute_shader, "frame"), (frame++)%ditherdim);
 
 
 
@@ -626,9 +639,7 @@ void GLContainer::display_block() {
       glUniform1i(glGetUniformLocation(display_compute_shader, "x_offset"), x);
       for (int y = 0; y < SSFACTOR * screen_height; y += TILESIZE) {
         // update the y offset
-        glUniform1i(glGetUniformLocation(display_compute_shader, "y_offset"),
-                    y);
-
+        glUniform1i(glGetUniformLocation(display_compute_shader, "y_offset"), y);
         // dispatch tiles
         glDispatchCompute(TILESIZE / 32, TILESIZE / 32, 1);
       }
@@ -1172,7 +1183,7 @@ void GLContainer::load_textures() {
 
   // 3d texture for noise - DIM on a side
   // cout << generate_perlin_noise(0.014, 0.04, 0.014, 0) << " us" << endl << endl;
-  cout << gen_noise(0,0) << " us" << endl << endl;
+  cout << gen_noise(0, std::string("EAB7FC4/GwAFAAQAAAAAAAAAAAAAAAAAAAAAAAAAAQQAKVwPPs3MTD+uR2E+AAAAAKRw/b8AAAAAAAAAAAAAAAABHQAVALgehT+uR6E/heuRPwMAAACAPwEVAI/CdT/NzMw+j8L1PiUA7FG4P+xRuD8pXM8/AACAPxUAj8J1PaRwPT+amRk/DQADAAAAhesRQBAAAAAAPxAAj8J1vRUAcT0KP+xRuD6PwnU+DQAHAAAAXI/CPwIArkcBQAAfhWs/AAAAAAABCQABAwAAAAA/AQYAAf//AAAKAA==")) << " us" << endl << endl;
 
   cout << "heightmap............";
   // heightmap - initialize with a generated diamond square heightmap
@@ -2719,6 +2730,28 @@ float GLContainer::letters(int count, int num_dirs, glm::vec4 color, bool draw, 
 }
 
 
+float GLContainer::xor_block(bool draw, int mask) {
+	auto t1 = std::chrono::high_resolution_clock::now();
+	std::vector<unsigned char> ucxor;
+	for (unsigned int x = 0; x < DIM; x++) {
+		for (unsigned int y = 0; y < DIM; y++) {
+			for (unsigned int z = 0; z < DIM; z++) {
+				for (int i = 0; i < 4; i++) { // fill r, g, b with the result of the xor
+					ucxor.push_back(((unsigned char)(x % 256) ^ (unsigned char)(y % 256) ^
+											(unsigned char)(z % 256)));
+				}
+			}
+		}
+	}
+	// the rest is exactly the same as VAT
+	glBindTexture(GL_TEXTURE_3D, textures[10]); // put it in the loadbuffer
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+	GL_UNSIGNED_BYTE, &ucxor[0]);
+	copy_loadbuffer(mask);
+	auto t2 = std::chrono::high_resolution_clock::now();
+	return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+}
+
 // load - set redraw_flag to true
 float GLContainer::load(std::string filename, bool respect_mask) {
   auto t1 = std::chrono::high_resolution_clock::now();
@@ -2959,18 +2992,18 @@ float GLContainer::generate_perlin_noise(float xscale = 0.014,
 //   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 // }
 
-float GLContainer::gen_noise(int preset, int seed) {
+float GLContainer::gen_noise(float scale, std::string seed) {
   auto t1 = std::chrono::high_resolution_clock::now();
   json j;
-  j["preset"] = preset;
+  j["scale"] = scale;
   j["seed"] = seed;
   log(j.dump());
 
   // auto fnGenerator = FastNoise::New<FastNoise::Perlin>();
-  FastNoise::SmartNode<> fnGenerator = FastNoise::NewFromEncodedNodeTree("EAB7FC4/GwAFAAQAAAAAAAAAAAAAAAAAAAAAAAAAAQQAKVwPPs3MTD+uR2E+AAAAAKRw/b8AAAAAAAAAAAAAAAABHQAVALgehT+uR6E/heuRPwMAAACAPwEVAI/CdT/NzMw+j8L1PiUA7FG4P+xRuD8pXM8/AACAPxUAj8J1PaRwPT+amRk/DQADAAAAhesRQBAAAAAAPxAAj8J1vRUAcT0KP+xRuD6PwnU+DQAHAAAAXI/CPwIArkcBQAAfhWs/AAAAAAABCQABAwAAAAA/AQYAAf//AAAKAA==");
+  FastNoise::SmartNode<> fnGenerator = FastNoise::NewFromEncodedNodeTree(seed.c_str());
   std::vector<GLfloat> noiseOutput(DIM * DIM * DIM);
 
-  fnGenerator->GenUniformGrid3D(noiseOutput.data(), -DIM/2, -DIM/2, -DIM/2, DIM, DIM, DIM, 1./15., 1337);
+  fnGenerator->GenUniformGrid3D(noiseOutput.data(), -DIM/2, -DIM/2, -DIM/2, DIM, DIM, DIM, 1./scale, 1337);
 
   // send processed values to the GPU
   glBindTexture(GL_TEXTURE_3D, textures[11]);

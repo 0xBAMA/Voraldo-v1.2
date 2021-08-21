@@ -875,9 +875,7 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" Noise ")) {
-        static float noise_scale_x = 0.014;
-        static float noise_scale_y = 0.014;
-        static float noise_scale_z = 0.014;
+        static float noise_scale = 0.014;
 
         static float noise_threshold_lo = 0.0f;
         static float noise_threshold_hi = 0.0f;
@@ -898,21 +896,26 @@ void engine::show_voraldo_menu(bool *show) {
             "so the drawing operation will be applied to cells which read a "
             "noise sample in the defined range between lothresh and hithresh.");
 
-        ImGui::SliderFloat("  xscale", &noise_scale_x, 0.01f, 0.5f, "%.3f");
-        ImGui::SliderFloat("  yscale", &noise_scale_y, 0.01f, 0.5f, "%.3f");
-        ImGui::SliderFloat("  zscale", &noise_scale_z, 0.01f, 0.5f, "%.3f");
+        ImGui::SliderFloat("  scale", &noise_scale, 0.0001f, 10.0f, "%.3f");
         ImGui::Text(" ");
 
+		  static std::string noise_gen_string = std::string();
+
+
+      static char str0[2048] = "EAB7FC4/GwAFAAQAAAAAAAAAAAAAAAAAAAAAAAAAAQQAKVwPPs3MTD+uR2E+AAAAAKRw/b8AAAAAAAAAAAAAAAABHQAVALgehT+uR6E/heuRPwMAAACAPwEVAI/CdT/NzMw+j8L1PiUA7FG4P+xRuD8pXM8/AACAPxUAj8J1PaRwPT+amRk/DQADAAAAhesRQBAAAAAAPxAAj8J1vRUAcT0KP+xRuD6PwnU+DQAHAAAAXI/CPwIArkcBQAAfhWs/AAAAAAABCQABAwAAAAA/AQYAAf//AAAKAA==";
+      ImGui::InputText("input config string", str0, IM_ARRAYSIZE(str0));
+
+
         if (ImGui::SmallButton(" generate ")) {
-          GPU_Data.generate_perlin_noise(noise_scale_x, noise_scale_y,
-                                         noise_scale_z, 0);
+			  noise_gen_string = std::string(str0);
+			  GPU_Data.gen_noise(noise_scale, noise_gen_string);
         }
 
         ImGui::Separator();
 
         WrappedText(
-            "Perlin noise ranges from 0 to 1. Use hithresh and lowthresh to "
-            "tell how much of this perlin texture to color in.");
+            "Noise ranges from 0 to 1. Use hithresh and lowthresh to "
+            "tell what parts of the texture to color in.");
 
         OrangeText("THRESHOLDING");
         ImGui::SliderFloat(" hithresh", &noise_threshold_hi, 0.0f, 1.0f,
@@ -1379,7 +1382,7 @@ void engine::show_voraldo_menu(bool *show) {
       if (ImGui::BeginTabItem(" Letters ")) {
 			static int count = 0;
 			static bool draw = true;
-			static int mask = 0;
+			static bool mask = 1;
 			static ImVec4 color1 = ImVec4(210.0 / 255.0, 180.0 / 255.0, 140.0 / 255.0, 105.0 / 255.0); // Wikipedia Tan
 
 			static int num_directions{1};
@@ -1404,10 +1407,10 @@ void engine::show_voraldo_menu(bool *show) {
 			OrangeText("OPTIONS");
 			ImGui::Checkbox("  Draw ", &draw);
 			ImGui::SameLine();
-			ImGui::InputInt(" Mask ", &mask);
+			ImGui::Checkbox(" Respect Mask ", &mask);
 
 			// bounds check
-			mask = std::clamp(mask, 0, 255);
+			// mask = std::clamp(mask, 0, 255);
 
 			ImGui::ColorEdit4("  Color", (float *)&color1, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf);
 
@@ -1415,10 +1418,26 @@ void engine::show_voraldo_menu(bool *show) {
 			ImGui::SetCursorPosX(16);
 
 			if (ImGui::SmallButton(" Draw ")) {
-				GPU_Data.letters(count, num_directions, glm::vec4(color1.x, color1.y, color1.z, color1.w), draw, mask);
+				GPU_Data.letters(count, num_directions, glm::vec4(color1.x, color1.y, color1.z, color1.w), draw, mask ? 1 : 0);
 			}
 			ImGui::EndTabItem();
 	  	}
+
+      if (ImGui::BeginTabItem(" XOR ")) {
+			static bool draw = true;
+			static bool mask = true;
+
+			ImGui::Checkbox("  Draw ", &draw);
+			ImGui::SameLine();
+			ImGui::Checkbox(" Respect Mask ", &mask);
+
+			if (ImGui::SmallButton(" Draw ")) {
+				GPU_Data.xor_block(draw, mask ? 1 : 0);
+			}
+
+			ImGui::EndTabItem();
+		}
+
 
       ImGui::EndTabBar();
       ImGui::EndTabItem();
@@ -1541,7 +1560,8 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::SliderFloat("l value", &light_val, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("l spread", &l_variance, 0.0f, 1.0f, "%.3f");
 
-        ImGui::InputInt(" Amount ", &amt);
+        // ImGui::InputInt(" Amount ", &amt);
+        ImGui::SliderInt(" Amount", &amt, 0, 255);
 
         // bounds check
         amt = std::clamp(amt, 0, 255);
@@ -1636,10 +1656,19 @@ void engine::show_voraldo_menu(bool *show) {
           ImGui::Text("Pick a valid mode");
           break;
         }
+		  if (ImGui::SmallButton(" Shift ")) {
+			  GPU_Data.shift(glm::ivec3(xmove, ymove, zmove), loop, shift_mode);
+		  }
 
-        if (ImGui::SmallButton(" Shift ")) {
-          GPU_Data.shift(glm::ivec3(xmove, ymove, zmove), loop, shift_mode);
-        }
+		  static int bump_amt = 1;
+		  ImGui::Text("This is to trim the faces.");
+		  ImGui::SliderInt(" amount", &bump_amt, 1, 25);
+        if (ImGui::SmallButton(" Bump ")) {
+			  GPU_Data.shift(glm::ivec3(bump_amt), false, shift_mode);
+			  GPU_Data.shift(glm::ivec3(-2*bump_amt), false, shift_mode);
+			  GPU_Data.shift(glm::ivec3(bump_amt), false, shift_mode);
+		  }
+
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem(" Log ")) {
@@ -2043,10 +2072,9 @@ void engine::show_voraldo_menu(bool *show) {
       ImGui::SliderFloat("gamma", &GPU_Data.gamma_correction, 0.5, 4.0);
 
       ImGui::SliderInt("color temp", &GPU_Data.color_temp, 1000, 45000);
-      ImGui::SliderFloat("perspective", &GPU_Data.perspfactor, 0.0, 2.5);
+      ImGui::SliderFloat("perspective", &GPU_Data.perspfactor, -2.5, 2.5);
 
-      // dither toggle - need to add the logic about blue noise dither, then give a way to pick between them
-      // ImGui::Checkbox("dither", &GPU_Data.dither);
+		ImGui::SliderInt("volume steps", &GPU_Data.num_steps, 10, 1200);
 
       ImGui::Text("");
 
@@ -2773,7 +2801,7 @@ void engine::orientation_widget_imgui() {
       static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
       static bool useSnap = false;
       static float snap[3] = {1.f, 1.f, 1.f};
-      static float bounds[] = {-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f};
+      static float bounds[] = {-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f}; (void*) bounds;
       static float boundsSnap[] = {0.1f, 0.1f, 0.1f};
       static bool boundSizing = false;
       static bool boundSizingSnap = false;

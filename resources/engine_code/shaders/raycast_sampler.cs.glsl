@@ -4,18 +4,17 @@ layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;    //specifie
 
 double tmin, tmax; //global scope, set in hit() to tell min and max parameters
 
-// #define NUM_STEPS 2000
-//#define NUM_STEPS 165
-
-// #define NUM_STEPS 500
-#define NUM_STEPS 780
 #define MIN_DISTANCE 0.0
 #define MAX_DISTANCE 5.0
+
+// max number of steps along the ray
+uniform int num_steps;
 
 
 // the display texture
 uniform layout(rgba16f) image2D current; // we can get the dimensions with imageSize
 uniform sampler2D dither; // blue noise texture
+uniform int ditherdim;
 uniform int frame;
 
 
@@ -366,22 +365,33 @@ bool hit(vec3 org, vec3 dir)
     return true;
 }
 
+vec4 blue(ivec2 samploc) {
+	samploc.x = samploc.x % ditherdim;
+	samploc.y = samploc.y % ditherdim;
+	return texture(dither, vec2(samploc)/vec2(ditherdim, ditherdim));
+}
+
+
 vec4 get_color_for_pixel(vec3 org, vec3 dir)
 {
     float current_t = float(tmax);
     vec4 t_color = clear_color;
 
-    float step = float((tmax-tmin))/NUM_STEPS;
-    if(step < 0.001f)
-        step = 0.001f;
+    float step = float((tmax-tmin))/num_steps;
+    // if(step < 1./textureSize(block, 0).x)
+    //    step = 1./textureSize(block, 0).x;
+
+	  // if(step < 0.001f)
+        // step = 0.001f;
 
     vec3 samp = (org + current_t * dir + vec3(1.))/2.;
     vec4 new_read = texture(block, samp);
     vec4 new_light_read = texture(lighting, samp);
 
     float alpha_squared;
+	 float offset = 0.;
 
-    for(int i = 0; i < NUM_STEPS; i++)
+    for(int i = 0; i < num_steps; i++)
     {   if(current_t>=tmin)
         {
             //apply the lighting scaling
@@ -398,32 +408,39 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
             current_t -= step;
 
             // new location
-            samp = (org + current_t * dir + vec3(1.))/2.;
+            samp = (org + (current_t + offset) * dir + vec3(1.))/2.;
 
             // take a sample
             new_read = texture(block, samp);
             new_light_read = texture(lighting, samp);
+
+				// update the offset value, skipping on first iteration
+				offset = (blue(ivec2(i, frame)).r-0.5) * step * 0.618033; // golden ratio factor idk?
         }
     }
     return t_color;
 }
 
-void main()
-{
+void main() {
     ivec2 Global_Loc = ivec2(gl_GlobalInvocationID.xy) + ivec2(x_offset+int(clickndragx), y_offset+int(clickndragy));
     ivec2 dimensions = ivec2(imageSize(current));
 
-    float aspect_ratio = float(dimensions.y) / float(dimensions.x);
+	 ivec2 samploc = (Global_Loc+ivec2(frame)).xy;
+	 vec4 bluenoisesamp = blue(samploc);
 
-    float x_start = scale*((Global_Loc.x/float(dimensions.x)) - 0.5);
-    float y_start = scale*((Global_Loc.y/float(dimensions.y)) - 0.5)*(aspect_ratio);
+
+	 float aspect_ratio = float(dimensions.y) / float(dimensions.x);
+
+    float x_start = scale*(((float(Global_Loc.x)+bluenoisesamp.x)/float(dimensions.x)) - 0.5);
+    float y_start = scale*(((float(Global_Loc.y)+bluenoisesamp.y)/float(dimensions.y)) - 0.5)*(aspect_ratio);
 
     mat3 rot = inverse(mat3(basis_x.x, basis_x.y, basis_x.z,
                             basis_y.x, basis_y.y, basis_y.z,
                             basis_z.x, basis_z.y, basis_z.z));
 
+
     //start with a vector pointing down the z axis (greater than half the corner to corner distance, i.e. > ~1.75)
-    vec3 org = rot * vec3(-x_start, -y_start,  2.); //add the offsets in x and y
+    vec3 org = rot * vec3(-x_start, -y_start,  2.+0.1*bluenoisesamp.z); //add the offsets in x and y
     // vec3 dir = rot * vec3(       0,        0, -2.); //simply a vector pointing in the opposite direction, no xy offsets
     vec3 dir = rot * vec3( -perspfactor*x_start, -perspfactor*y_start, -2.);  // perspective projection
 
@@ -492,9 +509,10 @@ void main()
         }
 
 		  // grab the result from the previous frame
-		  color = mix(color, imageLoad(current, Global_Loc), 0.2);
+		  color = mix(color, imageLoad(current, Global_Loc), 0.6+0.1*bluenoisesamp.g);
 
         // store the final result
         imageStore(current, Global_Loc, color);
+
     }  // else, this part of the tile falls outside of the image bounds, no operation should take place
 }

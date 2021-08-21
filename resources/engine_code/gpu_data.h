@@ -85,6 +85,8 @@ public:
   int color_temp = 6500;
   int tonemap_mode = 6;
 
+  int num_steps = 400;
+
   float scale = 5.;
   float perspfactor = 0.2;
   float clickndragx = 0;
@@ -149,7 +151,7 @@ public:
 
   // float generate_glm_perlin();
 
-  float gen_noise(int preset, int seed);
+  float gen_noise(float scale, std::string seed);
   float draw_noise(float low_thresh, float high_thresh, bool smooth,
                    glm::vec4 color, bool draw, int mask);
 
@@ -207,6 +209,8 @@ public:
                   glm::bvec3 maxs);
 
 	float letters(int count, int variants, glm::vec4 color, bool draw, int mask);
+
+	float xor_block(bool draw, int mask);
 
   void log(std::string text);          // for operation logging
   void clear_log();                    // clear the log
