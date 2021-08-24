@@ -509,7 +509,7 @@ void main() {
         }
 
 		  // grab the result from the previous frame
-		  color = mix(color, imageLoad(current, Global_Loc), 0.6+0.1*bluenoisesamp.g);
+		  color = mix(color, imageLoad(current, Global_Loc), 0.6+0.1*bluenoisesamp.a);
 
         // store the final result
         imageStore(current, Global_Loc, color);
