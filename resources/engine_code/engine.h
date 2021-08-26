@@ -27,7 +27,7 @@ private:
     imgui_setup();          // colors, other config
     SDL_ShowWindow(window); // show the window when done
 
-	 GPU_Data.letters(10, 1, glm::vec4(0.9, 0.5, 0.2, 0.9), true, 255);
+	 GPU_Data.spaceship(10, true, 1);
   }
 
   // init helper functions

@@ -209,6 +209,7 @@ public:
                   glm::bvec3 maxs);
 
 	float letters(int count, int variants, glm::vec4 color, bool draw, int mask);
+  float spaceship(int num, bool draw, int mask);
 
 	float xor_block(bool draw, int mask);
 

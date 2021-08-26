@@ -372,20 +372,22 @@ void GLContainer::animation(std::string filename) {
     for (int i = 0; i < j["frame" + std::to_string(n)]["num_ops"]; i++) {
       parse_and_execute_JSON_op(
           json(j["frame" + std::to_string(n)]["op" + std::to_string(i)]));
-    }
+
 
     //  display the block (as many times as the frame history dictates)
 	 for(int i = 0; i < NUM_FRAMES_HISTORY; i++)
 	 {
 		 display_block();
 		 SDL_Delay(20); // taking it easy on the laptop
-	 }
+   }
 
     //  save the screenshot for frame n
     std::stringstream ss;
     ss << "frames/step" << std::setfill('0') << std::setw(5) << n << ".png";
     screenshot(ss.str());
   }
+  cout << "frame " << n << endl;
+}
 }
 
 float GLContainer::init_basis() {
@@ -2705,6 +2707,36 @@ std::string GLContainer::vat(float flip, std::string rule, int initmode,
   return v.getShortRule();
 }
 
+float GLContainer::spaceship(int num, bool draw, int mask) {
+	auto t1 = std::chrono::high_resolution_clock::now();
+	// this function isn't logging right now
+
+  ssGenerator shipyard;
+
+  shipyard.num_ops = num;
+  shipyard.minxyScale = 1;
+  shipyard.maxxyScale = 3;
+  shipyard.minzScale = 8;
+  shipyard.maxzScale = 25;
+
+  shipyard.populate();
+  shipyard.genRandomEngine();
+  shipyard.genPalette();
+  shipyard.genSpaceship();
+  shipyard.squareModel();
+
+  std::vector<unsigned char> loaded_bytes; loaded_bytes.resize(DIM*DIM*DIM*4, 0);
+  shipyard.getData(loaded_bytes, DIM);
+
+  // the rest is exactly the same as VAT
+  glBindTexture(GL_TEXTURE_3D, textures[10]); // put it in the loadbuffer
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, DIM, DIM, DIM, 0, GL_RGBA,
+              GL_UNSIGNED_BYTE, &loaded_bytes[0]);
+  copy_loadbuffer(mask);
+
+	auto t2 = std::chrono::high_resolution_clock::now();
+	return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+}
 
 float GLContainer::letters(int count, int num_dirs, glm::vec4 color, bool draw, int mask) {
 	auto t1 = std::chrono::high_resolution_clock::now();

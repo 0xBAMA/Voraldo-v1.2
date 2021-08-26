@@ -84,6 +84,11 @@ using std::flush;
 // letter model
 #include "../hoard-of-bitfonts/letters.h"
 
+// spaceship model
+#include "../hoard-of-bitfonts/spaceship.h"
+
+
+
 // Niels Lohmann - JSON for Modern C++
 #include "../nlohmann_JSON/json.hpp"
 using json = nlohmann::json;
@@ -99,7 +104,7 @@ using json = nlohmann::json;
 #include "gpu_data.h"
 
 // pi definition
-constexpr double pi = 3.14159265358979323846;
+// constexpr double pi = 3.14159265358979323846;
 
 // alternatively, from https://www.shadertoy.com/view/7sSGzz
 // Octuple Precision, even though Shadertoy is Full Precision (32-Bit Floating Point)
