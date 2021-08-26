@@ -27,7 +27,7 @@ private:
     imgui_setup();          // colors, other config
     SDL_ShowWindow(window); // show the window when done
 
-	 GPU_Data.spaceship(10, true, 1);
+    GPU_Data.xor_block(true, 0);
   }
 
   // init helper functions

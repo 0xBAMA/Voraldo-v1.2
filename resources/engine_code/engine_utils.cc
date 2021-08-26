@@ -1379,6 +1379,19 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::EndTabItem();
       }
 
+      if (ImGui::BeginTabItem(" Spaceship ")) {
+        static int count = 1;
+  			static bool draw = true;
+  			static bool mask = 1;
+
+        ImGui::SliderInt("Op Count", &count, 0, 18);
+
+        if (ImGui::SmallButton(" Draw ")) {
+          GPU_Data.spaceship(count, draw, mask);
+        }
+
+  			ImGui::EndTabItem();
+	  	}
       if (ImGui::BeginTabItem(" Letters ")) {
 			static int count = 0;
 			static bool draw = true;
@@ -2801,7 +2814,7 @@ void engine::orientation_widget_imgui() {
       static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
       static bool useSnap = false;
       static float snap[3] = {1.f, 1.f, 1.f};
-      static float bounds[] = {-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f}; (void*) bounds;
+      // static float bounds[] = {-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f}; (void*) bounds;
       static float boundsSnap[] = {0.1f, 0.1f, 0.1f};
       static bool boundSizing = false;
       static bool boundSizingSnap = false;

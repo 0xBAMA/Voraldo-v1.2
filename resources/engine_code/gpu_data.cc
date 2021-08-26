@@ -281,6 +281,8 @@ void GLContainer::dither_blue()
 		unsigned error =
 			lodepng::decode(image_loaded_bytes, width, height, std::string("resources/LDR_RGBA_0_blue_noise.png").c_str());
 
+    if(error) cout << "error loading blue noise texture" << endl;
+
 		ditherdim = width;
 
   // send it GPU-wards
@@ -2715,7 +2717,7 @@ float GLContainer::spaceship(int num, bool draw, int mask) {
 
   shipyard.num_ops = num;
   shipyard.minxyScale = 1;
-  shipyard.maxxyScale = 3;
+  shipyard.maxxyScale = 1;
   shipyard.minzScale = 8;
   shipyard.maxzScale = 25;
 
@@ -2723,7 +2725,6 @@ float GLContainer::spaceship(int num, bool draw, int mask) {
   shipyard.genRandomEngine();
   shipyard.genPalette();
   shipyard.genSpaceship();
-  shipyard.squareModel();
 
   std::vector<unsigned char> loaded_bytes; loaded_bytes.resize(DIM*DIM*DIM*4, 0);
   shipyard.getData(loaded_bytes, DIM);
