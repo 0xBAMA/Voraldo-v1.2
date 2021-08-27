@@ -621,6 +621,7 @@ void GLContainer::display_block() {
 
 	 // perspective projection factor
     glUniform1f(glGetUniformLocation(display_compute_shader, "perspfactor"), perspfactor);
+    glUniform1f(glGetUniformLocation(display_compute_shader, "jitterfactor"), jitterfactor);
 
     // click and drag
     glUniform1f(glGetUniformLocation(display_compute_shader, "clickndragx"),

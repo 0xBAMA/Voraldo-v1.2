@@ -41,6 +41,7 @@ uniform vec4 clear_color;
 
 uniform float scale;
 uniform float perspfactor;
+uniform float jitterfactor;
 
 uniform float upow;
 
@@ -426,13 +427,13 @@ void main() {
     ivec2 dimensions = ivec2(imageSize(current));
 
 	 ivec2 samploc = (Global_Loc+ivec2(frame)).xy;
-	 vec4 bluenoisesamp = blue(samploc);
+	 vec4 bluenoisesamp = blue(samploc)*jitterfactor;
 
 
 	 float aspect_ratio = float(dimensions.y) / float(dimensions.x);
 
-    float x_start = scale*(((float(Global_Loc.x)+bluenoisesamp.x)/float(dimensions.x)) - 0.5);
-    float y_start = scale*(((float(Global_Loc.y)+bluenoisesamp.y)/float(dimensions.y)) - 0.5)*(aspect_ratio);
+    float x_start = scale*(((float(Global_Loc.x)+(bluenoisesamp.x))/float(dimensions.x)) - 0.5);
+    float y_start = scale*(((float(Global_Loc.y)+(bluenoisesamp.y))/float(dimensions.y)) - 0.5)*(aspect_ratio);
 
     mat3 rot = inverse(mat3(basis_x.x, basis_x.y, basis_x.z,
                             basis_y.x, basis_y.y, basis_y.z,

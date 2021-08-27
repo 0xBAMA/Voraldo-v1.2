@@ -89,6 +89,7 @@ public:
 
   float scale = 5.;
   float perspfactor = 0.2;
+  float jitterfactor = 1.;
   float clickndragx = 0;
   float clickndragy = 0;
 

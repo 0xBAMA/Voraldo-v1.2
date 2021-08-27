@@ -2085,6 +2085,7 @@ void engine::show_voraldo_menu(bool *show) {
       ImGui::SliderFloat("gamma", &GPU_Data.gamma_correction, 0.5, 4.0);
 
       ImGui::SliderInt("color temp", &GPU_Data.color_temp, 1000, 45000);
+      ImGui::SliderFloat("jitter amount", &GPU_Data.jitterfactor, 0.0, 1.5);
       ImGui::SliderFloat("perspective", &GPU_Data.perspfactor, -2.5, 2.5);
 
 		ImGui::SliderInt("volume steps", &GPU_Data.num_steps, 10, 1200);
