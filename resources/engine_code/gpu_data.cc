@@ -2716,11 +2716,14 @@ float GLContainer::spaceship(int num, bool draw, int mask) {
 
   ssGenerator shipyard;
 
+// parameters need sliders
   shipyard.num_ops = num;
+  shipyard.spread = 1./8.;
+
   shipyard.minxyScale = 1;
-  shipyard.maxxyScale = 1;
+  shipyard.maxxyScale = 2;
   shipyard.minzScale = 8;
-  shipyard.maxzScale = 25;
+  shipyard.maxzScale = 26;
 
   shipyard.populate();
   shipyard.genRandomEngine();

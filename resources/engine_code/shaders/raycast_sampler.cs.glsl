@@ -417,6 +417,7 @@ vec4 get_color_for_pixel(vec3 org, vec3 dir)
 
 				// update the offset value, skipping on first iteration
 				offset = (blue(ivec2(i, frame)).r-0.5) * step * 0.618033; // golden ratio factor idk?
+				// offset = (blue(ivec2(i, frame)).r-0.5) * step;
         }
     }
     return t_color;
