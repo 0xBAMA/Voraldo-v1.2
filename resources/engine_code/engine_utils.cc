@@ -1381,13 +1381,90 @@ void engine::show_voraldo_menu(bool *show) {
 
       if (ImGui::BeginTabItem(" Spaceship ")) {
         static int count = 1;
+        static int minxyScale = 1;
+        static int maxxyScale = 1;
+        static int minzScale = 4;
+        static int maxzScale = 10;
+        static float spread = 1./9.;
   			static bool draw = true;
   			static bool mask = 1;
 
         ImGui::SliderInt("Op Count", &count, 0, 18);
+        ImGui::SliderFloat("spread", &spread, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderInt("min XY Scale", &minxyScale, 0, 5);
+        ImGui::SliderInt("max XY Scale", &maxxyScale, 0, 8);
+        ImGui::SliderInt("min Z Scale", &minzScale, 0, 5);
+        ImGui::SliderInt("max Z Scale", &maxzScale, 0, 8);
+        ImGui::Checkbox("respect mask", &mask);
+
+        // palette logic based on iq's palettes https://iquilezles.org/www/articles/palettes/palettes.htm
+
+        float pal[][4][4] ={{{0.5, 0.5, 0.5, 1.0},
+                            {0.5, 0.5, 0.5, 1.0},
+                            {1.0, 1.0, 1.0, 1.0},
+                            {0.0, 0.1, 0.2, 1.0}},
+
+                            {{0.5, 0.5, 0.5, 1.0},
+                            {0.5, 0.5, 0.5, 1.0},
+                            {1.0, 1.0, 1.0, 1.0},
+                            {0.8, 0.9, 0.3, 0.1}},
+
+                            {{0.5, 0.5, 0.5, 1.0},
+                            {0.5, 0.5, 0.5, 1.0},
+                            {1.0, 0.7, 0.4, 1.0},
+                            {0.0, 0.15, 0.2, 0.1}}};
+
+       static float col[4][4] {{0.5, 0.5, 0.5, 1.0},
+                               {0.5, 0.5, 0.5, 1.0},
+                               {1.0, 1.0, 1.0, 1.0},
+                               {0.0, 0.1, 0.2, 1.0}};
+
+        if(ImGui::SmallButton(" Palette1 "))
+          for(unsigned int i = 0; i < 4; i++)
+          for(unsigned int j = 0; j < 4; j++)
+            col[i][j] = pal[0][i][j];
+
+        ImGui::SameLine();
+
+        if(ImGui::SmallButton(" Palette2 "))
+          for(unsigned int i = 0; i < 4; i++)
+          for(unsigned int j = 0; j < 4; j++)
+            col[i][j] = pal[1][i][j];
+
+        ImGui::SameLine();
+
+        if(ImGui::SmallButton(" Palette3 "))
+          for(unsigned int i = 0; i < 4; i++)
+          for(unsigned int j = 0; j < 4; j++)
+            col[i][j] = pal[2][i][j];
+
+        ImGui::SameLine();
+
+        if(ImGui::SmallButton(" Random ")) {
+          std::random_device r;
+          std::mt19937_64 rng(r());
+          std::uniform_real_distribution<float> gen(0.0618, 0.98);
+          std::uniform_real_distribution<float> gena(0.618, 0.98);
+          // get four random color values, to create a smooth palette
+          for(unsigned int i = 0; i < 4; i++) {
+            col[i][0] = gen(rng);
+            col[i][1] = gen(rng);
+            col[i][2] = gen(rng);
+            col[i][3] = gena(rng);
+          }
+          // make sure one has a low alpha value, to allow for something like windows
+          col[0][3] = 0.58;
+        }
+
+
+        ImGui::ColorEdit4("a", (float *)&col[0], ImGuiColorEditFlags_AlphaBar|ImGuiColorEditFlags_AlphaPreviewHalf);
+        ImGui::ColorEdit4("b", (float *)&col[1], ImGuiColorEditFlags_AlphaBar|ImGuiColorEditFlags_AlphaPreviewHalf);
+        ImGui::ColorEdit4("c", (float *)&col[2], ImGuiColorEditFlags_AlphaBar|ImGuiColorEditFlags_AlphaPreviewHalf);
+        ImGui::ColorEdit4("d", (float *)&col[3], ImGuiColorEditFlags_AlphaBar|ImGuiColorEditFlags_AlphaPreviewHalf);
+
 
         if (ImGui::SmallButton(" Draw ")) {
-          GPU_Data.spaceship(count, draw, mask);
+          GPU_Data.spaceship(count, col, spread, minxyScale, maxxyScale, minzScale, maxzScale, draw, mask);
         }
 
   			ImGui::EndTabItem();
@@ -3145,16 +3222,19 @@ void engine::handle_events() {
       if(TRIPLE_MONITOR)
       {
       // put on screen 1
-      // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1)
-      // ("Display 0")SDL_SetWindowPosition(window, 0, 0)
+      // ("Display 0")
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1)
+        SDL_SetWindowPosition(window, 0, 0);
 
       // put on screen 2
-      // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2)
-      // ("Display 1")SDL_SetWindowPosition(window, total_screen_width, 0)
+      // ("Display 1")
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2)
+        SDL_SetWindowPosition(window, total_screen_width, 0);
 
       // put on screen 3
-      // if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3)
-      // ("Display 2")SDL_SetWindowPosition(window, 2*total_screen_width, 0)
+      // ("Display 2")
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3)
+        SDL_SetWindowPosition(window, 2*total_screen_width, 0);
       }
 
       // snap to cardinal directions

@@ -348,7 +348,7 @@ void GLContainer::single_screenshot() {
 
   std::stringstream ss;
   ss << std::put_time(std::localtime(&in_time_t),
-                      "Voraldo_1_2_Screenshot-%Y-%m-%d %X")
+                      "media/Voraldo_1_2_Screenshot-%Y-%m-%d %X")
      << ".png";
   screenshot(ss.str());
 }
@@ -2710,7 +2710,7 @@ std::string GLContainer::vat(float flip, std::string rule, int initmode,
   return v.getShortRule();
 }
 
-float GLContainer::spaceship(int num, bool draw, int mask) {
+float GLContainer::spaceship(int num, float palette[4][4], float spread, int minxyScale, int maxxyScale, int minzScale, int maxzScale, bool draw, int mask) {
 	auto t1 = std::chrono::high_resolution_clock::now();
 	// this function isn't logging right now
 
@@ -2718,16 +2718,24 @@ float GLContainer::spaceship(int num, bool draw, int mask) {
 
 // parameters need sliders
   shipyard.num_ops = num;
-  shipyard.spread = 1./8.;
+  shipyard.spread = spread;
+  shipyard.minxyScale = minxyScale;
+  shipyard.maxxyScale = maxxyScale;
+  shipyard.minzScale = minzScale;
+  shipyard.maxzScale = maxzScale;
 
-  shipyard.minxyScale = 1;
-  shipyard.maxxyScale = 2;
-  shipyard.minzScale = 8;
-  shipyard.maxzScale = 26;
+  // shipyard.spread = 1./8.;
+  // shipyard.minxyScale = 1;
+  // shipyard.maxxyScale = 2;
+  // shipyard.minzScale = 8;
+  // shipyard.maxzScale = 26;
 
   shipyard.populate();
   shipyard.genRandomEngine();
-  shipyard.genPalette();
+
+  // shipyard.genPalette();
+  shipyard.setPalette(palette);
+
   shipyard.genSpaceship();
 
   std::vector<unsigned char> loaded_bytes; loaded_bytes.resize(DIM*DIM*DIM*4, 0);

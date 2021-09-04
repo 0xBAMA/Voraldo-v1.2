@@ -1,0 +1,36 @@
+
+mat2 rot2(in float a){ float c = cos(a), s = sin(a); return mat2(c, s, -s, c); }
+float de(vec3 p){
+    float d = 1e5;
+    const int n = 3;
+    const float fn = float(n);
+    for(int i = 0; i < n; i++){
+        vec3 q = p;
+        float a = float(i)*fn*2.422; //*6.283/fn
+        a *= a;
+        q.z += float(i)*float(i)*1.67; //*3./fn
+        q.xy *= rot2(a);
+        float b = (length(length(sin(q.xy) + cos(q.yz))) - .15);
+        float f = max(0., 1. - abs(b - d));
+        d = min(d, b) - .25*f*f;
+    }
+    return d;
+}
+
+irec is_inside(){  // check Documentation tab for details 
+
+ irec temp;
+ myloc *= 6.;
+
+ temp.draw  = false;   // is this voxel's value going to change?
+ temp.color = vec4(0); // what should its color be?
+ temp.mask  = 0;       // how much do you wish to mask?
+ 
+ if(de(myloc) <= 0.){
+ 	temp.draw = true;
+ 	temp.color = vec4(1,1,1,0.68);
+ 	}
+
+ return temp;
+
+}

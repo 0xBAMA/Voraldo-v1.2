@@ -23,8 +23,20 @@ uniform layout(r8ui) uimage3D previous_mask;
 // lighting? don't think having access to this has much utility
 uniform layout(rgba8) image3D lighting;
 
+uniform sampler2D dither; // blue noise texture
+uniform int ditherdim;
+
+vec4 blue(ivec2 samploc) {
+	samploc.x = samploc.x % ditherdim;
+	samploc.y = samploc.y % ditherdim;
+	return texture(dither, vec2(samploc)/vec2(ditherdim, ditherdim));
+}
+
+
+
 // position in the cube spanning -1 to 1 on each axis, I guess can use lighting here
 vec3 myloc = (vec3(gl_GlobalInvocationID.xyz) + vec3(0.5) - vec3(imageSize(lighting).x)/2.) / (vec3(imageSize(lighting))/2.);
+float off  = 2./imageSize(lighting).x;
 
 // the intersection record
 struct irec{

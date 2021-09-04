@@ -1,0 +1,104 @@
+
+
+
+
+
+float de2(vec3 p){
+  float rt = 15.;
+  float rg = 4.;
+  float ws = 0.3;
+
+  p.xz = vec2 (rt * atan (p.z, - p.x), length (p.xz) - rt);
+  p.yz = vec2 (rg * atan (p.z, - p.y), length (p.yz) - rg);
+
+  return .6* max(abs(dot(sin(p), cos(p).yzx)) - ws, abs(p.z) - .5*(3.1415));
+}
+
+
+float de( vec3 p ){
+  vec3 CSize = vec3(1., 1.7, 1.);
+  p = p.xzy;
+  float scale = 1.1;
+  for( int i=0; i < 8;i++ ){
+    p = 2.0*clamp(p, -CSize, CSize) - p;
+    float r2 = dot(p,p);
+    float k = max((2.)/(r2), .5);
+    p *= k; scale *= k;
+  }
+  float l = length(p.xy);
+  float rxy = l - 1.0;
+  float n = l * p.z;
+  rxy = max(rxy, (n) / 8.);
+  return (rxy) / abs(scale);
+}
+
+#define EPSILON   0.0015
+vec3 norm(vec3 p) { // to get the normal vector for a point in space, this function evaluates the gradient of the distance function
+#define METHOD 2
+#if METHOD == 0 
+    // tetrahedron version, unknown source - 4 evaluations
+    vec2 e = vec2(1,-1) * EPSILON;
+    return normalize(e.xyy*de(p+e.xyy)+e.yyx*de(p+e.yyx)+e.yxy*de(p+e.yxy)+e.xxx*de(p+e.xxx));
+
+#elif METHOD == 1
+    // by iq = more efficient, 4 evaluations
+    vec2 e = vec2( EPSILON, 0.); // computes the gradient of the estimator function
+    return normalize( vec3(de(p)) - vec3( de(p-e.xyy), de(p-e.yxy), de(p-e.yyx) ));
+
+#elif METHOD == 2
+    // by iq - less efficient, 6 evaluations
+    vec3 eps = vec3(EPSILON,0.0,0.0);
+    return normalize( vec3(
+                          de(p+eps.xyy) - de(p-eps.xyy),
+                          de(p+eps.yxy) - de(p-eps.yxy),
+                          de(p+eps.yyx) - de(p-eps.yyx)));
+#endif
+}
+
+
+float calcAO( in vec3 pos, in vec3 nor )
+{
+    float occ = 0.0;
+    float sca = 1.0;
+    for( int i=0; i<5; i++ )
+    {
+        float h = 0.001 + 0.15*float(i)/4.0;
+        float d = de( pos + h*nor );
+        occ += (h-d)*sca;
+        sca *= 0.95;
+    }
+    return clamp( 1.0 - 1.5*occ, 0.0, 1.0 );
+}
+
+
+
+irec is_inside(){  // check Documentation tab for details 
+
+ irec temp;
+ 
+ float scalar = 1.;
+ myloc *= scalar;
+
+ temp.draw  = false;   // is this voxel's value going to change?
+ temp.color = vec4(0); // what should its color be?
+ temp.mask  = 0;       // how much do you wish to mask?
+
+int hitcount = 0;
+for(int i = 0; i < 32; i++){
+	vec3 pos = myloc + 0.618 * scalar * off * blue(ivec2(i*int(myloc.x))).xyz;
+	if(de(pos) < 0.){
+		temp.draw = true;
+		//temp.color = vec4((0.5*norm(myloc))+vec3(0.5),0.75);
+		temp.color.xyz += vec3(1)*calcAO(pos,norm(pos));
+		temp.color.a += 0.75;
+		hitcount++;
+	}
+}
+
+if(hitcount > 0)
+	temp.color.rgba /= float(hitcount);
+//temp.color = vec4(vec3(0.5*hitcount), 0.75);
+
+ return temp;
+
+}
