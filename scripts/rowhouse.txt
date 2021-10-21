@@ -1,0 +1,113 @@
+float de2(vec3 p){
+  float rt = 15.;
+  float rg = 4.;
+  float ws = 0.3;
+
+  p.xz = vec2 (rt * atan (p.z, - p.x), length (p.xz) - rt);
+  p.yz = vec2 (rg * atan (p.z, - p.y), length (p.yz) - rg);
+
+  return .6* max(abs(dot(sin(p), cos(p).yzx)) - ws, abs(p.z) - .5*(3.1415));
+}
+
+mat2 rot(float a) {
+    return mat2(cos(a),sin(a),-sin(a),cos(a));
+}
+vec4 formula(vec4 p) {
+    p.xz = abs(p.xz+1.)-abs(p.xz-1.)-p.xz;
+    p=p*2./clamp(dot(p.xyz,p.xyz),.15,1.)-vec4(0.5,0.5,0.8,0.);
+    p.xy*=rot(.5);
+    return p;
+}
+float screen(vec3 p) {
+    float d1=length(p.yz-vec2(.25,0.))-.5;
+    float d2=length(p.yz-vec2(.25,2.))-.5;
+    return min(max(d1,abs(p.x-.3)-.01),max(d2,abs(p.x+2.3)-.01));
+}
+float de(vec3 pos) {
+    vec3 tpos=pos;
+    tpos.z=abs(2.-mod(tpos.z,4.));
+    vec4 p=vec4(tpos,1.5);
+    float y=max(0.,.35-abs(pos.y-3.35))/.35;
+
+    for (int i=0; i<8; i++) {p=formula(p);}
+    float fr=max(-tpos.x-4.,(length(max(vec2(0.),p.yz-3.)))/p.w);
+
+    float sc=screen(tpos);
+    return min(sc,fr);
+}
+
+#define EPSILON   0.0015
+vec3 norm(vec3 p) { // to get the normal vector for a point in space, this function evaluates the gradient of the distance function
+#define METHOD 2
+#if METHOD == 0 
+    // tetrahedron version, unknown source - 4 evaluations
+    vec2 e = vec2(1,-1) * EPSILON;
+    return normalize(e.xyy*de(p+e.xyy)+e.yyx*de(p+e.yyx)+e.yxy*de(p+e.yxy)+e.xxx*de(p+e.xxx));
+
+#elif METHOD == 1
+    // by iq = more efficient, 4 evaluations
+    vec2 e = vec2( EPSILON, 0.); // computes the gradient of the estimator function
+    return normalize( vec3(de(p)) - vec3( de(p-e.xyy), de(p-e.yxy), de(p-e.yyx) ));
+
+#elif METHOD == 2
+    // by iq - less efficient, 6 evaluations
+    vec3 eps = vec3(EPSILON,0.0,0.0);
+    return normalize( vec3(
+                          de(p+eps.xyy) - de(p-eps.xyy),
+                          de(p+eps.yxy) - de(p-eps.yxy),
+                          de(p+eps.yyx) - de(p-eps.yyx)));
+#endif
+}
+
+
+float calcAO( in vec3 pos, in vec3 nor )
+{
+    float occ = 0.0;
+    float sca = 1.0;
+    for( int i=0; i<5; i++ )
+    {
+        float h = 0.001 + 0.15*float(i)/4.0;
+        float d = de( pos + h*nor );
+        occ += (h-d)*sca;
+        sca *= 0.95;
+    }
+    return clamp( 1.0 - 1.5*occ, 0.0, 1.0 );
+}
+
+
+
+irec is_inside(){  // check Documentation tab for details 
+
+ irec temp;
+ 
+ float scalar = 4.;
+ myloc *= scalar;
+
+ temp.draw  = false;   // is this voxel's value going to change?
+ temp.color = vec4(0); // what should its color be?
+ temp.mask  = 0;       // how much do you wish to mask?
+
+int hitcount = 0;
+for(int i = 0; i < 32; i++){
+	vec3 pos = myloc + 0.618 * scalar * blue(ivec2(i*int(myloc.x))).xyz;
+	if(de(pos) < EPSILON){
+		temp.draw = true;
+		//temp.color = vec4((0.5*norm(myloc))+vec3(0.5),0.75);
+		temp.color.xyz += vec3(1)*calcAO(pos,norm(pos));
+		temp.color.a += 0.75;
+		hitcount++;
+	}
+}
+
+if(hitcount > 0)
+	temp.color.rgba /= float(hitcount);
+//temp.color = vec4(vec3(0.5*hitcount), 0.75);
+
+//temp.color = vec4(vec3(de(myloc)), 0.75);
+//temp.draw = true;
+
+ return temp;
+
+}
+
+

@@ -112,7 +112,7 @@ public:
                                          glm::vec4 initial_ray_intensity,
                                          float decay_power);
 
-  float compute_fake_GI(float factor, glm::vec4 sky_intensity, float thresh);
+  float compute_fake_GI(float factor, glm::vec4 sky_intensity, float thresh, int stochastic);
 
   float compute_ambient_occlusion(int radius);
 
@@ -193,7 +193,7 @@ public:
 
   // --
 
-  std::string compile_user_script(std::string text);
+  std::string compile_user_script(std::string text, int samples);
   std::string run_user_script();
 
   // --
@@ -254,7 +254,8 @@ private:
   // OpenGL Data
   // the two versions of the raycast shader
   GLuint display_compute_image, display_compute_sampler;
-  GLuint display_compute_depth;    // experimental
+  GLuint display_compute_clepirelli; //  experimental
+  GLuint display_compute_depth;    // also experimental
   GLuint display_compute_position; // also experimental
 
   // blitting via fullscreen geometry

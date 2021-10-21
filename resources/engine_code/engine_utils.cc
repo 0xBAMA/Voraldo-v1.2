@@ -1,6 +1,11 @@
 #include "engine.h"
 // This contains the lower level code
 
+
+
+// helps access, kind of hacky keeping in global scope
+int user_samples = 1;
+
 // TinyOBJLoader - This has to be included in a .cc file, so it's here for right
 // now
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -185,8 +190,9 @@ void engine::SDL2_setup() {
   total_screen_height = dm.h;
 
   window = SDL_CreateWindow(
-      "Voraldo v1.2", 0, 0, total_screen_width, total_screen_height,
-      SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS);
+      "Voraldo v1.2", 100, 100, total_screen_width, total_screen_height,
+      // SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS);
+      SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN );
   SDL_ShowWindow(window);
 
   cout << "...done." << endl;
@@ -2076,8 +2082,11 @@ void engine::show_voraldo_menu(bool *show) {
         ImGui::ColorEdit3("sky color", (float *)&color0);
         ImGui::SliderFloat("intensity scale", &color0.w, 0.0, 5.0);
 
+        static int stochastic=1;
+        ImGui::SliderInt("stochastic", &stochastic, 0, 9);
+
         if (ImGui::SmallButton(" Apply GI ")) {
-          GPU_Data.compute_fake_GI(GI_scale_factor, color0, GI_alpha_thresh);
+          GPU_Data.compute_fake_GI(GI_scale_factor, color0, GI_alpha_thresh, stochastic);
         }
         ImGui::Separator();
         ImGui::EndTabItem();
@@ -2376,6 +2385,9 @@ void engine::draw_user_editor_tab_contents() {
         ClearLog();
       }
 
+      ImGui::SameLine();
+      ImGui::SliderInt("Samples", &user_samples, 1, 64);
+
       ImGui::Separator();
 
       // Reserve enough left-over height for 1 separator + 1 input text
@@ -2526,7 +2538,7 @@ void engine::draw_user_editor_tab_contents() {
       } else if (Stricmp(command_line, "compile") == 0) {
         // compile what's in the box
         AddLog("%s\n",
-               parent->GPU_Data.compile_user_script(std::string(text)).c_str());
+               parent->GPU_Data.compile_user_script(std::string(text), user_samples).c_str());
       } else {
         AddLog("'%s' not found.\n", command_line);
       }
@@ -2682,7 +2694,7 @@ void engine::draw_user_editor_tab_contents() {
     // report compilation result / errors / timing
     console.AddLog(
         "%s\n",
-        GPU_Data.compile_user_script(std::string(console.editor.GetText()))
+        GPU_Data.compile_user_script(std::string(console.editor.GetText()), user_samples)
             .c_str());
 
     // run the shader for every voxel and report timing

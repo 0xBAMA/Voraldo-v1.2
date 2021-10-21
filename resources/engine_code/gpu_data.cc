@@ -90,7 +90,7 @@ float GLContainer::parse_and_execute_JSON_op(json j) {
     compute_fake_GI(j["factor"],
                     glm::vec4(j["color"]["r"], j["color"]["g"], j["color"]["b"],
                               j["color"]["a"]),
-                    j["threshold"]);
+                    j["threshold"], j["stochastic"]);
   } else if (j["type"] == std::string("ambient_occlusion")) {
     compute_ambient_occlusion(j["radius"]);
   } else if (j["type"] == std::string("mash")) {
@@ -215,7 +215,7 @@ float GLContainer::parse_and_execute_JSON_op(json j) {
         glm::ivec3(j["movement"]["x"], j["movement"]["y"], j["movement"]["z"]),
         j["loop"], j["mode"]);
   } else if (j["type"] == std::string("compile_user_script")) {
-    compile_user_script(j["text"]);
+    compile_user_script(j["text"], j["samples"]);
   } else if (j["type"] == std::string("run_user_script")) {
     run_user_script();
   } else if (j["type"] == std::string("load")) {
@@ -749,6 +749,11 @@ void GLContainer::compile_shaders() {
   display_compute_sampler =
       CShader("resources/engine_code/shaders/raycast_sampler.cs.glsl").Program;
 
+
+      // raycasting with samplers, adapted from clepirelli's method
+  display_compute_clepirelli =
+    CShader("resources/engine_code/shaders/raycast_clepirelli.cs.glsl").Program;
+
   // raycasting with depth visualization
   display_compute_depth =
       CShader("resources/engine_code/shaders/raycast_sampler_depth.cs.glsl")
@@ -1211,6 +1216,8 @@ void GLContainer::load_textures() {
   // sets the texture filtering to linear
   main_block_linear_filter();
 
+  // display_shader_program = display_compute_clepirelli;
+
   // generate a mipmap for the front RGBA buffer
   color_mipmap_gen();
   light_mipmap_gen();
@@ -1431,7 +1438,7 @@ float GLContainer::compute_new_directional_lighting(float theta, float phi,
 
 // fake GI
 float GLContainer::compute_fake_GI(float factor, glm::vec4 color,
-                                   float thresh) {
+                                   float thresh, int stochastic) {
   auto t1 = std::chrono::high_resolution_clock::now();
   json j;
   j["type"] = "fake_GI";
@@ -1450,6 +1457,7 @@ float GLContainer::compute_fake_GI(float factor, glm::vec4 color,
 
   glUniform1i(glGetUniformLocation(fakeGI_compute, "current"), 2 + tex_offset);
   glUniform1i(glGetUniformLocation(fakeGI_compute, "lighting"), 6);
+  glUniform1i(glGetUniformLocation(fakeGI_compute, "type"), stochastic);
 
   glUniform1f(glGetUniformLocation(fakeGI_compute, "scale_factor"), factor);
   glUniform1f(glGetUniformLocation(fakeGI_compute, "alpha_thresh"), thresh);
@@ -1479,6 +1487,7 @@ float GLContainer::compute_fake_GI(float factor, glm::vec4 color,
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
   }
   auto t2 = std::chrono::high_resolution_clock::now();
+  cout << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() << endl;
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
@@ -2503,9 +2512,10 @@ float GLContainer::shift(glm::ivec3 movement, bool loop, int mode) {
   return std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 }
 
-std::string GLContainer::compile_user_script(std::string text) {
+std::string GLContainer::compile_user_script(std::string text, int samples) {
   json j;
   j["type"] = "compile_user_script";
+  j["samples"] = samples;
   j["text"] = text;
   log(j.dump());
 
@@ -2520,10 +2530,10 @@ std::string GLContainer::compile_user_script(std::string text) {
   std::string body{ibitr<char>(body_file), ibitr<char>()};
 
   // header has primitives + operators
-  // text has user supplied is_inside()
+  // text has user supplied is_inside(), and sample count
   // body is the assignment logic that deals with masking
 
-  std::string program_string = header + text + body;
+  std::string program_string = header + text + std::string("\n#define NUM ") + std::to_string(samples) + body;
 
   // assign shader handle to the user_compute
   auto shader = UShader(program_string);
