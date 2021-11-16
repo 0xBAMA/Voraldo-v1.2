@@ -190,7 +190,7 @@ void engine::SDL2_setup() {
   total_screen_height = dm.h;
 
   window = SDL_CreateWindow(
-      "Voraldo v1.2", 100, 100, total_screen_width, total_screen_height,
+      "Voraldo v1.2", 100, 100, total_screen_width - 200, total_screen_height - 200,
       // SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS);
       SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN );
   SDL_ShowWindow(window);

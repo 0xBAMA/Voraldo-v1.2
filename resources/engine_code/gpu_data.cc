@@ -571,6 +571,11 @@ void GLContainer::display_block() {
 
   if (redraw_flag) {
 
+    GLuint64 startTime, stopTime;
+    GLuint queryID[2];
+    glGenQueries( 2, queryID );
+    glQueryCounter( queryID[0], GL_TIMESTAMP );
+
     auto t1 = std::chrono::high_resolution_clock::now();
 
     // regen mipmaps if needed
@@ -656,11 +661,20 @@ void GLContainer::display_block() {
     // make sure everything finishes before blitting
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
+    glQueryCounter( queryID[1], GL_TIMESTAMP );
+    GLint timeAvailable = 0;
+    while( !timeAvailable )
+      glGetQueryObjectiv( queryID[1], GL_QUERY_RESULT_AVAILABLE, &timeAvailable );
+
+    glGetQueryObjectui64v( queryID[0], GL_QUERY_RESULT, &startTime );
+    glGetQueryObjectui64v( queryID[1], GL_QUERY_RESULT, &stopTime );
+    float passTimeMs = ( stopTime - startTime ) / 1000000.;
+
     auto t2 = std::chrono::high_resolution_clock::now();
 
     cout << "tiled refresh took "
          << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count()
-         << " microseconds" << endl;
+         << " microseconds - GL reports " << passTimeMs << "ms" << endl;
 
     redraw_flag = false; // no need to draw anything again, till something changes
   }
