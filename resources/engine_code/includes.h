@@ -101,7 +101,7 @@ using json = nlohmann::json;
 // kinda shakes out to roughly 1spp
 
 // size of the temporal accumulation history
-#define NUM_FRAMES_HISTORY 10
+#define NUM_FRAMES_HISTORY 8
 
 // contains the OpenGL wrapper class
 #include "gpu_data.h"
@@ -115,12 +115,12 @@ using json = nlohmann::json;
 // #define pi 3.1415926535897932384626433832795028841971693993751058209749445923078164
 
 
-#define TRIPLE_MONITOR false // enable to span all three monitors
+// #define TRIPLE_MONITOR true // enable to span all three monitors
 
 
 // voxel dimension
-#define DIM 256
-// #define DIM 512
+// #define DIM 256
+#define DIM 512
 
 // supersampling factor for main display shader
 // #define SSFACTOR 5.0   // tanks performance
@@ -130,8 +130,8 @@ using json = nlohmann::json;
 // #define SSFACTOR 1.65
 // #define SSFACTOR 1.25 // small amount of multisampling
 // #define SSFACTOR 1.0  // no multisampling
-// #define SSFACTOR 0.64 // this is <1x multisampling
-#define SSFACTOR 0.32 // this is <1x multisampling
+#define SSFACTOR 0.64 // this is <1x multisampling
+// #define SSFACTOR 0.32 // this is <1x multisampling
 
 // for the tile based rendering - needs to be a multiple of 32
 #define TILESIZE 64

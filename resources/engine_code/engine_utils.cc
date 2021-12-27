@@ -184,16 +184,23 @@ void engine::SDL2_setup() {
   SDL_DisplayMode dm;
   SDL_GetDesktopDisplayMode(0, &dm);
 
-  // pulling these out because I'm going to try to span the whole screen with
-  // the window, in a way that's flexible on different resolution screens
+
+#ifndef TRIPLE_MONITOR
   total_screen_width = dm.w;
   total_screen_height = dm.h;
 
-  window = SDL_CreateWindow(
-      "Voraldo v1.2", 100, 100, total_screen_width - 200, total_screen_height - 200,
-      // SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS);
-      SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN );
+  window = SDL_CreateWindow( "Voraldo v1.2", total_screen_width, 0, total_screen_width, total_screen_height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS );
   SDL_ShowWindow(window);
+#else
+  total_screen_width = dm.w * 3;
+  total_screen_height = dm.h;
+
+  window = SDL_CreateWindow( "Voraldo v1.2", 0, 0, total_screen_width, total_screen_height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS );
+  SDL_ShowWindow(window);
+#endif
+
+
+
 
   cout << "...done." << endl;
 
@@ -2663,7 +2670,7 @@ void engine::draw_user_editor_tab_contents() {
         TextEditor::LanguageDefinition::GLSL());
 
     console.editor.SetPalette(TextEditor::GetDarkPalette());
-    // editor.SetPalette(TextEditor::GetLightPalette());
+    // console.editor.SetPalette(TextEditor::GetLightPalette());
     // editor.SetPalette(TextEditor::GetRetroBluePalette());
 
     console.editor.SetText(std::string(console.origtext));
@@ -3231,7 +3238,7 @@ void engine::handle_events() {
       // this needs to be converted, also check against TRIPLE_MONITOR flag to
       // disable
 
-      if(TRIPLE_MONITOR)
+      #ifndef TRIPLE_MONITOR
       {
       // put on screen 1
       // ("Display 0")
@@ -3248,6 +3255,7 @@ void engine::handle_events() {
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3)
         SDL_SetWindowPosition(window, 2*total_screen_width, 0);
       }
+      #endif
 
       // snap to cardinal directions
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1)
