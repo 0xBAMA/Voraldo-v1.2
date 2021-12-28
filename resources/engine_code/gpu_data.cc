@@ -2734,7 +2734,7 @@ std::string GLContainer::vat(float flip, std::string rule, int initmode,
   return v.getShortRule();
 }
 
-float GLContainer::spaceship(int num, float palette[4][4], float spread, int minxyScale, int maxxyScale, int minzScale, int maxzScale, bool draw, int mask) {
+float GLContainer::spaceship(int num, float palette[ 4 ][ 4 ], float spread, int minxyScale, int maxxyScale, int minzScale, int maxzScale, bool draw, int mask) {
 	auto t1 = std::chrono::high_resolution_clock::now();
 	// this function isn't logging right now
 
