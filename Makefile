@@ -811,113 +811,113 @@ resources/VAT/mmccutchen_BigInt/BigUnsignedInABase.cc.s:
 	$(MAKE) -f CMakeFiles/BigInt.dir/build.make CMakeFiles/BigInt.dir/resources/VAT/mmccutchen_BigInt/BigUnsignedInABase.cc.s
 .PHONY : resources/VAT/mmccutchen_BigInt/BigUnsignedInABase.cc.s
 
-resources/engine_code/engine.o: resources/engine_code/engine.cc.o
+resources/engineCode/engine.o: resources/engineCode/engine.cc.o
 
-.PHONY : resources/engine_code/engine.o
-
-# target to build an object file
-resources/engine_code/engine.cc.o:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/engine.cc.o
-.PHONY : resources/engine_code/engine.cc.o
-
-resources/engine_code/engine.i: resources/engine_code/engine.cc.i
-
-.PHONY : resources/engine_code/engine.i
-
-# target to preprocess a source file
-resources/engine_code/engine.cc.i:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/engine.cc.i
-.PHONY : resources/engine_code/engine.cc.i
-
-resources/engine_code/engine.s: resources/engine_code/engine.cc.s
-
-.PHONY : resources/engine_code/engine.s
-
-# target to generate assembly for a file
-resources/engine_code/engine.cc.s:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/engine.cc.s
-.PHONY : resources/engine_code/engine.cc.s
-
-resources/engine_code/engine_utils.o: resources/engine_code/engine_utils.cc.o
-
-.PHONY : resources/engine_code/engine_utils.o
+.PHONY : resources/engineCode/engine.o
 
 # target to build an object file
-resources/engine_code/engine_utils.cc.o:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/engine_utils.cc.o
-.PHONY : resources/engine_code/engine_utils.cc.o
+resources/engineCode/engine.cc.o:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/engine.cc.o
+.PHONY : resources/engineCode/engine.cc.o
 
-resources/engine_code/engine_utils.i: resources/engine_code/engine_utils.cc.i
+resources/engineCode/engine.i: resources/engineCode/engine.cc.i
 
-.PHONY : resources/engine_code/engine_utils.i
+.PHONY : resources/engineCode/engine.i
 
 # target to preprocess a source file
-resources/engine_code/engine_utils.cc.i:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/engine_utils.cc.i
-.PHONY : resources/engine_code/engine_utils.cc.i
+resources/engineCode/engine.cc.i:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/engine.cc.i
+.PHONY : resources/engineCode/engine.cc.i
 
-resources/engine_code/engine_utils.s: resources/engine_code/engine_utils.cc.s
+resources/engineCode/engine.s: resources/engineCode/engine.cc.s
 
-.PHONY : resources/engine_code/engine_utils.s
+.PHONY : resources/engineCode/engine.s
 
 # target to generate assembly for a file
-resources/engine_code/engine_utils.cc.s:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/engine_utils.cc.s
-.PHONY : resources/engine_code/engine_utils.cc.s
+resources/engineCode/engine.cc.s:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/engine.cc.s
+.PHONY : resources/engineCode/engine.cc.s
 
-resources/engine_code/gpu_data.o: resources/engine_code/gpu_data.cc.o
+resources/engineCode/engine_utils.o: resources/engineCode/engine_utils.cc.o
 
-.PHONY : resources/engine_code/gpu_data.o
+.PHONY : resources/engineCode/engine_utils.o
 
 # target to build an object file
-resources/engine_code/gpu_data.cc.o:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/gpu_data.cc.o
-.PHONY : resources/engine_code/gpu_data.cc.o
+resources/engineCode/engine_utils.cc.o:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/engine_utils.cc.o
+.PHONY : resources/engineCode/engine_utils.cc.o
 
-resources/engine_code/gpu_data.i: resources/engine_code/gpu_data.cc.i
+resources/engineCode/engine_utils.i: resources/engineCode/engine_utils.cc.i
 
-.PHONY : resources/engine_code/gpu_data.i
+.PHONY : resources/engineCode/engine_utils.i
 
 # target to preprocess a source file
-resources/engine_code/gpu_data.cc.i:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/gpu_data.cc.i
-.PHONY : resources/engine_code/gpu_data.cc.i
+resources/engineCode/engine_utils.cc.i:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/engine_utils.cc.i
+.PHONY : resources/engineCode/engine_utils.cc.i
 
-resources/engine_code/gpu_data.s: resources/engine_code/gpu_data.cc.s
+resources/engineCode/engine_utils.s: resources/engineCode/engine_utils.cc.s
 
-.PHONY : resources/engine_code/gpu_data.s
+.PHONY : resources/engineCode/engine_utils.s
 
 # target to generate assembly for a file
-resources/engine_code/gpu_data.cc.s:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/gpu_data.cc.s
-.PHONY : resources/engine_code/gpu_data.cc.s
+resources/engineCode/engine_utils.cc.s:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/engine_utils.cc.s
+.PHONY : resources/engineCode/engine_utils.cc.s
 
-resources/engine_code/main.o: resources/engine_code/main.cc.o
+resources/engineCode/gpu_data.o: resources/engineCode/gpu_data.cc.o
 
-.PHONY : resources/engine_code/main.o
+.PHONY : resources/engineCode/gpu_data.o
 
 # target to build an object file
-resources/engine_code/main.cc.o:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/main.cc.o
-.PHONY : resources/engine_code/main.cc.o
+resources/engineCode/gpu_data.cc.o:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/gpu_data.cc.o
+.PHONY : resources/engineCode/gpu_data.cc.o
 
-resources/engine_code/main.i: resources/engine_code/main.cc.i
+resources/engineCode/gpu_data.i: resources/engineCode/gpu_data.cc.i
 
-.PHONY : resources/engine_code/main.i
+.PHONY : resources/engineCode/gpu_data.i
 
 # target to preprocess a source file
-resources/engine_code/main.cc.i:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/main.cc.i
-.PHONY : resources/engine_code/main.cc.i
+resources/engineCode/gpu_data.cc.i:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/gpu_data.cc.i
+.PHONY : resources/engineCode/gpu_data.cc.i
 
-resources/engine_code/main.s: resources/engine_code/main.cc.s
+resources/engineCode/gpu_data.s: resources/engineCode/gpu_data.cc.s
 
-.PHONY : resources/engine_code/main.s
+.PHONY : resources/engineCode/gpu_data.s
 
 # target to generate assembly for a file
-resources/engine_code/main.cc.s:
-	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engine_code/main.cc.s
-.PHONY : resources/engine_code/main.cc.s
+resources/engineCode/gpu_data.cc.s:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/gpu_data.cc.s
+.PHONY : resources/engineCode/gpu_data.cc.s
+
+resources/engineCode/main.o: resources/engineCode/main.cc.o
+
+.PHONY : resources/engineCode/main.o
+
+# target to build an object file
+resources/engineCode/main.cc.o:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/main.cc.o
+.PHONY : resources/engineCode/main.cc.o
+
+resources/engineCode/main.i: resources/engineCode/main.cc.i
+
+.PHONY : resources/engineCode/main.i
+
+# target to preprocess a source file
+resources/engineCode/main.cc.i:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/main.cc.i
+.PHONY : resources/engineCode/main.cc.i
+
+resources/engineCode/main.s: resources/engineCode/main.cc.s
+
+.PHONY : resources/engineCode/main.s
+
+# target to generate assembly for a file
+resources/engineCode/main.cc.s:
+	$(MAKE) -f CMakeFiles/exe.dir/build.make CMakeFiles/exe.dir/resources/engineCode/main.cc.s
+.PHONY : resources/engineCode/main.cc.s
 
 resources/lodev_lodePNG/lodepng.o: resources/lodev_lodePNG/lodepng.cc.o
 
@@ -1310,18 +1310,18 @@ help:
 	@echo "... resources/VAT/mmccutchen_BigInt/BigUnsignedInABase.o"
 	@echo "... resources/VAT/mmccutchen_BigInt/BigUnsignedInABase.i"
 	@echo "... resources/VAT/mmccutchen_BigInt/BigUnsignedInABase.s"
-	@echo "... resources/engine_code/engine.o"
-	@echo "... resources/engine_code/engine.i"
-	@echo "... resources/engine_code/engine.s"
-	@echo "... resources/engine_code/engine_utils.o"
-	@echo "... resources/engine_code/engine_utils.i"
-	@echo "... resources/engine_code/engine_utils.s"
-	@echo "... resources/engine_code/gpu_data.o"
-	@echo "... resources/engine_code/gpu_data.i"
-	@echo "... resources/engine_code/gpu_data.s"
-	@echo "... resources/engine_code/main.o"
-	@echo "... resources/engine_code/main.i"
-	@echo "... resources/engine_code/main.s"
+	@echo "... resources/engineCode/engine.o"
+	@echo "... resources/engineCode/engine.i"
+	@echo "... resources/engineCode/engine.s"
+	@echo "... resources/engineCode/engine_utils.o"
+	@echo "... resources/engineCode/engine_utils.i"
+	@echo "... resources/engineCode/engine_utils.s"
+	@echo "... resources/engineCode/gpu_data.o"
+	@echo "... resources/engineCode/gpu_data.i"
+	@echo "... resources/engineCode/gpu_data.s"
+	@echo "... resources/engineCode/main.o"
+	@echo "... resources/engineCode/main.i"
+	@echo "... resources/engineCode/main.s"
 	@echo "... resources/lodev_lodePNG/lodepng.o"
 	@echo "... resources/lodev_lodePNG/lodepng.i"
 	@echo "... resources/lodev_lodePNG/lodepng.s"

@@ -31,7 +31,7 @@ find_package(OpenGL REQUIRED)
 add_library(opengl INTERFACE)
 target_link_libraries(opengl INTERFACE OpenGL::GL)
 
-# FastNoise2 
+# FastNoise2
 add_subdirectory(${PROJECT_SOURCE_DIR}/resources/FastNoise2)
 
 # this is for ImGUI
@@ -42,7 +42,7 @@ add_library(imgui
   resources/ocornut_imgui/imgui_demo.cc
   resources/ocornut_imgui/imgui_draw.cc
   resources/ocornut_imgui/imgui_widgets.cc
-  resources/ocornut_imgui/imgui_tables.cc  
+  resources/ocornut_imgui/imgui_tables.cc
   resources/ocornut_imgui/imgui_gl3w.c
   resources/ocornut_imgui/TextEditor.cpp
   resources/ocornut_imgui/ImGuizmo.cpp)
@@ -67,12 +67,11 @@ target_compile_options(CompilerFlags INTERFACE -Wall -O3 -std=c++17 -lGL -lstdc+
 
 # this builds the final executable
 add_executable(exe
-  resources/engine_code/main.cc
-  resources/engine_code/gpu_data.cc
-  resources/engine_code/engine.cc
-  resources/engine_code/engine_utils.cc
+  resources/engineCode/main.cc
+  resources/engineCode/gpu_data.cc
+  resources/engineCode/engine.cc
+  resources/engineCode/engine_utils.cc
   resources/perlin/perlin.cc
-  resources/lodev_lodePNG/lodepng.cc)
+  resources/lodevLodePNG/lodepng.cc)
 
 target_link_libraries(exe PUBLIC imgui BigInt opengl voraldo_sdl2 stdc++fs FastNoise CompilerFlags)
-

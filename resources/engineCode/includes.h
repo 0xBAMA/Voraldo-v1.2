@@ -63,7 +63,7 @@ using std::flush;
 #include <SDL2/SDL_opengl.h>
 
 // png loading library - very powerful
-#include "../lodev_lodePNG/lodepng.h"
+#include "../lodevLodePNG/lodepng.h"
 
 // shader compilation wrapper - may need to be extended
 #include "shader.h"
