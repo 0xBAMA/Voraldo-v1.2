@@ -3351,8 +3351,6 @@ void engine::handle_events() {
 			GPU_Data.rotate_vertical( -valueRaw.y * smallstep * 0.01 );
 			GPU_Data.set_redraw_flag();
 		}
-
-
   }
 }
 
