@@ -3175,13 +3175,13 @@ void engine::handle_events() {
     // with intended keyboard usage (e.g. typing in numbers triggering the
     // snap-to-view behavior, every time you hit 's' it triggers the screenshot
     // behavior...) - really quite elegant the way imgui handles it
+		float smallstep = 0.008;
+		float largestep = 0.120;
     if (!ImGui::GetIO().WantCaptureKeyboard) {
       if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE &&
           SDL_GetModState() & KMOD_SHIFT)
         pquit = true; // force quit
 
-      float smallstep = 0.008;
-      float largestep = 0.120;
 
       if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_UP) {
         if (SDL_GetModState() & KMOD_SHIFT) {
@@ -3326,6 +3326,30 @@ void engine::handle_events() {
         }
       }
     }
+
+// click and drag impl
+		/*if ( event.type == SDL_MOUSEBUTTONUP && event.button.state == SDL_RELEASED && ImGui::IsMouseDragging( 0 ) ){
+			ImVec2 value_with_lock_threshold = ImGui::GetMouseDragDelta(0);
+			GPU_Data.clickndragx -= value_with_lock_threshold.x;
+			GPU_Data.clickndragy += value_with_lock_threshold.y;
+			cout << " moved x by " << value_with_lock_threshold.x << " and y by " << value_with_lock_threshold.y << endl;
+		}*/
+
+		ImVec2 valueRaw = ImGui::GetMouseDragDelta( 0, 0.0f );
+		if ( ( valueRaw.x != 0 || valueRaw.y != 0 ) && !ImGui::GetIO().WantCaptureMouse ) {
+			GPU_Data.clickndragx -= valueRaw.x / 100.0;
+			GPU_Data.clickndragy += valueRaw.y / 100.0;
+			GPU_Data.set_redraw_flag();
+		}
+
+		valueRaw = ImGui::GetMouseDragDelta( 1, 0.0f );
+		if ( ( valueRaw.x != 0 || valueRaw.y != 0 ) && !ImGui::GetIO().WantCaptureMouse ) {
+			GPU_Data.rotate_horizontal( -valueRaw.x * smallstep * 0.01 );
+			GPU_Data.rotate_vertical( -valueRaw.y * smallstep * 0.01 );
+			GPU_Data.set_redraw_flag();
+		}
+
+
   }
 }
 
