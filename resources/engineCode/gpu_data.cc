@@ -745,89 +745,89 @@ void GLContainer::display_orientation_widget() {
 void GLContainer::compile_shaders() {
 
   // display geometry
-  display_shader_program = Shader("resources/engine_code/shaders/blit.vs.glsl",
-                                  "resources/engine_code/shaders/blit.fs.glsl")
+  display_shader_program = Shader("resources/engineCode/shaders/blit.vs.glsl",
+                                  "resources/engineCode/shaders/blit.fs.glsl")
                                .Program;
 
   // orientation widget
   owidget_shader_program =
-      Shader("resources/engine_code/shaders/widget.vs.glsl",
-             "resources/engine_code/shaders/widget.fs.glsl")
+      Shader("resources/engineCode/shaders/widget.vs.glsl",
+             "resources/engineCode/shaders/widget.fs.glsl")
           .Program;
 
   // raycasting
   display_compute_image =
-      CShader("resources/engine_code/shaders/raycast.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/raycast.cs.glsl").Program;
 
   // raycasting, but with samplers
   display_compute_sampler =
-      CShader("resources/engine_code/shaders/raycast_sampler.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/raycast_sampler.cs.glsl").Program;
 
 
       // raycasting with samplers, adapted from clepirelli's method
   display_compute_clepirelli =
-    CShader("resources/engine_code/shaders/raycast_clepirelli.cs.glsl").Program;
+    CShader("resources/engineCode/shaders/raycast_clepirelli.cs.glsl").Program;
 
   // raycasting with depth visualization
   display_compute_depth =
-      CShader("resources/engine_code/shaders/raycast_sampler_depth.cs.glsl")
+      CShader("resources/engineCode/shaders/raycast_sampler_depth.cs.glsl")
           .Program;
   // raycasting with position visualization
   display_compute_position =
-      CShader("resources/engine_code/shaders/raycast_sampler_position.cs.glsl")
+      CShader("resources/engineCode/shaders/raycast_sampler_position.cs.glsl")
           .Program;
 
   // lighting functions
   lighting_clear_compute =
-      CShader("resources/engine_code/shaders/light_clear.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/light_clear.cs.glsl").Program;
   point_lighting_compute =
-      CShader("resources/engine_code/shaders/point_light.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/point_light.cs.glsl").Program;
   directional_lighting_compute =
-      CShader("resources/engine_code/shaders/directional_light.cs.glsl")
+      CShader("resources/engineCode/shaders/directional_light.cs.glsl")
           .Program;
   fakeGI_compute =
-      CShader("resources/engine_code/shaders/fakeGI.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/fakeGI.cs.glsl").Program;
   ambient_occlusion_compute =
-      CShader("resources/engine_code/shaders/ambient_occlusion.cs.glsl")
+      CShader("resources/engineCode/shaders/ambient_occlusion.cs.glsl")
           .Program;
-  mash_compute = CShader("resources/engine_code/shaders/mash.cs.glsl").Program;
+  mash_compute = CShader("resources/engineCode/shaders/mash.cs.glsl").Program;
 
   // utility functions
   copy_loadbuff_compute =
-      CShader("resources/engine_code/shaders/copy_loadbuff.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/copy_loadbuff.cs.glsl").Program;
   clear_all_compute =
-      CShader("resources/engine_code/shaders/clear_all.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/clear_all.cs.glsl").Program;
   unmask_all_compute =
-      CShader("resources/engine_code/shaders/unmask_all.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/unmask_all.cs.glsl").Program;
   invert_mask_compute =
-      CShader("resources/engine_code/shaders/invert_mask.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/invert_mask.cs.glsl").Program;
   mask_by_color_compute =
-      CShader("resources/engine_code/shaders/mask_by_color.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/mask_by_color.cs.glsl").Program;
   box_blur_compute =
-      CShader("resources/engine_code/shaders/box_blur.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/box_blur.cs.glsl").Program;
   gaussian_blur_compute =
-      CShader("resources/engine_code/shaders/gauss_blur.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/gauss_blur.cs.glsl").Program;
   shift_compute =
-      CShader("resources/engine_code/shaders/shift.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/shift.cs.glsl").Program;
 
   // shape functions
-  aabb_compute = CShader("resources/engine_code/shaders/aabb.cs.glsl").Program;
+  aabb_compute = CShader("resources/engineCode/shaders/aabb.cs.glsl").Program;
   cuboid_compute =
-      CShader("resources/engine_code/shaders/cuboid.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/cuboid.cs.glsl").Program;
   cylinder_compute =
-      CShader("resources/engine_code/shaders/cylinder.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/cylinder.cs.glsl").Program;
   ellipsoid_compute =
-      CShader("resources/engine_code/shaders/ellipsoid.cs.glsl").Program;
-  grid_compute = CShader("resources/engine_code/shaders/grid.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/ellipsoid.cs.glsl").Program;
+  grid_compute = CShader("resources/engineCode/shaders/grid.cs.glsl").Program;
   heightmap_compute =
-      CShader("resources/engine_code/shaders/heightmap.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/heightmap.cs.glsl").Program;
   noise_compute =
-      CShader("resources/engine_code/shaders/noise.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/noise.cs.glsl").Program;
   sphere_compute =
-      CShader("resources/engine_code/shaders/sphere.cs.glsl").Program;
-  tube_compute = CShader("resources/engine_code/shaders/tube.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/sphere.cs.glsl").Program;
+  tube_compute = CShader("resources/engineCode/shaders/tube.cs.glsl").Program;
   triangle_compute =
-      CShader("resources/engine_code/shaders/triangle.cs.glsl").Program;
+      CShader("resources/engineCode/shaders/triangle.cs.glsl").Program;
 }
 
 void GLContainer::buffer_geometry() {
@@ -2534,9 +2534,9 @@ std::string GLContainer::compile_user_script(std::string text, int samples) {
   log(j.dump());
 
   std::ifstream header_file{
-      "resources/engine_code/shaders/user_script_header.h.glsl"};
+      "resources/engineCode/shaders/user_script_header.h.glsl"};
   std::ifstream body_file{
-      "resources/engine_code/shaders/user_script_body.cs.glsl"};
+      "resources/engineCode/shaders/user_script_body.cs.glsl"};
 
 #define ibitr std::istreambuf_iterator
 

@@ -63,7 +63,7 @@ using std::flush;
 #include <SDL2/SDL_opengl.h>
 
 // png loading library - very powerful
-#include "../lodev_lodePNG/lodepng.h"
+#include "../lodevLodePNG/lodepng.h"
 
 // shader compilation wrapper - may need to be extended
 #include "shader.h"
@@ -119,8 +119,8 @@ using json = nlohmann::json;
 
 
 // voxel dimension
-// #define DIM 256
-#define DIM 512
+#define DIM 256
+// #define DIM 512
 
 // supersampling factor for main display shader
 // #define SSFACTOR 5.0   // tanks performance
@@ -130,8 +130,8 @@ using json = nlohmann::json;
 // #define SSFACTOR 1.65
 // #define SSFACTOR 1.25 // small amount of multisampling
 // #define SSFACTOR 1.0  // no multisampling
-#define SSFACTOR 0.64 // this is <1x multisampling
-// #define SSFACTOR 0.32 // this is <1x multisampling
+// #define SSFACTOR 0.64 // this is <1x multisampling
+#define SSFACTOR 0.32 // this is <1x multisampling
 
 // for the tile based rendering - needs to be a multiple of 32
 #define TILESIZE 64

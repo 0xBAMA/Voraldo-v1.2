@@ -189,8 +189,11 @@ void engine::SDL2_setup() {
   total_screen_width = dm.w;
   total_screen_height = dm.h;
 
-  window = SDL_CreateWindow( "Voraldo v1.2", total_screen_width, 0, total_screen_width, total_screen_height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS );
+  // window = SDL_CreateWindow( "Voraldo v1.2", total_screen_width, 0, total_screen_width, total_screen_height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS );
+  window = SDL_CreateWindow( "Voraldo v1.2", 0, 0, total_screen_width, total_screen_height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS );
   SDL_ShowWindow(window);
+  // SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN_DESKTOP );
+  SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN );
 #else
   total_screen_width = dm.w * 3;
   total_screen_height = dm.h;

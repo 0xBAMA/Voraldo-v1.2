@@ -1,7 +1,7 @@
 #ifndef DEBUG
 #define DEBUG
 
-#include "../engine_code/includes.h"
+#include "../engineCode/includes.h"
 
 // gl debug dump
 /* void GLDEBUGPROC MessageCallback( GLenum source, */
